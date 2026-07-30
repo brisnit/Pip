@@ -5,7 +5,7 @@ import { PublicShell } from "@/components/layout/shells";
 import { Card, CardBody, Notice } from "@/components/ui/primitives";
 import { aiStatus } from "@/lib/ai";
 
-export const metadata: Metadata = { title: "About this prototype" };
+export const metadata: Metadata = { title: "About" };
 
 // Reports the live AI provider configuration, so it must not be prerendered.
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default function AboutPage() {
 
   return (
     <PublicShell>
-      <h1 className="font-serif text-3xl">About this prototype</h1>
+      <h1 className="font-serif text-3xl">About</h1>
       <p className="mt-4 text-lg text-ink-600">{product.description}</p>
 
       <h2 className="mt-10 font-serif text-xl">What it does</h2>
@@ -27,51 +27,6 @@ export default function AboutPage() {
         student, an aggregate picture for the class, and a set of concrete support
         recommendations drawn from the professor&rsquo;s own published material.
       </p>
-
-      <h2 className="mt-10 font-serif text-xl">What it deliberately does not do</h2>
-      <ul className="mt-3 space-y-2 text-ink-600">
-        <li>
-          <strong>No authentication.</strong> There are no accounts, passwords or
-          single sign-on. The professor portal is open, and students identify
-          themselves by typing a name. Anyone with a course link can enter.
-        </li>
-        <li>
-          <strong>No student information system integration.</strong> Nothing here
-          reads from or writes to any registrar, LMS or grading system.
-        </li>
-        <li>
-          <strong>No grades.</strong> Readiness statuses are prototype signals.
-          They carry no academic weight and are not reported anywhere.
-        </li>
-        <li>
-          <strong>No file storage.</strong> Uploads record filename and size only.
-          The metadata-only adapter is honest about this wherever it appears.
-        </li>
-        <li>
-          <strong>No video hosting.</strong> Lectures embed or link to an external
-          provider. Where no real URL exists, the player says so.
-        </li>
-        <li>
-          <strong>No real notifications.</strong> Support requests create internal
-          records. No email or SMS is sent, and no calendar is booked.
-        </li>
-        <li>
-          <strong>No essay grading.</strong> Short-answer and essay responses are
-          stored verbatim for a human to read. The application does not score
-          theological writing.
-        </li>
-      </ul>
-
-      <Notice tone="privacy" title="Not FERPA compliant" className="mt-8">
-        This prototype is not FERPA compliant and must not hold real student
-        records. Production use would require legal, security, operational and
-        institutional review — including authentication, role-based access, audit
-        logging, retention policy and an institutional agreement. See{" "}
-        <code className="rounded bg-white/60 px-1 py-0.5 text-[0.85em]">
-          docs/privacy-and-student-data-considerations.md
-        </code>{" "}
-        in the repository.
-      </Notice>
 
       <h2 className="mt-10 font-serif text-xl">How readiness is calculated</h2>
       <p className="mt-3 text-ink-600">
@@ -94,6 +49,11 @@ export default function AboutPage() {
         shows the reasoning behind a status. Professors can override any status,
         with a required explanation.
       </p>
+      <p className="mt-3 text-ink-600">
+        Readiness is not a grade. It carries no academic weight, is not reported to
+        any registrar, and exists to prompt a conversation early rather than to
+        judge anyone.
+      </p>
 
       <h2 className="mt-10 font-serif text-xl">Privacy of student notes</h2>
       <p className="mt-3 text-ink-600">
@@ -113,29 +73,67 @@ export default function AboutPage() {
           </p>
           {ai.requested && !ai.configured ? (
             <p className="mt-2 text-sm text-attention-600">
-              <code>AI_PROVIDER</code> is set to{" "}
-              <code>{ai.requested}</code>, which is not implemented in this
-              prototype. Deterministic sample output is being used instead.
+              <code>AI_PROVIDER</code> is set to <code>{ai.requested}</code>, which
+              is not implemented. Deterministic output is being used instead.
             </p>
           ) : null}
           <p className="mt-2 text-sm text-ink-500">
             Every AI-assisted feature runs through a provider interface. With no
-            provider configured, the application returns deterministic output
-            assembled from content the professor already entered, labelled as
-            sample output wherever it appears. It does not claim a model is
-            running. Course-wide generated material stays a draft until a
-            professor approves it.
+            provider connected, the application restructures content the professor
+            already entered and labels it as such wherever it appears — it does not
+            imply a model is running. Course-wide generated material stays a draft
+            until a professor approves it.
           </p>
         </CardBody>
       </Card>
 
+      <h2 className="mt-10 font-serif text-xl">Current scope</h2>
+      <p className="mt-3 text-ink-600">
+        This is an early build, and some things it appears to do are deliberately
+        not connected yet:
+      </p>
+      <ul className="mt-3 space-y-2 text-ink-600">
+        <li>
+          <strong>No sign-in.</strong> Professors enter directly and students
+          identify themselves by name. Institutional single sign-on is the first
+          item of production work.
+        </li>
+        <li>
+          <strong>No file storage.</strong> Materials record a filename and size;
+          nothing is uploaded, and every screen showing a filename says so.
+        </li>
+        <li>
+          <strong>No video hosting.</strong> Lectures embed or link to an external
+          provider.
+        </li>
+        <li>
+          <strong>No notifications or scheduling.</strong> Support requests create
+          records for the professor to act on; nothing is emailed or booked.
+        </li>
+        <li>
+          <strong>No automated grading of written work.</strong> Short answers and
+          essays are stored for a person to read.
+        </li>
+      </ul>
+      <p className="mt-3 text-ink-600">
+        Course and student data shown here is illustrative. Handling real student
+        records would require the security, access-control and institutional review
+        described in the project documentation.
+      </p>
+
+      <Notice tone="privacy" title="Student records" className="mt-8">
+        Before this holds real coursework, it needs authentication, role-based
+        access, audit logging, a retention policy, and legal and institutional
+        review — including FERPA. Those are scoped in the repository documentation
+        and are not yet built.
+      </Notice>
+
       <h2 className="mt-10 font-serif text-xl">Brand</h2>
       <p className="mt-3 text-ink-600">
         Colours, typography and the logo follow the {product.institution.name} style
-        guide supplied for this project. The logo is served from this application&rsquo;s
-        own origin, and the two typefaces — Noto Serif and Noto Sans — are downloaded at
-        build time and self-hosted, so no request goes to a third party while you are
-        using the prototype.
+        guide. The logo is served from this application&rsquo;s own origin, and the
+        two typefaces — Noto Serif and Noto Sans — are self-hosted, so no request
+        goes to a third party while you are using it.
       </p>
 
       <p className="mt-10">

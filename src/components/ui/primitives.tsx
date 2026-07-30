@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { product } from "@/config/product";
 import { cn } from "@/lib/cn";
 
 // Buttons --------------------------------------------------------------------
@@ -196,8 +197,12 @@ export function Badge({
   );
 }
 
-/** Marks a row or screen as seeded demonstration data. */
+/**
+ * Marks a row or screen as seeded demonstration data.
+ * Renders nothing while product.prototype.showNotices is off.
+ */
 export function DemoBadge({ className }: { className?: string }) {
+  if (!product.prototype.showNotices) return null;
   return (
     <Badge tone="neutral" className={className}>
       <span aria-hidden="true">◇</span> Demo data

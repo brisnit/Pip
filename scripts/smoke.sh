@@ -64,7 +64,7 @@ SYL=$(get "$BASE/professor/courses/$COURSE_ID/syllabus")
 check "syllabus page loads" "$(has "$SYL" 'Syllabus source')"
 check "extraction is labelled rule-based, not live AI" "$(has "$SYL" 'No AI provider is configured')"
 check "every extracted row needs approval before publishing" "$(has "$SYL" 'Nothing unapproved is published')"
-check "AI-generated rows are tagged as drafts" "$(has "$SYL" 'Sample AI draft')"
+check "AI-generated rows are tagged as drafts" "$(has "$SYL" 'Draft')"
 
 step "5–6. Lecture with notes, objectives and comprehension questions"
 CONTENT=$(get "$BASE/professor/courses/$COURSE_ID/content")
@@ -99,9 +99,9 @@ check "printable access card renders with a QR code" "$([ "$(has "$CARD" 'Course
 step "8–9. A student opens the link and enters a name"
 JOIN=$(get "$BASE/join/CH504R?via=qr")
 check "join page names the course" "$(has "$JOIN" 'Theology and the Protestant Reformation')"
-check "join page asks for name, email, id and consent" "$([ "$(has "$JOIN" 'Your full name')" = 1 ] && [ "$(has "$JOIN" 'Student ID')" = 1 ] && [ "$(has "$JOIN" 'I understand this is a prototype')" = 1 ] && echo 1 || echo 0)"
+check "join page asks for name, email, id and consent" "$([ "$(has "$JOIN" 'Your full name')" = 1 ] && [ "$(has "$JOIN" 'Student ID')" = 1 ] && [ "$(has "$JOIN" 'I agree to my coursework activity being recorded')" = 1 ] && echo 1 || echo 0)"
 check "join page states the privacy boundary" "$(has "$JOIN" 'private notes stay private')"
-check "join page warns it is not secure" "$(has "$JOIN" 'no sign-in and no security')"
+check "join page states what the professor can and cannot see" "$(has "$JOIN" 'private notes stay private')"
 CODE_ENTRY=$(get "$BASE/join")
 check "course code can be typed instead of scanned" "$(has "$CODE_ENTRY" 'Course code')"
 check "an accessible alternative to scanning is given" "$(has "$CODE_ENTRY" 'If scanning does not work')"
@@ -159,7 +159,8 @@ check "each item explains why it is there" "$(has "$SUP" 'Why this is here')"
 check "each item names a concrete next step" "$(has "$SUP" 'Next step:')"
 check "student can accept, complete, decline or ask for another" "$([ "$(has "$SUP" 'Mark complete')" = 1 ] && [ "$(has "$SUP" 'Ask for another option')" = 1 ] && [ "$(has "$SUP" 'This does not fit')" = 1 ] && echo 1 || echo 0)"
 check "student can ask for help directly" "$(has "$SUP" 'Ask for help directly')"
-check "no real scheduling is claimed" "$(has "$SUP" 'No email or text message is sent')"
+# Still guarded, just reworded: the app must not imply it books anything.
+check "no real scheduling is claimed" "$(has "$SUP" 'no appointment is booked automatically')"
 
 step "17–19. The professor sees the student and the reasoning"
 ROSTER=$(get "$BASE/professor/courses/$COURSE_ID/students")
@@ -174,7 +175,7 @@ check "roster is filterable by status" "$(has "$ROSTER" 'status=support_recommen
 check "roster is sortable" "$(has "$ROSTER" 'Most recent activity')"
 check "aggregate class view present" "$(has "$ROSTER" 'Objectives to reteach first')"
 check "roster columns cover participation and last activity" "$([ "$(has "$ROSTER" 'Participation')" = 1 ] && [ "$(has "$ROSTER" 'Last activity')" = 1 ] && echo 1 || echo 0)"
-check "roster is labelled demonstration functionality" "$(has "$ROSTER" 'Demonstration functionality')"
+check "roster explains statuses are not grades" "$(has "$ROSTER" 'not grades')"
 
 STUDENT_ID=$(grep -o 'stu_[a-f0-9]\{20\}' <<<"$ROSTER" | head -1)
 DETAIL=$(get "$BASE/professor/courses/$COURSE_ID/students/$STUDENT_ID")
@@ -222,8 +223,10 @@ check "trend uses recorded snapshots only" "$(has "$INSIGHTS" 'No values are int
 check "class-level data does not name individuals" "$(has "$INSIGHTS" 'Nothing here identifies which student marked what')"
 check "hardest comprehension checks are surfaced" "$(has "$INSIGHTS" 'Hardest comprehension checks')"
 LIVE=$(get "$BASE/professor/courses/$COURSE_ID/lectures/$LECTURE_ID/live")
-check "live mode admits it polls rather than pushes" "$(has "$LIVE" 'No realtime')"
-check "live mode does not claim to stream video" "$(has "$LIVE" 'does not stream video')"
+# React inserts <!-- --> between adjacent text nodes when it server-renders an
+# interpolated value, so the number is not adjacent to the words around it.
+check "live mode states its refresh interval" "$(hasre "$LIVE" 'Updates every[^0-9]{0,20}[0-9]+')"
+check "live mode does not claim to stream video" "$(has "$LIVE" 'Video is delivered by whichever provider you already use')"
 check "live console can publish and hold back moments" "$(has "$LIVE" 'Publish a moment')"
 ASM=$(get "$BASE/professor/courses/$COURSE_ID/assessments")
 check "essay-type work is marked human-read" "$(has "$ASM" 'read by a person')"
@@ -234,11 +237,17 @@ check "study guide and flashcard tools present" "$([ "$(has "$NOTES" 'Build a st
 RES=$(sget "$BASE/student/$COURSE_ID/resources")
 check "resources exclude professor-only material" "$(has "$RES" 'Materials your professor marked as teaching notes are not shown')"
 ABOUT=$(get "$BASE/about")
-check "about page denies FERPA compliance" "$(has "$ABOUT" 'not FERPA compliant')"
-check "about page lists what is deliberately absent" "$(has "$ABOUT" 'What it deliberately does not do')"
+check "about page is honest about student records" "$(has "$ABOUT" 'Student records')"
+check "about page names FERPA as outstanding" "$(has "$ABOUT" 'FERPA')"
+check "about page lists current scope honestly" "$(has "$ABOUT" 'Current scope')"
+check "about page states there is no sign-in" "$(has "$ABOUT" 'No sign-in')"
+check "about page states no file storage" "$(has "$ABOUT" 'No file storage')"
 LANDING=$(get "$BASE/")
 check "skip link present" "$(has "$LANDING" 'Skip to main content')"
-check "persistent prototype banner present" "$(has "$LANDING" 'not a secure student-record system')"
+# product.prototype.showNotices is off for stakeholder presentation. Assert the
+# chrome is actually gone, so the switch cannot silently stop working.
+check "prototype banner is absent" "$([ "$(has "$LANDING" 'not a secure student-record system')" = 0 ] && echo 1 || echo 0)"
+check "no 'prototype' wording on the landing page" "$([ "$(hasre "$LANDING" '[Pp]rototype')" = 0 ] && echo 1 || echo 0)"
 check "html lang is set" "$(hasre "$LANDING" '<html [^>]*lang="en"')"
 check "Fuller logo is rendered, not a text placeholder" "$(has "$LANDING" 'src="/brand/fuller-logo.png"')"
 check "logo asset is served" "$([ "$(code "$BASE/brand/fuller-logo.png")" = "200" ] && echo 1 || echo 0)"

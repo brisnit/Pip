@@ -31,11 +31,11 @@ const notoSans = Noto_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: `${product.name} — ${product.institution.name} prototype`,
+    default: `${product.name} — ${product.institution.name}`,
     template: `%s · ${product.shortName}`,
   },
   description: product.description,
-  // A prototype holding demonstration student records should not be indexed.
+  // Not for public indexing while this is being reviewed internally.
   robots: { index: false, follow: false },
 };
 

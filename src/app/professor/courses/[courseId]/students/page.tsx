@@ -7,7 +7,6 @@ import {
   CardBody,
   CardHeader,
   EmptyState,
-  Notice,
   SectionHeading,
 } from "@/components/ui/primitives";
 import {
@@ -128,12 +127,6 @@ export default async function StudentsPage({ params, searchParams }: Props) {
         title="Students"
         description="Prototype readiness signals from recorded coursework activity. Not grades, and not a judgement about any student."
       />
-
-      <Notice tone="privacy" title="Demonstration functionality" className="mb-6">
-        This screen shows student-shaped records with no authentication protecting
-        them. Every student here is fictional. Do not put real student information
-        into this prototype.
-      </Notice>
 
       {roster.length === 0 ? (
         <EmptyState

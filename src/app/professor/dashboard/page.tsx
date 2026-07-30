@@ -68,7 +68,7 @@ export default async function ProfessorDashboard() {
         <SectionHeading
           level={1}
           title="Dashboard"
-          description="You are not teaching any courses in this prototype yet."
+          description="You are not teaching any courses yet."
         />
         <EmptyState
           title="Start with a course"

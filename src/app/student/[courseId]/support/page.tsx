@@ -388,9 +388,8 @@ export default async function StudentSupportPage({
                       </details>
                     ) : null}
                     <p className="mt-2 text-[0.78rem] text-ink-400">
-                      Submitted {formatDateTime(request.created_at)}. No email or
-                      calendar invitation was sent — this prototype records the
-                      request for your professor to see.
+                      Submitted {formatDateTime(request.created_at)}. Recorded for
+                      your professor to see; no calendar invitation is sent.
                     </p>
                   </li>
                 ))}
@@ -462,11 +461,10 @@ export default async function StudentSupportPage({
         </CardBody>
       </Card>
 
-      <Notice tone="caution" title="What this prototype does not do" className="mt-8">
-        Requests create internal records only. No email or text message is sent, no
-        appointment is booked, and neither the teaching assistant nor any tutoring
-        service is notified automatically. Your professor sees the request in their
-        support view.
+      <Notice tone="info" title="How requests reach people" className="mt-8">
+        Your request is recorded and appears in your professor&rsquo;s support view.
+        Nothing is emailed and no appointment is booked automatically — your
+        professor follows up through their usual channels.
       </Notice>
     </>
   );

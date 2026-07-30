@@ -27,7 +27,7 @@ export function resolveEmbed(
     return {
       kind: "placeholder",
       reason:
-        "This lecture points at a placeholder URL, so there is no real recording to play. The outline, notes, transcript and comprehension checks below are all live.",
+        "No recording is attached to this lecture yet. The outline, notes, transcript and comprehension checks below are all live.",
     };
   }
 
@@ -151,8 +151,8 @@ export function VideoArea({
 
       <p className="text-[0.82rem] text-ink-500">
         {hasTranscript
-          ? "A full transcript is below. Captions depend on the video provider — this prototype does not generate them."
-          : "No transcript has been added for this lecture. Captions depend on the video provider; this prototype does not generate them."}
+          ? "A full transcript is below. Captions come from the video provider."
+          : "No transcript has been added for this lecture. Captions come from the video provider."}
       </p>
     </div>
   );

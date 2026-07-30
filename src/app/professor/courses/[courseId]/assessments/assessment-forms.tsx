@@ -189,7 +189,7 @@ export function AssessmentForm({
       </Field>
 
       <Notice tone="info">
-        Question types supported in this prototype:{" "}
+        Question types supported:{" "}
         {QUESTION_TYPES.map((type) => QUESTION_TYPE_LABELS[type]).join(", ")}.
         Multiple choice and true/false are scored automatically. Nothing else is —
         essays and reflection papers are read by a person, and the application will

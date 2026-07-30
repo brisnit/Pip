@@ -49,7 +49,7 @@ export function SyllabusTextForm({
       <Field
         id="fileName"
         label="Original filename"
-        hint="Recorded for reference only. This prototype does not store files — no upload happens."
+        hint="Recorded for reference only. Files are not stored here — no upload happens."
       >
         {(props) => (
           <TextInput

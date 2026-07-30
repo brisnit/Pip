@@ -163,7 +163,7 @@ export default async function StudentAssessmentsPage({
               <SectionHeading
                 title="Graded work"
                 level={2}
-                description="Read and marked by your professor. This prototype does not score written work."
+                description="Read and marked by your professor. Written work is not scored automatically."
               />
               <ul className="space-y-3">
                 {graded.map((assessment) => {

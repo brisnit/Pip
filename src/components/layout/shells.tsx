@@ -41,12 +41,10 @@ function Frame({
       <footer className="border-t border-tan-100 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           <p>
-            {product.name} — a prototype for {product.institution.name}. Not an
-            official {product.institution.shortName} system, and not a student
-            record of any kind.
+            {product.name} — {product.institution.name}.
           </p>
           <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
-            <Link href="/about">About this prototype</Link>
+            <Link href="/about">About</Link>
             <Link href="/">Home</Link>
           </p>
         </div>
@@ -225,7 +223,7 @@ export function PublicShell({
       <header className="border-b border-tan-100 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <BrandLockup size="md" />
-          <nav aria-label="Prototype entry points" className="flex items-center gap-5 text-sm">
+          <nav aria-label="Main" className="flex items-center gap-5 text-sm">
             <Link href="/about">About</Link>
             <Link href="/professor">Professor portal</Link>
             <Link href="/join">Join a course</Link>
@@ -243,9 +241,7 @@ export function PublicShell({
       <footer className="border-t border-tan-100 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           <p>
-            {product.name} — a prototype for {product.institution.name}, built to
-            the supplied brand guidelines. Not an official{" "}
-            {product.institution.shortName} system.
+            {product.name} — {product.institution.name}.
           </p>
         </div>
       </footer>

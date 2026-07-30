@@ -129,7 +129,7 @@ export function LectureForm({
           <Field
             id="lec-videoUrl"
             label="Recording link"
-            hint="YouTube, Vimeo or any direct link. This prototype embeds or links — it does not host video."
+            hint="YouTube, Vimeo or any direct link. Video is embedded or linked, not hosted here."
             className="sm:col-span-2"
           >
             {(props) => (

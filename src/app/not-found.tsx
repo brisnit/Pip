@@ -14,8 +14,8 @@ export default function NotFound() {
       </h1>
 
       <p className="mt-4 text-ink-600">
-        The course, lecture or student you are looking for does not exist in this
-        prototype — or the course code has been rotated since the link was shared.
+        The course, lecture or student you are looking for does not exist — or the
+        course code has been rotated since the link was shared.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">

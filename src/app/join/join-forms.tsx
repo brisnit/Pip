@@ -80,7 +80,7 @@ export function EnterCourseForm({
       <Field
         id="email"
         label="Email address"
-        hint="Not used to send anything in this prototype. No email is ever delivered."
+        hint="Optional. Nothing is emailed to you."
       >
         {(props) => (
           <TextInput
@@ -96,7 +96,7 @@ export function EnterCourseForm({
       <Field
         id="studentIdNumber"
         label="Student ID"
-        hint="Only if your professor asked for it. Do not enter a real ID into a prototype."
+        hint="Only if your professor asked for it."
       >
         {(props) => (
           <TextInput
@@ -111,8 +111,8 @@ export function EnterCourseForm({
       <Checkbox
         id="consent"
         name="consent"
-        label="I understand this is a prototype, not a secure student-record system."
-        hint="Your name, coursework activity and any notes you write are stored in a local prototype database. Do not enter anything you would not want in a demonstration."
+        label="I agree to my coursework activity being recorded in this course."
+        hint="Your name, your activity in lectures, and any notes you write are stored so your professor can see where the class needs support. Your notes stay private unless you share them."
       />
 
       <Button type="submit" disabled={pending}>

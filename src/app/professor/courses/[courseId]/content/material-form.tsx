@@ -118,7 +118,7 @@ export function MaterialForm({
         <Field
           id="mat-fileName"
           label="Filename"
-          hint="Metadata only. No file storage is configured in this prototype, so nothing is uploaded — the filename is recorded so you know what to bring to class."
+          hint="Metadata only. File storage is not connected yet, so nothing is uploaded — the filename is recorded so you know what to bring to class."
           className="sm:col-span-2"
         >
           {(props) => (

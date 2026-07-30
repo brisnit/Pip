@@ -16,7 +16,7 @@ export function UnlockForm({ next }: { next: string }) {
       <Field
         id="password"
         label="Access password"
-        hint="Sent to you with the link to this prototype."
+        hint="Sent to you with the link."
         error={state.error}
         required
       >
@@ -32,7 +32,7 @@ export function UnlockForm({ next }: { next: string }) {
       </Field>
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Checking…" : "Open the prototype"}
+        {pending ? "Checking…" : "Enter"}
       </Button>
     </form>
   );

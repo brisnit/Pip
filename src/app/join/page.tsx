@@ -34,7 +34,7 @@ export default async function JoinPage() {
 
       {student && existingCourse ? (
         <Notice tone="info" title="You are already in a course" className="mt-6">
-          You have an active prototype session for{" "}
+          You are currently signed in to{" "}
           <strong>
             {existingCourse.code} — {existingCourse.title}
           </strong>
@@ -56,7 +56,7 @@ export default async function JoinPage() {
         <Card className="mt-6">
           <CardHeader
             title="Demonstration course"
-            description="Seeded with this prototype so you can try the student experience without a professor sharing a code first."
+            description="An example course, so you can try the student experience without a professor sharing a code first."
             action={<DemoBadge />}
           />
           <CardBody className="space-y-4">
@@ -88,9 +88,9 @@ export default async function JoinPage() {
               </div>
             ))}
             <p className="border-t border-tan-100 pt-4 text-[0.82rem] text-ink-500">
-              Everything in this course is fictional demonstration data. A real
-              course code would come from your professor, in class or by email — it
-              would not be listed on a public page like this.
+              A real course code comes from your professor, in class or by email. This
+              example course is listed here so the student experience can be tried
+              without one.
             </p>
           </CardBody>
         </Card>
@@ -108,11 +108,7 @@ export default async function JoinPage() {
         </p>
       </section>
 
-      <Notice tone="caution" title="Before you enter your name" className="mt-8">
-        This prototype has no sign-in and no security. Anyone with the course link
-        can enter, and anyone entering your name would appear as you. Do not put
-        real student identifiers or anything sensitive into it.
-      </Notice>
+
     </PublicShell>
   );
 }

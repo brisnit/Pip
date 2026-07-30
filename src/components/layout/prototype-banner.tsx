@@ -13,6 +13,9 @@ export function PrototypeBanner({
 }: {
   variant?: "full" | "compact";
 }) {
+  // Hidden while the application is being presented. See product.prototype.showNotices.
+  if (!product.prototype.showNotices) return null;
+
   if (variant === "compact") {
     return (
       <p className="bg-ink-800 px-4 py-1.5 text-center text-[0.78rem] text-paper-200">

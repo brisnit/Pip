@@ -147,9 +147,9 @@ export async function PrintableAccessCard({
           </p>
         </div>
 
-        <Notice tone="caution" className="mt-6 text-left no-print">
-          Anyone with this code can enter the course as any name. Do not post it
-          publicly while the prototype has no authentication.
+        <Notice tone="info" className="mt-6 text-left no-print">
+          Anyone with this code can join the course, so share it with your class
+          rather than posting it publicly.
         </Notice>
       </CardBody>
     </Card>

@@ -29,13 +29,13 @@ export default function ErrorBoundary({
       className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-16 sm:px-6"
     >
       <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
-        Prototype error
+        Something went wrong
       </p>
       <h1 className="mt-3 font-serif text-3xl">This screen did not load</h1>
 
       <p className="mt-4 text-ink-600">
-        Something threw on the server while rendering this page. The prototype has
-        not lost any data — this is a rendering failure, not a corruption.
+        The server hit an error while rendering this page. No data has been lost —
+        this is a rendering failure, not a corruption.
       </p>
 
       {/*

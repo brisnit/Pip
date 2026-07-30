@@ -31,8 +31,8 @@ export default async function StudentCourseLayout({
           {course.code} — {course.title}
         </h1>
         <Notice tone="info" title="Enter your name to open this course" className="mt-5">
-          This prototype keeps your work against a browser session. There is no
-          sign-in, so it needs your name to know whose notes and answers these are.
+          Your work is kept against this browser session, so we need your name to
+          know whose notes and answers these are.
         </Notice>
         <div className="mt-6 flex flex-wrap gap-3">
           {course.access_code ? (

@@ -139,10 +139,10 @@ export default async function AssessmentsPage({
 
                   {humanGraded ? (
                     <Notice tone="info" className="mt-4">
-                      This assessment type is read by a person. The prototype
-                      stores responses verbatim and does not score them — it will
-                      not present an automated judgement about theological writing
-                      as if it were authoritative.
+                      This assessment type is read by a person. Responses are stored
+                      verbatim and never scored automatically — no automated
+                      judgement about theological writing is presented as
+                      authoritative.
                     </Notice>
                   ) : null}
 

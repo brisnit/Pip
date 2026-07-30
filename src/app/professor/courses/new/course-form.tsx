@@ -135,7 +135,7 @@ export function CourseForm() {
           <Field
             id="imageTheme"
             label="Course card colour"
-            hint="No image upload in this prototype — courses use a colour theme instead."
+            hint="Courses use a colour theme rather than an uploaded image."
           >
             {(props) => (
               <Select {...props} name="imageTheme" defaultValue="parchment">

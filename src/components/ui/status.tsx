@@ -91,8 +91,8 @@ export function StatusLegend({ className }: { className?: string }) {
         })}
       </dl>
       <p className="mt-3 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
-        These are prototype signals drawn from recorded coursework activity. They
-        are not grades, and no status is a judgement about a student.
+        Drawn from recorded coursework activity. These are not grades, and no status
+        is a judgement about a student.
       </p>
     </div>
   );

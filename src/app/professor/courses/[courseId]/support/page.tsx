@@ -92,10 +92,9 @@ export default async function SupportPage({
         description="What has been recommended, what students have done with it, and who is waiting on you."
       />
 
-      <Notice tone="caution" title="No real scheduling happens here" className="mb-6">
-        Requests create internal records. No email or SMS is sent, no calendar is
-        booked, and no teaching assistant or tutoring service is notified. Follow up
-        through your normal channels.
+      <Notice tone="info" title="Requests are recorded, not routed" className="mb-6">
+        Requests appear here for you to act on. No email or SMS is sent and no
+        calendar is booked, so follow up through your normal channels.
       </Notice>
 
       <div className="grid gap-6 lg:grid-cols-3">

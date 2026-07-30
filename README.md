@@ -11,6 +11,19 @@ intervention drawn from the professor's own published material.
 
 ---
 
+## Presentation mode
+
+`product.prototype.showNotices` in `src/config/product.ts` is **off**. That hides the
+persistent banner, the "demo data" badges and the in-page notices about this not
+being a real student-record system, so the application presents cleanly to
+stakeholders. Set it to `true` to bring every one of them back — nothing was deleted.
+
+It deliberately does **not** hide statements that would otherwise leave a viewer with
+a false impression of what the software does: AI output is still labelled as
+assembled rather than model-generated, materials still say no file is stored, the
+live console still states its refresh interval, and readiness is still described as
+not a grade. The `/about` page still sets out the current scope honestly.
+
 ## What this is not
 
 Read this before showing it to anyone.
@@ -88,7 +101,7 @@ Prints the course ID and a cookie value to set in your browser.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run verify` | 60 assertions over the data layer and the full vertical slice |
-| `npm run smoke` | 143 assertions against a running server |
+| `npm run smoke` | 147 assertions against a running server |
 | `npm run check:contrast` | Verify every colour pairing clears WCAG AA |
 | `npm run db:reset` | Delete and re-seed the database |
 | `npm run dev:session -- "<name>"` | Mint a student session cookie |

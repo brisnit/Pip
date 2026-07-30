@@ -173,9 +173,8 @@ export default async function StudentResourcesPage({
                           {formatFileSize(material.file_size)
                             ? ` (${formatFileSize(material.file_size)})`
                             : ""}{" "}
-                          — this prototype records filenames but does not store
-                          files, so there is nothing to download. Ask your professor
-                          for the file.
+                          — filenames are recorded but files are not stored here, so
+                          there is nothing to download. Ask your professor for it.
                         </p>
                       ) : null}
 

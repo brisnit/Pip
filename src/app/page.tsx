@@ -95,12 +95,11 @@ export default function LandingPage() {
         </Card>
       </div>
 
-      <Notice tone="caution" title="This is an early prototype" className="mt-12">
-        There is no sign-in, no password and no connection to any real student
-        record system. Everything you can see is demonstration data. Readiness
-        statuses are prototype signals computed from coursework activity — they
-        are not grades and carry no academic weight.{" "}
-        <Link href="/about">Read the full list of limitations.</Link>
+      <Notice tone="info" className="mt-12">
+        Readiness statuses are computed from recorded coursework activity. They are
+        designed to prompt a conversation early — they are not grades and carry no
+        academic weight.{" "}
+        <Link href="/about">How readiness is calculated.</Link>
       </Notice>
     </PublicShell>
   );

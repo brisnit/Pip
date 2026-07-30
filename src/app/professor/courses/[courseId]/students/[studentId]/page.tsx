@@ -117,10 +117,7 @@ export default async function StudentDetailPage({ params }: Props) {
         Aggregated comprehension data, questions this student submitted, notes they
         explicitly shared, assessment responses and support requests. Their private
         notes are not shown here and are not retrievable through the professor
-        portal.{" "}
-        {student.is_demo === 1
-          ? "This is a fictional demonstration student."
-          : "Treat this as demonstration functionality — the prototype has no authentication."}
+        portal.
       </Notice>
 
       <div className="grid gap-6 lg:grid-cols-3">

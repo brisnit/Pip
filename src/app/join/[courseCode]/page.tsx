@@ -78,8 +78,7 @@ export default async function JoinCoursePage({
       {existing ? (
         <Notice tone="info" title="You are already in this course" className="mt-6">
           <p>
-            You have an active prototype session as{" "}
-            <strong>{existing.studentName}</strong>.
+            You are signed in as <strong>{existing.studentName}</strong>.
           </p>
           <p className="mt-3">
             <ButtonLink href={`/student/${course.id}`} size="sm">
@@ -87,17 +86,10 @@ export default async function JoinCoursePage({
             </ButtonLink>
           </p>
           <p className="mt-3 text-[0.85em]">
-            Not you? Enter a different name below — this prototype has no sign-in,
-            so it cannot verify who you are.
+            Not you? Enter a different name below.
           </p>
         </Notice>
       ) : null}
-
-      <Notice tone="caution" title="This prototype has no sign-in and no security" className="mt-6">
-        Anyone with this course link can enter, and anyone can enter any name —
-        including yours. Nothing here is verified. Do not put a real student ID or
-        anything sensitive into it.
-      </Notice>
 
       <section className="mt-8">
         <h2 className="font-serif text-xl">Your details</h2>

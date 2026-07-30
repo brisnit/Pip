@@ -29,7 +29,7 @@ import type {
 import type { SyllabusItemKind } from "@/lib/domain/vocabulary";
 
 const ID = "prototype-deterministic";
-const LABEL = "Prototype sample output (no AI provider configured)";
+const LABEL = "Built-in (no AI model connected)";
 
 function sentences(text: string): string[] {
   return text
@@ -368,7 +368,7 @@ export class PrototypeAIProvider implements AIProvider {
         items,
         note:
           items.length === 0
-            ? `No structured sections were recognised in the pasted text for ${courseTitle}. This prototype extractor matches common syllabus headings ("Learning Objectives", "Weekly Schedule", "Readings", "Exams") — it does not understand prose. Add the information manually, or connect a real AI provider.`
+            ? `No structured sections were recognised in the pasted text for ${courseTitle}. The built-in extractor matches common syllabus headings ("Learning Objectives", "Weekly Schedule", "Readings", "Exams") — it does not understand prose. Add the information manually, or connect an AI provider.`
             : `Recognised ${items.length} item${
                 items.length === 1 ? "" : "s"
               } by pattern-matching common syllabus headings in ${courseTitle}. This is rule-based text parsing, not model comprehension — review every row before publishing.`,

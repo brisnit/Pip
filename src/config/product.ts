@@ -39,8 +39,24 @@ export const product = {
     styleGuide: "/brand/Style Guide.png",
   },
   prototype: {
-    /** Shown in the persistent banner and on any screen displaying student data. */
-    isPrototype: true,
+    /**
+     * Master switch for the prototype chrome: the persistent banner, the "demo data"
+     * badges, and the in-page notices about this not being a real student-record
+     * system.
+     *
+     * Off, because the application is being shown to stakeholders and that chrome
+     * reads as noise rather than as candour in a live walkthrough. Setting this to
+     * true restores every one of them — nothing was deleted.
+     *
+     * What it does NOT hide, deliberately: statements that would otherwise leave a
+     * viewer with a false impression of what the software does. AI output stays
+     * labelled as assembled rather than model-generated, materials still say no file
+     * is stored, the live console still says it polls rather than streams, and
+     * readiness is still described as not a grade. Hiding those would not be
+     * presenting a prototype confidently; it would be misrepresenting it.
+     */
+    showNotices: false,
+
     label: "Prototype",
     notice:
       "This is an unauthenticated prototype. It is not a secure student-record system and is not FERPA compliant. All students, courses, and results shown are demonstration data.",

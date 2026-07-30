@@ -370,7 +370,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
             </li>
             <li>
               Written answers are stored verbatim for {course.professor_name} to
-              read. The prototype does not score them.
+              read. They are not scored automatically.
             </li>
             <li>
               Confidence ratings are a signal to help you, never a mark against you.

@@ -48,8 +48,7 @@ export function LivePoller({
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-md border border-tan-200 bg-paper-100 px-3 py-2 text-[0.82rem]">
       <span className="text-ink-600">
-        Prototype refresh: polls every {intervalSeconds}s. No realtime
-        infrastructure is configured.
+        Updates every {intervalSeconds}s.
       </span>
       <Button
         type="button"
@@ -160,11 +159,10 @@ export function AnswerQuestionForm({
 
 export function LiveDisclaimer() {
   return (
-    <Notice tone="caution" title="What “live” means in this prototype">
-      Starting a live session flips the lecture status, opens the console, and
-      lets you publish moments to students as you go. It does not stream video —
-      the lecture links out to whatever video provider you already use. Incoming
-      data updates by polling, not by push.
+    <Notice tone="info" title="What a live session does">
+      Starting a session opens the console and lets you publish moments to students
+      as you go. Video is delivered by whichever provider you already use — the
+      lecture links out to it.
     </Notice>
   );
 }

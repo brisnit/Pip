@@ -416,9 +416,9 @@ export default async function StudentReadinessPage({
 
       <Notice tone="caution" title="How to read this" className="mt-8">
         <p>
-          This is a prototype signal computed from recorded coursework activity. It
-          is not a grade, carries no academic weight, and is not reported to anyone
-          beyond your professor&rsquo;s view of this course.
+          This is computed from your recorded coursework activity. It is not a grade,
+          carries no academic weight, and is not reported to anyone beyond your
+          professor&rsquo;s view of this course.
         </p>
         <p className="mt-2">
           It can be wrong. It only knows what you have recorded — if you understand
