@@ -1,0 +1,59 @@
+# Render Blueprint for the Fuller Learning Companion prototype.
+#
+# Deploy: https://dashboard.render.com/blueprints → New Blueprint Instance →
+# pick this repository. Render reads this file and creates the service.
+#
+# What you get: a free web service that redeploys on every push to main.
+#
+# Two consequences of the free plan, both acceptable for a stakeholder demo but
+# worth knowing:
+#
+#   1. The service sleeps after ~15 minutes idle. The next visit takes 30–60
+#      seconds to wake. Nothing is lost, it is just slow to start.
+#   2. There is no persistent disk, so the SQLite database lives in ephemeral
+#      storage and is rebuilt on every deploy and every wake. The seeded course,
+#      the twelve students and all their activity regenerate automatically — but
+#      anything a stakeholder creates by hand disappears.
+#
+# To make data persist, move to a paid instance and attach a disk:
+#
+#   plan: starter
+#   disk:
+#     name: flc-data
+#     mountPath: /data
+#     sizeGB: 1
+#
+# then set PROTOTYPE_DB_PATH to /data/prototype.db.
+
+services:
+  - type: web
+    name: fuller-learning-companion
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+
+    # --include=dev is required: Render sets NODE_ENV=production, which makes npm
+    # skip devDependencies — and the build needs TypeScript and Tailwind.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start
+
+    healthCheckPath: /unlock
+
+    envVars:
+      # Somewhere reliably writable. Ephemeral on the free plan by design.
+      - key: PROTOTYPE_DB_PATH
+        value: /tmp/flc-prototype.db
+
+      # Shared password for the whole site. Render generates one on first deploy;
+      # read it from the service's Environment tab and share it with the link.
+      # Replace it with something memorable if you would rather.
+      - key: DEMO_ACCESS_PASSWORD
+        generateValue: true
+
+      - key: NODE_VERSION
+        value: "22"
+
+      # APP_URL is deliberately not set. The app falls back to Render's own
+      # RENDER_EXTERNAL_URL at runtime, so student join links and QR codes point at
+      # the real deployment without anyone configuring a hostname.

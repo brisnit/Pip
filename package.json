@@ -12,7 +12,7 @@
     "db:reset": "NODE_OPTIONS=--conditions=react-server tsx scripts/reset-db.mts",
     "dev:session": "NODE_OPTIONS=--conditions=react-server tsx scripts/dev-session.mts",
     "smoke": "bash scripts/smoke.sh",
-    "prestart": "NODE_OPTIONS=--conditions=react-server tsx scripts/check-build.mts"
+    "prestart": "node scripts/check-build.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.2",

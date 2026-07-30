@@ -171,6 +171,31 @@ Not present: expiry, rate limiting on join attempts, or any binding between a co
 and an identity. After authentication, a code should be a *join* gesture for an
 authenticated user, never an identity claim.
 
+## The shared access gate is not authentication
+
+A deployed copy can be put behind one shared password by setting
+`DEMO_ACCESS_PASSWORD` (see the README). It is worth being precise about what that
+does and does not achieve, because it is easy to mistake for progress.
+
+**What it does.** Stops the URL being stumbled upon, indexed, or usefully forwarded
+to someone who was not given the password. That is genuinely worth having for a
+prototype whose professor portal has no login and whose screens are shaped like
+student records.
+
+**What it does not do.** It does not identify anyone. Everyone who unlocks the site
+has identical, unrestricted access — including the professor portal, where they can
+create and delete courses, and read every seeded student's detail view. There is no
+audit trail of who opened what. The password is shared, so it cannot be revoked for
+one person, and it will end up in a forwarded email.
+
+It therefore satisfies none of the requirements in this document: not role-based
+access, not legitimate-educational-interest scoping, not audit logging, not consent.
+It is a curtain, not a lock, and it is described that way on the unlock screen itself
+so nobody demonstrating the prototype can imply otherwise.
+
+Deploying with real student data behind this gate would be a FERPA problem, not a
+mitigated one.
+
 ## Data retention
 
 None. `npm run db:reset` deletes everything.

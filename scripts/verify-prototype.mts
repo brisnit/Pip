@@ -642,6 +642,50 @@ section("Concurrent seeding (regression guard)");
   }
 }
 
+section("Demo access gate");
+
+{
+  const { gateEnabled, gatePassword, gateToken, safeEqual } = await import(
+    "../src/lib/gate/access"
+  );
+
+  const saved = process.env.DEMO_ACCESS_PASSWORD;
+
+  delete process.env.DEMO_ACCESS_PASSWORD;
+  check("gate is off unless a password is configured", !gateEnabled());
+  check("no password reported when off", gatePassword() === null);
+
+  process.env.DEMO_ACCESS_PASSWORD = "  spaced-out  ";
+  check("configured password is trimmed", gatePassword() === "spaced-out");
+  check("gate reports enabled once configured", gateEnabled());
+
+  const token = await gateToken("spaced-out");
+  check("token is a sha-256 hex digest", /^[0-9a-f]{64}$/.test(token), token.slice(0, 12) + "…");
+  check(
+    "token is stable for the same password",
+    token === (await gateToken("spaced-out")),
+  );
+  check(
+    "a different password yields a different token",
+    token !== (await gateToken("spaced-out ")),
+  );
+  check(
+    "the token is not the password in plaintext",
+    !token.includes("spaced-out"),
+  );
+
+  check("safeEqual accepts an exact match", safeEqual(token, token));
+  check(
+    "safeEqual rejects a one-character difference",
+    !safeEqual(token, `f${token.slice(1)}`),
+  );
+  check("safeEqual rejects a length mismatch", !safeEqual(token, token.slice(0, -1)));
+  check("safeEqual rejects empty against a token", !safeEqual(token, ""));
+
+  if (saved === undefined) delete process.env.DEMO_ACCESS_PASSWORD;
+  else process.env.DEMO_ACCESS_PASSWORD = saved;
+}
+
 console.log("");
 if (failures > 0) {
   console.error(`${failures} check(s) failed.\n`);

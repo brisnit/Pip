@@ -8,6 +8,9 @@
  * genuinely hard to diagnose from the browser, so it is worth a few milliseconds here.
  *
  * Warns rather than exits: a stale build is sometimes exactly what you want to serve.
+ *
+ * Plain JavaScript on purpose. This runs from `prestart`, which executes on the
+ * production host where devDependencies -- including tsx -- are not installed.
  */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -15,9 +18,9 @@ import { join } from "node:path";
 const root = process.cwd();
 const buildDir = join(root, ".next");
 
-function newestMtime(dir: string, ignore: string[] = []): number {
+function newestMtime(dir, ignore = []) {
   let newest = 0;
-  const walk = (current: string) => {
+  const walk = (current) => {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       if (ignore.includes(entry.name)) continue;
       const full = join(current, entry.name);

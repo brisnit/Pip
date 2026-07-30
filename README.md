@@ -191,6 +191,62 @@ NEXT_PUBLIC_APP_URL=http://192.168.0.10:3000 npm run dev
 
 ---
 
+## Deploying a shareable demo
+
+The prototype stores data in a SQLite file on disk, so it needs a host that runs a
+normal long-lived server. Serverless platforms give each request a throwaway
+filesystem, and writes would vanish between page loads.
+
+`render.yaml` in the repository root is a Render Blueprint that sets this up.
+
+1. Push to GitHub (already done if you cloned this).
+2. Go to <https://dashboard.render.com/blueprints> → **New Blueprint Instance** →
+   select this repository. Render reads `render.yaml` and creates the service.
+3. Wait for the first build, then open the `*.onrender.com` URL it gives you.
+4. Open the service's **Environment** tab and copy the generated
+   `DEMO_ACCESS_PASSWORD`. Share it alongside the link.
+
+After that, every push to `main` redeploys automatically.
+
+### What the free plan means
+
+- **It sleeps after ~15 minutes idle.** The next visit takes 30–60 seconds to wake.
+  Warn stakeholders, or open the link yourself a minute beforehand.
+- **There is no persistent disk**, so the database is rebuilt on every deploy and
+  every wake. The seeded course, the twelve students and all their recorded activity
+  regenerate automatically — but anything a stakeholder creates by hand disappears.
+
+To keep hand-created data, switch to a paid instance and attach a disk. `render.yaml`
+carries the exact lines, commented out.
+
+### The access gate
+
+Setting `DEMO_ACCESS_PASSWORD` puts the whole site behind one shared password:
+any request without a valid cookie is redirected to `/unlock`.
+
+It is **not authentication** — one password, no identity, no roles, no audit trail.
+It exists because the professor portal has no login and shows student-shaped records,
+so a discoverable URL is a bad idea. The unlock page says as much to whoever opens it.
+Leave the variable unset locally and the gate disappears entirely.
+
+### Getting the join links right
+
+Student join links and QR codes need to know the site's public address. On Render this
+is automatic — the app falls back to `RENDER_EXTERNAL_URL` at runtime. Anywhere else,
+set `APP_URL`.
+
+Use `APP_URL`, not `NEXT_PUBLIC_APP_URL`: `NEXT_PUBLIC_*` variables are inlined during
+the build, so they cannot reflect a hostname that only exists once the service does.
+
+### Before showing anyone
+
+Nothing here changes what this prototype is. It has no authentication, it is not FERPA
+compliant, and every record in it is fictional. Do not put real student data into a
+deployed copy. See
+[docs/privacy-and-student-data-considerations.md](docs/privacy-and-student-data-considerations.md).
+
+---
+
 ## Environment variables
 
 None are required. All have working defaults.
@@ -198,7 +254,9 @@ None are required. All have working defaults.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `PROTOTYPE_DB_PATH` | `.data/prototype.db` | SQLite file. Relative paths resolve under the working directory. |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL used in student join links and QR codes. **Set this if you demo from another machine** — otherwise the QR code points at your own localhost. |
+| `APP_URL` | unset | Public base URL for join links and QR codes, read at runtime. Falls back to `RENDER_EXTERNAL_URL`, then `NEXT_PUBLIC_APP_URL`, then localhost. Prefer this for anything deployed. |
+| `DEMO_ACCESS_PASSWORD` | unset | When set, gates the whole site behind one shared password. Unset disables the gate. Not authentication — see above. |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Legacy equivalent of `APP_URL`, inlined at build time. |
 | `AI_PROVIDER` | `prototype` | AI provider id. Any unrecognised value logs a warning and falls back to the deterministic provider. |
 
 No API keys are read anywhere in the codebase. See `.env.example`.

@@ -41,11 +41,32 @@ export const product = {
   },
 } as const;
 
-/** Public base URL used when generating student course links and QR codes. */
+/**
+ * Public base URL used when generating student course links and QR codes.
+ *
+ * Server-side only — every caller renders on the server. That matters, because it
+ * lets the value be read at *runtime* rather than baked in at build time.
+ * `NEXT_PUBLIC_*` variables are inlined by Next during the build, so a deployment
+ * whose hostname is only known once the service exists could never use one: the QR
+ * codes would permanently point at whatever the build machine thought the URL was.
+ *
+ * Resolution order:
+ *  1. `APP_URL` — set it explicitly and it always wins.
+ *  2. `RENDER_EXTERNAL_URL` — injected by Render, so a deployment is correct with
+ *     no configuration at all.
+ *  3. `NEXT_PUBLIC_APP_URL` — kept for anyone already setting it.
+ *  4. localhost, for development.
+ */
 export function appBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3000"
-  );
+  const candidate =
+    process.env.APP_URL ??
+    process.env.RENDER_EXTERNAL_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "http://localhost:3000";
+
+  const trimmed = candidate.trim().replace(/\/+$/, "");
+  // Render supplies a bare hostname in some configurations.
+  return /^https?:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 export function courseJoinUrl(accessCode: string): string {
