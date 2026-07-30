@@ -53,17 +53,51 @@ export default function ErrorBoundary({
       ) : null}
 
       <div className="mt-6 rounded-lg border border-sand-200 bg-cream-200 p-5">
-        <h2 className="text-sm font-semibold">Most likely cause</h2>
-        <p className="mt-2 text-sm text-ink-600">
-          The local database exists but holds no seeded data, so there is no
-          professor or course to show. Rebuilding it takes a few seconds:
-        </p>
-        <pre className="mt-3 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
-          npm run db:reset
-        </pre>
-        <p className="mt-3 text-sm text-ink-600">
-          Then reload. If you are running <code>npm run dev</code>, the exact error
-          is in the terminal and in the dev overlay.
+        <h2 className="text-sm font-semibold">Things worth checking, in order</h2>
+
+        <ol className="mt-3 space-y-4 text-sm text-ink-600">
+          <li>
+            <p className="font-medium text-ink-800">
+              Was the build rebuilt or deleted while the server was running?
+            </p>
+            <p className="mt-1">
+              <code>next start</code> reads route chunks from <code>.next</code> as
+              they are first requested, so a rebuild underneath a live server breaks
+              only the pages you have not visited yet — which looks exactly like
+              this. Stop the server, then:
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+              npm run build && npm run start
+            </pre>
+          </li>
+
+          <li>
+            <p className="font-medium text-ink-800">
+              Does the database hold seeded data?
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+              npm run db:reset
+            </pre>
+          </li>
+
+          <li>
+            <p className="font-medium text-ink-800">
+              Is the project in a synced folder?
+            </p>
+            <p className="mt-1">
+              iCloud, Dropbox and OneDrive copy and sometimes replace open files.
+              Point the database somewhere unsynced:
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+              PROTOTYPE_DB_PATH=/tmp/flc.db npm run dev
+            </pre>
+          </li>
+        </ol>
+
+        <p className="mt-4 border-t border-sand-300 pt-3 text-sm text-ink-600">
+          The full stack trace is in the terminal running the server. Under{" "}
+          <code>npm run dev</code> it is also shown above and in the dev overlay;
+          production builds omit it from the browser deliberately.
         </p>
       </div>
 

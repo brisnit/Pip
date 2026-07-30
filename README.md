@@ -103,26 +103,48 @@ npm run smoke
 
 ## Troubleshooting
 
-### "This page couldn't load — a server error occurred"
+### A page errors, and the message says it is "omitted in production builds"
 
-Almost always a database that has a schema but no seeded rows, which leaves nothing
-for the professor portal to show. Fix:
+That wording means you are on `npm run start`. Check these in order.
+
+**1. Was the build rebuilt or deleted while the server was running?** This is the
+most common cause and the least obvious. `next start` serves whatever `next build`
+last produced, and it reads each route's chunks from `.next` on first request — so a
+rebuild underneath a live server breaks only the pages you have not visited yet.
+The landing page keeps working; clicking through to a new route 500s. Stop the
+server, then:
+
+```bash
+npm run build && npm run start
+```
+
+`npm run start` now runs a pre-flight check that refuses to start with a missing or
+incomplete build, and warns when the build is older than your source.
+
+**2. Does the database hold seeded data?**
 
 ```bash
 npm run db:reset
 ```
 
-The app also now recovers from this by itself — `getActiveProfessor()` re-seeds and
-retries before giving up — so you should only see it if re-seeding also failed. The
-real error is in your terminal, and in the dev overlay under `npm run dev`.
+The app recovers from this by itself — `getActiveProfessor()` re-seeds and retries
+before giving up — so you should only see it if re-seeding also failed.
 
-This used to happen for a genuine reason. `ensureSeeded()` checked whether the
-database was empty *outside* the seed transaction, so when several processes opened
-a cold database at once — `next build` collects page data across nine workers — they
-all saw zero professors, all ran the seed, and every process but the first died on
+**3. Is the project in a synced folder?** See below.
+
+The full stack trace is always in the terminal running the server. Under
+`npm run dev` the message is also shown on the error page, because Next only redacts
+it in production.
+
+### The seed race that used to cause this
+
+Worth recording. `ensureSeeded()` checked whether the database was empty *outside*
+the seed transaction, so when several processes opened a cold database at once —
+`next build` collects page data across nine workers — they all saw zero professors,
+all ran the seed, and every process but the first died on
 `UNIQUE constraint failed: course_codes.code`. The check now runs inside a
 `BEGIN IMMEDIATE` transaction, so the losers wait for the lock, re-read a non-zero
-count, and no-op.
+count, and no-op. `npm run verify` guards it with nine concurrent workers.
 
 ### No course code to enter on "Join a course"
 

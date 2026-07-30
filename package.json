@@ -11,7 +11,8 @@
     "verify": "NODE_OPTIONS=--conditions=react-server tsx scripts/verify-prototype.mts",
     "db:reset": "NODE_OPTIONS=--conditions=react-server tsx scripts/reset-db.mts",
     "dev:session": "NODE_OPTIONS=--conditions=react-server tsx scripts/dev-session.mts",
-    "smoke": "bash scripts/smoke.sh"
+    "smoke": "bash scripts/smoke.sh",
+    "prestart": "NODE_OPTIONS=--conditions=react-server tsx scripts/check-build.mts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.2",
