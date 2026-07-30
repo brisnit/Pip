@@ -169,7 +169,7 @@ export default async function ProfessorDashboard() {
             <li key={action.label}>
               <Link
                 href={action.href}
-                className="inline-flex rounded-full border border-sand-200 bg-white px-3 py-1.5 text-[0.85rem] text-ink-700 no-underline hover:border-burgundy-300 hover:text-burgundy-700"
+                className="inline-flex rounded-full border border-tan-200 bg-white px-3 py-1.5 text-[0.85rem] text-ink-700 no-underline hover:border-brand-300 hover:text-brand-700"
               >
                 {action.label}
               </Link>
@@ -197,7 +197,7 @@ export default async function ProfessorDashboard() {
             <h3 className="mb-3 text-sm font-semibold">Class understanding</h3>
             <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
 
-            <dl className="mt-6 grid grid-cols-2 gap-5 border-t border-sand-100 pt-5 sm:grid-cols-4">
+            <dl className="mt-6 grid grid-cols-2 gap-5 border-t border-tan-100 pt-5 sm:grid-cols-4">
               <Stat
                 label="On track"
                 value={percent(aggregate.shares.on_track)}
@@ -221,7 +221,7 @@ export default async function ProfessorDashboard() {
             </dl>
 
             {aggregate.averageConfidence !== null ? (
-              <div className="mt-6 border-t border-sand-100 pt-5">
+              <div className="mt-6 border-t border-tan-100 pt-5">
                 <Meter
                   label="Average self-reported confidence across the class"
                   value={aggregate.averageConfidence}
@@ -257,12 +257,12 @@ export default async function ProfessorDashboard() {
                   Every student with enough recorded activity is on track.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {needingAttention.slice(0, 6).map(({ student, result }) => (
                     <li key={student.id}>
                       <Link
                         href={`/professor/courses/${primary.id}/students/${student.id}`}
-                        className="flex items-center justify-between gap-3 px-5 py-3 no-underline hover:bg-cream-100"
+                        className="flex items-center justify-between gap-3 px-5 py-3 no-underline hover:bg-paper-100"
                       >
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-medium text-ink-800">
@@ -337,11 +337,11 @@ export default async function ProfessorDashboard() {
                 addressed in class.
               </p>
             ) : (
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {openQuestions.map((question) => (
                   <li key={question.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="burgundy">
+                      <Badge tone="brand">
                         {QUESTION_KIND_LABELS[question.kind]}
                       </Badge>
                       {question.votes > 0 ? (
@@ -361,7 +361,7 @@ export default async function ProfessorDashboard() {
                 ))}
               </ul>
             )}
-            <p className="border-t border-sand-100 px-5 py-3 text-[0.82rem]">
+            <p className="border-t border-tan-100 px-5 py-3 text-[0.82rem]">
               <Link href={`/professor/courses/${primary.id}/insights`}>
                 Answer questions →
               </Link>
@@ -379,7 +379,7 @@ export default async function ProfessorDashboard() {
                 No scheduled or draft lectures.
               </p>
             ) : (
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {upcomingLectures.map((lecture) => (
                   <li key={lecture.id} className="px-5 py-3">
                     <p className="text-sm font-medium text-ink-800">
@@ -414,7 +414,7 @@ export default async function ProfessorDashboard() {
                 No dated assessments yet.
               </p>
             ) : (
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {assessments.map((assessment) => (
                   <li key={assessment.id} className="px-5 py-3">
                     <p className="text-sm font-medium text-ink-800">
@@ -435,7 +435,7 @@ export default async function ProfessorDashboard() {
         <Card>
           <CardHeader title="Recent activity" level={3} />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {activity.map((event) => (
                 <li key={event.id} className="px-5 py-2.5">
                   <p className="text-[0.85rem] text-ink-700">{event.summary}</p>

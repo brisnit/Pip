@@ -53,10 +53,12 @@ JSON. SQLite gives real tables, real foreign keys and real joins with no service
 to run. Verified working on Node 24 before anything was built on it. The file
 lives at `.data/prototype.db` and is gitignored.
 
-**Tailwind CSS v4 with a token layer.** Design tokens are declared once in
-`@theme` in `src/app/globals.css` — the burgundy / cream / sand / ink / gold
-palette and the four readiness status ramps — so no component hard-codes a hex
-value.
+**Tailwind CSS v4 with a token layer.** Design tokens are declared once in `@theme`
+in `src/app/globals.css` and no component hard-codes a hex value. Initially a
+placeholder palette, since no brand guidance existed; now the six Fuller Seminary
+brand colours plus the four readiness status ramps. That the swap was a token-file
+edit and a scripted rename, rather than a hunt through 41 components, is the whole
+argument for the token layer.
 
 **No component library.** A small set of primitives in `src/components/ui/`
 covers everything the app needs. Bringing in a UI kit would have meant fighting
@@ -72,11 +74,11 @@ third-party QR service.
 material, assessment, support recommendation), so validation is not a client-side
 courtesy.
 
-**No fonts fetched at build or runtime.** The type stack is a system serif
-(Iowan Old Style → Palatino → Georgia) for headings and system sans for body
-text. This keeps the build offline-capable and avoids third-party font requests
-from a page that displays student-shaped records. Swapping in a licensed
-institutional face means changing two custom properties.
+**Fonts self-hosted, not fetched at runtime.** Initially a system stack, because no
+brand guidance existed yet. Now Noto Serif and Noto Sans per the supplied style
+guide, loaded through `next/font`, which downloads them at build time and serves them
+from our own origin — so no request goes to Google while anyone is using the app,
+which matters for a page displaying student-shaped records.
 
 ### Dependencies added
 
@@ -112,15 +114,17 @@ src/
     role/                    PrototypeRoleContext
     forms/                   shared action-state shape
 scripts/
-  verify-prototype.mts       60 data-layer + vertical-slice assertions
-  smoke.sh                   135 rendering assertions against a live server
+  verify-prototype.mts       75 data-layer + vertical-slice assertions
+  smoke.sh                   141 rendering assertions against a live server
+  check-contrast.mjs         30 WCAG AA colour-pairing assertions
+  check-build.mjs            pre-start guard against a stale or missing build
   reset-db.mts               drop and re-seed
   dev-session.mts            mint a student session for a demo
 docs/                        the eight documents this brief requires
 ```
 
-29 routes. Typecheck, lint and production build all clean. See the README for how
-to run the two verification suites.
+29 routes plus the unlock gate. Typecheck, lint and production build all clean. See the README for how to
+run the verification suites.
 
 ## Known gaps, honestly
 
@@ -129,8 +133,6 @@ to run the two verification suites.
   better use of the time than wiring up Vitest for a prototype, but it means
   there is no fast per-function test loop. Adding one is a small job: the
   readiness and support models are already pure functions with explicit inputs.
-- **No git repository.** Nothing has been committed; `git init` has not been run,
-  in line with not taking irreversible actions unasked.
 - **`create-next-app` reported 12 high-severity advisories** in its transitive
   dependency tree at scaffold time. Not investigated. Worth resolving before this
   goes anywhere real.

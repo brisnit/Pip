@@ -40,7 +40,7 @@ export default async function JoinCoursePage({
 
   return (
     <PublicShell>
-      <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-burgundy-600">
+      <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
         Joining a course
       </p>
       <h1 className="mt-2 font-serif text-3xl">
@@ -68,7 +68,7 @@ export default async function JoinCoursePage({
             ]}
           />
           {course.description ? (
-            <p className="mt-5 border-t border-sand-100 pt-5 text-sm leading-relaxed text-ink-600">
+            <p className="mt-5 border-t border-tan-100 pt-5 text-sm leading-relaxed text-ink-600">
               {course.description}
             </p>
           ) : null}

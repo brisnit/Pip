@@ -56,7 +56,7 @@ export default async function UnlockPage({
         </Notice>
       </main>
 
-      <footer className="border-t border-sand-100 bg-white">
+      <footer className="border-t border-tan-100 bg-white">
         <div className="mx-auto max-w-lg px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           {product.name} — a prototype for {product.institution.name}. Not an
           official {product.institution.shortName} system.

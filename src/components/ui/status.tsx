@@ -74,7 +74,7 @@ export function StatusPill({
 /** The legend that makes the roster readable without relying on colour. */
 export function StatusLegend({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-md border border-sand-100 bg-cream-50 p-4", className)}>
+    <div className={cn("rounded-md border border-tan-100 bg-paper-50 p-4", className)}>
       <h3 className="text-sm font-semibold">Reading these statuses</h3>
       <dl className="mt-3 space-y-2.5">
         {READINESS_STATUSES.map((status) => {
@@ -90,7 +90,7 @@ export function StatusLegend({ className }: { className?: string }) {
           );
         })}
       </dl>
-      <p className="mt-3 border-t border-sand-100 pt-3 text-[0.82rem] text-ink-500">
+      <p className="mt-3 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
         These are prototype signals drawn from recorded coursework activity. They
         are not grades, and no status is a judgement about a student.
       </p>
@@ -107,8 +107,8 @@ export function ConfidenceNote({
 }) {
   const tone = {
     low: "border-unknown-200 bg-unknown-50 text-unknown-600",
-    moderate: "border-sand-200 bg-cream-200 text-ink-600",
-    high: "border-sand-200 bg-cream-200 text-ink-600",
+    moderate: "border-tan-200 bg-paper-200 text-ink-600",
+    high: "border-tan-200 bg-paper-200 text-ink-600",
   }[confidence];
 
   return (
@@ -122,7 +122,7 @@ export function ConfidenceNote({
 const STANDING_CLASSES: Record<ObjectiveStanding, { chip: string; glyph: string }> = {
   understood: { chip: "border-track-200 bg-track-50 text-track-600", glyph: "●" },
   developing: {
-    chip: "border-sand-200 bg-cream-200 text-ink-600",
+    chip: "border-tan-200 bg-paper-200 text-ink-600",
     glyph: "◑",
   },
   needs_review: {
@@ -180,7 +180,7 @@ export function StatusDistribution({
   return (
     <div>
       <div
-        className="flex h-3 w-full overflow-hidden rounded-full bg-cream-300"
+        className="flex h-3 w-full overflow-hidden rounded-full bg-paper-300"
         role="img"
         aria-label={bands
           .map(
@@ -237,7 +237,7 @@ export function ReasonList({
         <ul className="mt-2 space-y-1.5">
           {reasons.map((reason) => (
             <li key={reason} className="flex gap-2 text-sm text-ink-700">
-              <span aria-hidden="true" className="mt-[0.35em] text-gold-400">
+              <span aria-hidden="true" className="mt-[0.35em] text-accent-600">
                 ▸
               </span>
               <span className="min-w-0">{reason}</span>

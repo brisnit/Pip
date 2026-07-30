@@ -99,7 +99,7 @@ export function VideoArea({
   return (
     <div className="space-y-3">
       {primary.kind === "iframe" ? (
-        <div className="overflow-hidden rounded-lg border border-sand-200 bg-ink-900">
+        <div className="overflow-hidden rounded-lg border border-tan-200 bg-ink-900">
           <div className="relative aspect-video">
             <iframe
               src={primary.src}
@@ -111,7 +111,7 @@ export function VideoArea({
           </div>
         </div>
       ) : primary.kind === "link" ? (
-        <div className="rounded-lg border border-sand-200 bg-cream-200 p-6 text-center">
+        <div className="rounded-lg border border-tan-200 bg-paper-200 p-6 text-center">
           <p className="text-sm text-ink-600">
             This lecture is hosted on {primary.provider}.
           </p>

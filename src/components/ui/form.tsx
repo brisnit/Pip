@@ -1,9 +1,14 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
+/**
+ * tan-400 rather than a lighter tan: WCAG 1.4.11 asks for 3:1 on the boundary of an
+ * interactive control, and the brand tan only reaches 1.9:1 against white. This is
+ * 3.55:1. Decorative dividers elsewhere keep the lighter tans.
+ */
 const CONTROL =
-  "w-full rounded-md border border-sand-200 bg-white px-3 py-2 text-ink-800 " +
-  "placeholder:text-ink-400 disabled:bg-cream-200 disabled:text-ink-400";
+  "w-full rounded-none border border-tan-400 bg-white px-3 py-2 text-ink-800 " +
+  "placeholder:text-ink-400 disabled:bg-paper-200 disabled:text-ink-400";
 
 /**
  * Labelled field wrapper.
@@ -44,7 +49,7 @@ export function Field({
         {required ? (
           <>
             {" "}
-            <span className="text-burgundy-600" aria-hidden="true">
+            <span className="text-brand-600" aria-hidden="true">
               *
             </span>
             <span className="sr-only">(required)</span>
@@ -114,7 +119,7 @@ export function Checkbox({
         id={id}
         type="checkbox"
         aria-describedby={hintId}
-        className="mt-1 h-4 w-4 shrink-0 rounded border-sand-300 accent-burgundy-600"
+        className="mt-1 h-4 w-4 shrink-0 rounded-none border-tan-400 accent-cta-600"
       />
       <div className="min-w-0">
         <label htmlFor={id} className="text-sm text-ink-700">
@@ -164,7 +169,7 @@ export function RadioGroup({
                 value={option.value}
                 defaultChecked={defaultValue === option.value}
                 required={required}
-                className="mt-1 h-4 w-4 shrink-0 accent-burgundy-600"
+                className="mt-1 h-4 w-4 shrink-0 accent-cta-600"
               />
               <div className="min-w-0">
                 <label htmlFor={id} className="text-sm text-ink-800">

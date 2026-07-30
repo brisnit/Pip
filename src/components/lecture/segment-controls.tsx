@@ -76,7 +76,7 @@ export function SegmentNoteForm({ context }: { context: SegmentContext }) {
     <form action={action} className="space-y-3">
       {hiddenContext(context)}
 
-      <p className="rounded border border-sand-100 bg-cream-100 px-2.5 py-1.5 text-[0.8rem] text-ink-500">
+      <p className="rounded border border-tan-100 bg-paper-100 px-2.5 py-1.5 text-[0.8rem] text-ink-500">
         Anchored to <strong>{context.segmentHeading}</strong> at{" "}
         {formatClock(context.atSeconds)}. You will not have to reconstruct what
         this was about.
@@ -136,7 +136,7 @@ export function SegmentQuestionForm({ context }: { context: SegmentContext }) {
     <form action={action} className="space-y-3">
       {hiddenContext(context)}
 
-      <p className="rounded border border-sand-100 bg-cream-100 px-2.5 py-1.5 text-[0.8rem] text-ink-500">
+      <p className="rounded border border-tan-100 bg-paper-100 px-2.5 py-1.5 text-[0.8rem] text-ink-500">
         Your professor sees this alongside <strong>{context.segmentHeading}</strong>{" "}
         and the transcript excerpt, so you do not need to set the scene.
       </p>

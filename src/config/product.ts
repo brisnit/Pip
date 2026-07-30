@@ -15,14 +15,21 @@ export const product = {
     name: "Fuller Theological Seminary",
     shortName: "Fuller",
     /**
-     * Text-based prototype lockup. No official Fuller logo asset is bundled with
-     * this repository, and none is fetched at runtime. If licensed brand assets
-     * are later added to /public, swap this for an <Image> in <BrandLockup>.
+     * The supplied Fuller Seminary lockup, rendered by <BrandLockup>.
+     *
+     * Provided by the project owner and served from our own origin — nothing is
+     * fetched from a third party at runtime. Replacing it means dropping a new file
+     * here and updating the ratio in <BrandLockup>.
      */
-    lockup: {
-      primary: "FULLER",
-      secondary: "Theological Seminary",
+    logo: {
+      src: "/brand/Fuller_Logo.png",
+      width: 1456,
+      height: 184,
+      /** Alt text describes what the image depicts — the wordmark reads "Fuller
+       *  Seminary", not the full legal name. */
+      alt: "Fuller Seminary",
     },
+    styleGuide: "/brand/Style Guide.png",
   },
   prototype: {
     /** Shown in the persistent banner and on any screen displaying student data. */

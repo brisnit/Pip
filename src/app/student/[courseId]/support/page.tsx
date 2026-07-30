@@ -127,11 +127,11 @@ export default async function StudentSupportPage({
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           aria-hidden="true"
-                          className="font-serif text-lg text-gold-400"
+                          className="font-serif text-lg text-accent-600"
                         >
                           {index + 1}
                         </span>
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {SUPPORT_PATHWAY_LABELS[rec.pathway]}
                         </Badge>
                         <Badge
@@ -164,7 +164,7 @@ export default async function StudentSupportPage({
                         {rec.rationale}
                       </p>
 
-                      <p className="mt-2 rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.9rem] leading-relaxed text-ink-700">
+                      <p className="mt-2 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.9rem] leading-relaxed text-ink-700">
                         <span className="font-medium">Next step:</span>{" "}
                         {rec.next_step}
                       </p>
@@ -215,8 +215,8 @@ export default async function StudentSupportPage({
                       />
 
                       {PATHWAY_REQUEST_KIND[rec.pathway] ? (
-                        <details className="mt-3 border-t border-sand-100 pt-3">
-                          <summary className="cursor-pointer text-sm font-medium text-burgundy-700">
+                        <details className="mt-3 border-t border-tan-100 pt-3">
+                          <summary className="cursor-pointer text-sm font-medium text-brand-700">
                             Request this
                           </summary>
                           <div className="mt-3">
@@ -261,7 +261,7 @@ export default async function StudentSupportPage({
               <Card as="li" key={`${draft.pathway}-${draft.title}`}>
                 <CardBody className="p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="burgundy">
+                    <Badge tone="brand">
                       {SUPPORT_PATHWAY_LABELS[draft.pathway]}
                     </Badge>
                     <Badge
@@ -336,11 +336,11 @@ export default async function StudentSupportPage({
           <SectionHeading title="Your requests" level={2} />
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {requests.map((request) => (
                   <li key={request.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="burgundy">
+                      <Badge tone="brand">
                         {
                           SUPPORT_REQUEST_KIND_LABELS[
                             request.kind as SupportRequestKind
@@ -375,10 +375,10 @@ export default async function StudentSupportPage({
                     ) : null}
                     {request.prep_summary ? (
                       <details className="mt-2">
-                        <summary className="cursor-pointer text-[0.85rem] font-medium text-burgundy-700">
+                        <summary className="cursor-pointer text-[0.85rem] font-medium text-brand-700">
                           Your preparation summary
                         </summary>
-                        <pre className="mt-2 whitespace-pre-wrap rounded border border-sand-100 bg-cream-100 px-3 py-2 font-sans text-[0.85rem] leading-relaxed text-ink-600">
+                        <pre className="mt-2 whitespace-pre-wrap rounded border border-tan-100 bg-paper-100 px-3 py-2 font-sans text-[0.85rem] leading-relaxed text-ink-600">
                           {request.prep_summary}
                         </pre>
                         <p className="mt-1.5 text-[0.78rem] text-ink-400">
@@ -405,7 +405,7 @@ export default async function StudentSupportPage({
           <SectionHeading title="Done and declined" level={2} />
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {finished.map((rec) => (
                   <li key={rec.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -414,7 +414,7 @@ export default async function StudentSupportPage({
                       >
                         {SUPPORT_STATUS_LABELS[rec.status]}
                       </Badge>
-                      <Badge tone="burgundy">
+                      <Badge tone="brand">
                         {SUPPORT_PATHWAY_LABELS[rec.pathway]}
                       </Badge>
                     </div>

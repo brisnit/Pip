@@ -42,13 +42,13 @@ export function NavTabs({
                 className={cn(
                   "inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm no-underline transition-colors",
                   active
-                    ? "border-burgundy-600 font-semibold text-burgundy-700"
-                    : "border-transparent text-ink-500 hover:border-sand-300 hover:text-ink-800",
+                    ? "border-accent-400 font-semibold text-brand-700"
+                    : "border-transparent text-ink-500 hover:border-tan-300 hover:text-ink-800",
                 )}
               >
                 {item.label}
                 {item.badge !== undefined && item.badge > 0 ? (
-                  <span className="rounded-full bg-burgundy-50 px-1.5 py-0.5 text-[0.7rem] font-semibold tabular-nums text-burgundy-700">
+                  <span className="rounded-full bg-brand-50 px-1.5 py-0.5 text-[0.7rem] font-semibold tabular-nums text-brand-700">
                     {item.badge}
                     <span className="sr-only"> items</span>
                   </span>
@@ -79,13 +79,13 @@ export function NavList({ items, label }: { items: NavItem[]; label: string }) {
                 className={cn(
                   "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm no-underline transition-colors",
                   active
-                    ? "bg-burgundy-50 font-semibold text-burgundy-700"
-                    : "text-ink-600 hover:bg-cream-200 hover:text-ink-900",
+                    ? "bg-accent-50 font-semibold text-brand-700"
+                    : "text-ink-600 hover:bg-paper-200 hover:text-ink-900",
                 )}
               >
                 <span className="min-w-0">{item.label}</span>
                 {item.badge !== undefined && item.badge > 0 ? (
-                  <span className="shrink-0 rounded-full bg-white px-1.5 py-0.5 text-[0.7rem] font-semibold tabular-nums text-burgundy-700">
+                  <span className="shrink-0 rounded-full bg-white px-1.5 py-0.5 text-[0.7rem] font-semibold tabular-nums text-brand-700">
                     {item.badge}
                     <span className="sr-only"> items</span>
                   </span>

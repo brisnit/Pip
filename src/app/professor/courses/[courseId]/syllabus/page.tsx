@@ -103,7 +103,7 @@ export default async function SyllabusPage({
                 </p>
               )}
               {syllabus?.extraction_note ? (
-                <p className="rounded-md border border-sand-100 bg-cream-100 px-3 py-2 text-[0.82rem] text-ink-600">
+                <p className="rounded-md border border-tan-100 bg-paper-100 px-3 py-2 text-[0.82rem] text-ink-600">
                   {syllabus.extraction_note}
                 </p>
               ) : null}
@@ -161,7 +161,7 @@ export default async function SyllabusPage({
                   level={3}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-sand-100">
+                  <ul className="divide-y divide-tan-100">
                     {group.items.map((item) => (
                       <li
                         key={item.id}
@@ -173,7 +173,7 @@ export default async function SyllabusPage({
                               <Badge>{item.week_label}</Badge>
                             ) : null}
                             {item.date_label ? (
-                              <Badge tone="gold">{item.date_label}</Badge>
+                              <Badge tone="accent">{item.date_label}</Badge>
                             ) : null}
                             {item.ai_generated === 1 ? <AIGeneratedTag /> : null}
                             {item.approved === 1 ? (

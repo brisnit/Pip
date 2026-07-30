@@ -132,7 +132,7 @@ export default async function LiveConsolePage({ params }: Props) {
               currentTopic={lecture.current_topic}
             />
             {segments.length > 0 ? (
-              <div className="border-t border-sand-100 pt-4">
+              <div className="border-t border-tan-100 pt-4">
                 <h3 className="text-sm font-semibold">Outline</h3>
                 <ol className="mt-2 space-y-1">
                   {segments.map((segment) => (
@@ -185,7 +185,7 @@ export default async function LiveConsolePage({ params }: Props) {
             description="Publishing makes an interactive moment visible on the student lecture page. Unpublish to hold one back."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {interactions.map((interaction) => (
                 <li
                   key={interaction.id}
@@ -193,7 +193,7 @@ export default async function LiveConsolePage({ params }: Props) {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="gold">
+                      <Badge tone="accent">
                         {INTERACTION_TYPE_LABELS[interaction.type]}
                       </Badge>
                       {interaction.segment_heading ? (
@@ -300,7 +300,7 @@ export default async function LiveConsolePage({ params }: Props) {
               )}
 
               {confidenceTallies.length > 0 ? (
-                <div className="border-t border-sand-100 pt-4">
+                <div className="border-t border-tan-100 pt-4">
                   <h4 className="text-sm font-semibold">Confidence ratings</h4>
                   {confidenceTallies.map((tally) => (
                     <p key={tally.interactionId} className="mt-1 text-[0.85rem] text-ink-600">
@@ -356,13 +356,13 @@ export default async function LiveConsolePage({ params }: Props) {
               No questions have been submitted on this lecture.
             </p>
           ) : (
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {questions.map((question) => (
                 <li key={question.id} className="px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {QUESTION_KIND_LABELS[question.kind]}
                         </Badge>
                         <Badge
@@ -399,7 +399,7 @@ export default async function LiveConsolePage({ params }: Props) {
                       </p>
 
                       {question.transcript_excerpt ? (
-                        <blockquote className="mt-2 border-l-2 border-gold-300 pl-3 text-[0.82rem] italic text-ink-500">
+                        <blockquote className="mt-2 border-l-2 border-accent-300 pl-3 text-[0.82rem] italic text-ink-500">
                           {question.transcript_excerpt}
                         </blockquote>
                       ) : null}
@@ -450,7 +450,7 @@ export default async function LiveConsolePage({ params }: Props) {
             description="Submitted through their support plan."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {supportRequests.map((request) => (
                 <li key={request.id} className="px-5 py-3">
                   <p className="text-sm font-medium text-ink-800">

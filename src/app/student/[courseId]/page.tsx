@@ -249,12 +249,12 @@ export default async function StudentCourseHome({
                   Your professor has not published any lectures yet.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {lectures.map((lecture) => (
                     <li key={lecture.id}>
                       <Link
                         href={`/student/${courseId}/lecture/${lecture.id}`}
-                        className="block px-5 py-3 no-underline hover:bg-cream-100"
+                        className="block px-5 py-3 no-underline hover:bg-paper-100"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           {lecture.status === "live" ? (
@@ -371,7 +371,7 @@ export default async function StudentCourseHome({
             <Card>
               <CardHeader title="Support" level={3} />
               <CardBody>
-                <Badge tone="burgundy">
+                <Badge tone="brand">
                   {SUPPORT_PATHWAY_LABELS[topRecommendation.pathway]}
                 </Badge>
                 <p className="mt-2 text-sm font-medium text-ink-800">
@@ -412,7 +412,7 @@ export default async function StudentCourseHome({
                   No materials published yet.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {recentMaterials.map((material) => (
                     <li key={material.id} className="px-5 py-2.5">
                       <p className="text-[0.85rem] text-ink-700">
@@ -452,13 +452,13 @@ export default async function StudentCourseHome({
                   />
                 </div>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {notes.map((note) => (
                     <li key={note.id} className="px-5 py-2.5">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge>{NOTE_KIND_LABELS[note.kind]}</Badge>
                         {note.shared_with_professor === 1 ? (
-                          <Badge tone="gold">Shared</Badge>
+                          <Badge tone="accent">Shared</Badge>
                         ) : null}
                       </div>
                       <p className="mt-1 line-clamp-2 text-[0.85rem] text-ink-600">

@@ -112,7 +112,7 @@ export const COURSE_FORMAT_LABELS: Record<CourseFormat, string> = {
 
 export const COURSE_IMAGE_THEMES = [
   "parchment",
-  "burgundy",
+  "teal",
   "slate",
   "olive",
 ] as const;
@@ -120,7 +120,7 @@ export type CourseImageTheme = (typeof COURSE_IMAGE_THEMES)[number];
 
 export const COURSE_IMAGE_THEME_LABELS: Record<CourseImageTheme, string> = {
   parchment: "Parchment",
-  burgundy: "Burgundy",
+  teal: "Teal",
   slate: "Slate",
   olive: "Olive",
 };

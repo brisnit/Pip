@@ -1,15 +1,30 @@
+import Image from "next/image";
 import Link from "next/link";
 import { product } from "@/config/product";
 import { cn } from "@/lib/cn";
 
 /**
- * Text-based prototype brand lockup.
+ * The Fuller Seminary lockup, paired with the product name.
  *
- * No official Fuller Theological Seminary logo is bundled or fetched. This is a
- * typographic placeholder that identifies the institution by name without
- * reproducing protected brand assets. If licensed assets are added to /public,
- * replace the inner markup here and nothing else changes.
+ * Uses the supplied logo at public/brand/Fuller_Logo.png (1456×184, so 7.913:1).
+ * Heights are set explicitly and the width derived from that ratio, which keeps the
+ * mark crisp and reserves the right space before the image loads — no layout shift.
+ *
+ * The image carries the institution name, and "Learning Companion" is real text
+ * beside it, so the surrounding link reads as "Fuller Seminary Learning Companion".
+ *
+ * `priority` is set because this sits in the masthead of every page: it is always
+ * above the fold and should never lazy-load.
  */
+const LOGO_RATIO =
+  product.institution.logo.width / product.institution.logo.height;
+
+const SIZES = {
+  sm: { height: 20, product: "text-[0.82rem]", gap: "gap-2.5", rule: "h-5" },
+  md: { height: 26, product: "text-[0.95rem]", gap: "gap-3", rule: "h-6" },
+  lg: { height: 34, product: "text-lg", gap: "gap-3.5", rule: "h-8" },
+} as const;
+
 export function BrandLockup({
   size = "md",
   href = "/",
@@ -21,35 +36,27 @@ export function BrandLockup({
   showProduct?: boolean;
   className?: string;
 }) {
-  const scale = {
-    sm: { rule: "text-[0.72rem]", name: "text-[0.6rem]", product: "text-[0.82rem]" },
-    md: { rule: "text-sm", name: "text-[0.66rem]", product: "text-[0.95rem]" },
-    lg: { rule: "text-lg", name: "text-[0.78rem]", product: "text-lg" },
-  }[size];
+  const scale = SIZES[size];
+  const height = scale.height;
+  const width = Math.round(height * LOGO_RATIO);
 
   const inner = (
-    <span className={cn("inline-flex items-center gap-3", className)}>
-      <span className="flex flex-col leading-none">
-        <span
-          className={cn(
-            "font-serif font-semibold tracking-[0.22em] text-burgundy-600",
-            scale.rule,
-          )}
-        >
-          {product.institution.lockup.primary}
-        </span>
-        <span
-          className={cn(
-            "mt-[0.2em] uppercase tracking-[0.16em] text-ink-500",
-            scale.name,
-          )}
-        >
-          {product.institution.lockup.secondary}
-        </span>
-      </span>
+    <span className={cn("inline-flex items-center", scale.gap, className)}>
+      <Image
+        src={product.institution.logo.src}
+        alt={product.institution.logo.alt}
+        width={width}
+        height={height}
+        priority
+        className="h-auto w-auto"
+        style={{ height, width }}
+      />
       {showProduct ? (
         <>
-          <span aria-hidden="true" className="h-7 w-px bg-sand-200" />
+          <span
+            aria-hidden="true"
+            className={cn("w-px bg-tan-300", scale.rule)}
+          />
           <span className={cn("font-serif text-ink-800", scale.product)}>
             {product.shortName}
           </span>
@@ -65,10 +72,7 @@ export function BrandLockup({
       href={href}
       className="rounded-sm no-underline transition-opacity hover:opacity-80"
     >
-      <span className="sr-only">
-        {product.name} — {product.institution.name} prototype. Go to home.
-      </span>
-      <span aria-hidden="true">{inner}</span>
+      {inner}
     </Link>
   );
 }

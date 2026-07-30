@@ -92,7 +92,7 @@ export default async function AssessmentsPage({
                         {assessment.title}
                       </h2>
                       <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] text-ink-500">
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {ASSESSMENT_TYPE_LABELS[assessment.type]}
                         </Badge>
                         {assessment.is_practice === 1 ? (
@@ -114,7 +114,7 @@ export default async function AssessmentsPage({
                         </p>
                       ) : null}
                       {assessment.professor_guidance ? (
-                        <p className="mt-2 max-w-2xl rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                        <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                           <span className="font-medium">Your guidance:</span>{" "}
                           {assessment.professor_guidance}
                         </p>
@@ -147,8 +147,8 @@ export default async function AssessmentsPage({
                   ) : null}
 
                   {assessment.questions.length > 0 ? (
-                    <details className="mt-4 border-t border-sand-100 pt-3">
-                      <summary className="cursor-pointer text-sm font-medium text-burgundy-700">
+                    <details className="mt-4 border-t border-tan-100 pt-3">
+                      <summary className="cursor-pointer text-sm font-medium text-brand-700">
                         Questions and results
                       </summary>
                       <ul className="mt-3 space-y-4">
@@ -168,7 +168,7 @@ export default async function AssessmentsPage({
                                   </span>
                                 ) : null}
                                 {question.ai_generated === 1 ? (
-                                  <Badge tone="gold">AI draft, edited</Badge>
+                                  <Badge tone="accent">AI draft, edited</Badge>
                                 ) : null}
                               </div>
                               <p className="mt-1 text-sm text-ink-800">
@@ -277,7 +277,7 @@ export default async function AssessmentsPage({
                 headings and key terms.
               </p>
             )}
-            <div className="border-t border-sand-100 pt-5">
+            <div className="border-t border-tan-100 pt-5">
               <GenerateStudyGuideForm
                 courseId={courseId}
                 assessments={assessments.map((assessment) => ({

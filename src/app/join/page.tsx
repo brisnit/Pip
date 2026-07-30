@@ -74,7 +74,7 @@ export default async function JoinPage() {
                     already joined
                   </p>
                   <p className="mt-1.5">
-                    <Badge tone="burgundy">Code {course.access_code}</Badge>
+                    <Badge tone="brand">Code {course.access_code}</Badge>
                   </p>
                 </div>
                 <ButtonLink
@@ -87,7 +87,7 @@ export default async function JoinPage() {
                 </ButtonLink>
               </div>
             ))}
-            <p className="border-t border-sand-100 pt-4 text-[0.82rem] text-ink-500">
+            <p className="border-t border-tan-100 pt-4 text-[0.82rem] text-ink-500">
               Everything in this course is fictional demonstration data. A real
               course code would come from your professor, in class or by email — it
               would not be listed on a public page like this.

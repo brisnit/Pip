@@ -50,8 +50,8 @@ export function InteractionCard({
 
   if (informational) {
     return (
-      <aside className="rounded-md border-l-4 border-gold-300 bg-gold-100/50 px-4 py-3">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-wide text-gold-600">
+      <aside className="rounded-md border-l-4 border-accent-300 bg-accent-50/50 px-4 py-3">
+        <p className="text-[0.72rem] font-semibold uppercase tracking-wide text-accent-700">
           {INTERACTION_TYPE_LABELS[interaction.type]}
         </p>
         <p className="mt-1 text-sm font-medium text-ink-800">
@@ -72,10 +72,10 @@ export function InteractionCard({
   }
 
   return (
-    <Card className={answered ? "border-track-200 bg-track-50/40" : "bg-cream-50"}>
+    <Card className={answered ? "border-track-200 bg-track-50/40" : "bg-paper-50"}>
       <CardBody className="p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={isScored ? "burgundy" : "gold"}>
+          <Badge tone={isScored ? "brand" : "accent"}>
             {INTERACTION_TYPE_LABELS[interaction.type]}
           </Badge>
           {answered ? (
@@ -189,7 +189,7 @@ export function InteractionCard({
                         size="sm"
                         className={[
                           "w-full justify-start text-left",
-                          chosen ? "border-burgundy-400 bg-burgundy-50" : "",
+                          chosen ? "border-brand-400 bg-brand-50" : "",
                           revealCorrect && option.is_correct === 1
                             ? "border-track-500 bg-track-50"
                             : "",
@@ -226,7 +226,7 @@ export function InteractionCard({
         ) : null}
 
         {answered && isScored ? (
-          <div className="mt-3 border-t border-sand-100 pt-3">
+          <div className="mt-3 border-t border-tan-100 pt-3">
             <p
               className={
                 response?.is_correct === 1
@@ -250,7 +250,7 @@ export function InteractionCard({
         ) : null}
 
         {answered && isPoll ? (
-          <p className="mt-3 border-t border-sand-100 pt-3 text-[0.85rem] text-ink-600">
+          <p className="mt-3 border-t border-tan-100 pt-3 text-[0.85rem] text-ink-600">
             Response recorded. Polls have no right answer — your professor sees the
             distribution, not who chose what.
           </p>

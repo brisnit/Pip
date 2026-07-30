@@ -57,6 +57,22 @@ a deterministic provider that calls no model and says so, row-level human review
 syllabus extraction, `NeedsReviewFrame` on course-wide drafts, no auto-import of
 generated questions, and a hard line against scoring theological writing.
 
+## Brand pass
+
+Done after the initial build, once the Fuller Seminary style guide and logo were
+supplied. The prototype had shipped with a placeholder palette (burgundy and cream)
+and a typographic wordmark, both of which are now replaced: the six brand colours,
+Noto Serif and Noto Sans, the real logo, and the guide's square tertiary-blue CTA.
+
+Two accessibility problems surfaced during that pass and are fixed:
+
+- The brand cyan and tan both fail contrast requirements in the obvious roles, so
+  cyan never carries text and form controls use a darker tan. `npm run check:contrast`
+  now guards all thirty pairings.
+- Unstyled links inherited body colour with no underline — Tailwind's preflight
+  behaviour — leaving them indistinguishable from text. This was true from the first
+  commit and was only noticed while reworking the palette.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.

@@ -7,7 +7,7 @@ export default function LandingPage() {
   return (
     <PublicShell wide>
       <div className="max-w-2xl">
-        <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-burgundy-600">
+        <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
           {product.institution.name}
         </p>
         <h1 className="mt-3 font-serif text-4xl leading-[1.08] tracking-tight sm:text-5xl">
@@ -48,7 +48,7 @@ export default function LandingPage() {
             <CardBody>
               <p
                 aria-hidden="true"
-                className="font-serif text-2xl text-gold-400"
+                className="font-serif text-2xl text-accent-600"
               >
                 {index + 1}
               </p>

@@ -34,9 +34,11 @@ Read this before showing it to anyone.
 - **No essay grading.** Short-answer and essay responses are stored verbatim for a
   human to read and are never auto-marked.
 
-All demonstration data is fictional. No real Fuller student names are used. No
-official Fuller logo or brand asset is bundled or fetched — the wordmark is a
-typographic placeholder.
+All demonstration data is fictional and no real Fuller student names are used.
+Branding follows the supplied Fuller Seminary style guide — colours, the logo, and
+Noto Serif / Noto Sans. The assets live in `public/brand/`, the logo is served from
+this app's own origin, and the fonts are self-hosted at build time, so no request
+goes to a third party at runtime.
 
 ---
 
@@ -86,7 +88,8 @@ Prints the course ID and a cookie value to set in your browser.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run verify` | 60 assertions over the data layer and the full vertical slice |
-| `npm run smoke` | 135 assertions against a running server |
+| `npm run smoke` | 141 assertions against a running server |
+| `npm run check:contrast` | Verify every colour pairing clears WCAG AA |
 | `npm run db:reset` | Delete and re-seed the database |
 | `npm run dev:session -- "<name>"` | Mint a student session cookie |
 
@@ -316,6 +319,20 @@ strict, non-empty subset of a student's total notes, so a regression that widene
 that query would fail.
 
 ---
+
+## Brand
+
+Colours, typography and the logo follow the Fuller Seminary style guide in
+`public/brand/`. Deep teal `#042B32`, cyan `#00ADC7`, tan `#D8D2C4`, tertiary blue
+`#005979` for calls to action, black `#0C1821`. Noto Serif for headings and Noto Sans
+for body, self-hosted at build time by `next/font`.
+
+Two brand colours needed care, found by measuring rather than by eye: the cyan is
+2.69:1 on white so it can never carry text (it is used for fills, borders and the
+active navigation underline), and the tan is 1.51:1 so it cannot outline a form
+control. `npm run check:contrast` verifies all thirty pairings the app renders and
+fails on a regression. Details in
+[docs/product-architecture.md](docs/product-architecture.md) → Design system.
 
 ## Accessibility
 

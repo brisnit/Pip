@@ -220,29 +220,83 @@ subset of a student's total notes.
 
 ## Design system
 
-Tokens in `@theme`, in `src/app/globals.css`. Deep burgundy, warm neutrals,
-cream, charcoal, restrained gold. Four status ramps — track (green), attention
-(amber), concern (red), unknown (slate) — each with a 50/100/200/500/600 scale so
-text and background can be paired at AA.
+Built from the Fuller Seminary style guide supplied in `public/brand/`. Six colours,
+two typefaces, one button.
 
-Load-bearing contrast pairings, all against their intended background:
+| Role | Hex |
+| --- | --- |
+| Primary | `#042B32` deep teal |
+| Secondary | `#00ADC7` cyan |
+| Tan | `#D8D2C4` |
+| Tertiary | `#005979` — the Primary CTA colour |
+| Black | `#0C1821` |
+| White | `#ffffff` |
 
-| Foreground | Background | Ratio |
-| --- | --- | --- |
-| `ink-800` #1c1a18 | `cream-100` #fbf7f0 | 15.4:1 |
-| `ink-500` #55504a | `cream-100` | 7.3:1 |
-| `cream-50` #fdfbf7 | `burgundy-600` #6b1f2e | 10.5:1 |
-| `track-600` #245139 | `track-50` #eef5f0 | 7.4:1 |
-| `attention-600` #6d4a0a | `attention-50` #fbf3e3 | 7.4:1 |
-| `concern-600` #822a1f | `concern-50` #fbeeec | 7.8:1 |
-| `unknown-600` #414a52 | `unknown-50` #f1f2f3 | 8.2:1 |
+Tokens are declared once in `@theme` in `src/app/globals.css`, as ramps built around
+those six values: `brand-*` (teal), `cta-*` (tertiary blue), `accent-*` (cyan),
+`paper-*` and `tan-*` (neutrals), `ink-*` (text), plus the four status ramps. No
+component hard-codes a hex value.
 
-The amber ramp is why `attention-500` is #8a5f10 rather than a conventional
-yellow: a yellow that reads as "warning" fails AA on a cream background, and the
-status must be readable as text, not just visible as a colour.
+**Typography.** Noto Serif for headings, Noto Sans for body — loaded by `next/font`,
+which downloads them at build time and serves them from our own origin. Sixteen
+`.woff2` files ship with the build and no request goes to Google at runtime, which
+keeps the "no request leaves the origin" claim in the privacy notes true.
 
-`prefers-reduced-motion: reduce` collapses every transition and animation
-globally.
+**Buttons.** The guide gives one button: tertiary blue, white label, square corners.
+That is `variant="primary"`, and `rounded-none` is deliberate. Form controls match.
+Secondary and ghost variants are derived, not specified, so they stay quiet.
+
+### Two constraints the brand colours impose
+
+Neither is obvious, and both were found by measuring rather than by eye.
+
+**The secondary cyan cannot carry text.** `#00ADC7` is 2.69:1 against white — it fails
+AA for body text and even the 3:1 large-text threshold. So cyan is used for fills,
+borders and graphics only: the active navigation underline, meter fills, accent rules.
+Anything cyan that has to be *read* uses `accent-600` (#006b7d) or `accent-700`
+(#00505e).
+
+**The brand tan cannot outline a control.** `#D8D2C4` is 1.51:1 against white, and
+WCAG 1.4.11 wants 3:1 for the boundary of an interactive component. Form controls
+therefore use `tan-400` (#8f877a, 3.55:1) while decorative dividers keep the lighter
+tans, which have no contrast requirement.
+
+### Verified contrast
+
+`npm run check:contrast` checks all thirty pairings the app renders and exits
+non-zero on a regression. Values in the script mirror the `@theme` block — change one,
+change both.
+
+| Pairing | Ratio |
+| --- | --- |
+| body text `ink-800` on `paper-100` | 16.36 |
+| muted text `ink-500` on `paper-100` | 7.18 |
+| subtle text `ink-400` on `paper-100` | 5.04 |
+| link `cta-600` on `paper-100` | 7.07 |
+| primary CTA: white on `cta-600` | 7.76 |
+| accent text `accent-700` on `accent-50` | 8.31 |
+| on track `track-600` on `track-50` | 8.22 |
+| needs review `attention-600` on `attention-50` | 7.48 |
+| support recommended `concern-600` on `concern-50` | 8.22 |
+| not enough data `unknown-600` on `unknown-50` | 8.24 |
+| prototype banner `paper-200` on `ink-800` | 15.24 |
+| control border `tan-400` on white (needs 3:1) | 3.55 |
+
+The status ramps stay unmistakably green / amber / red / grey rather than being pulled
+into the teal palette, because their job is to be distinguishable at a glance. They
+were retuned to sit alongside it without losing that.
+
+### Brand assets
+
+`public/brand/Fuller_Logo.png` (1456×184) is the supplied lockup, rendered by
+`<BrandLockup>` through `next/image` with explicit height and a width derived from the
+ratio, so there is no layout shift. `product.institution.logo` in
+`src/config/product.ts` holds the path, dimensions and alt text; swapping the file
+means editing that one object. Alt text is "Fuller Seminary" because that is what the
+wordmark reads — the surrounding link resolves to "Fuller Seminary Learning
+Companion".
+
+`public/brand/Style Guide.png` is kept alongside it as the reference.
 
 ## Accessibility
 
@@ -268,6 +322,11 @@ WCAG 2.2 AA was the target. Specifics:
   provider, the page says so rather than claiming captions exist.
 - **Live regions**: `FormStatus` is `role="status" aria-live="polite"`, so action
   results are announced.
+- **Links are visually distinct.** Tailwind's preflight resets `<a>` to
+  `color: inherit` with no decoration, which left unstyled links indistinguishable
+  from body text — a WCAG 1.4.1 failure that survived until the brand pass. Base
+  styles now give links the tertiary blue and an underline; components that
+  deliberately opt out (navigation, card rows, the lockup) carry `no-underline`.
 - **Responsive**: single column below `lg`, sidebar above; wide tables scroll in
   their own container so the page body never scrolls horizontally.
 

@@ -82,7 +82,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
       />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Badge tone="burgundy">
+        <Badge tone="brand">
           {ASSESSMENT_TYPE_LABELS[assessment.type]}
         </Badge>
         {assessment.is_practice === 1 ? (
@@ -109,7 +109,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
               value={progress.answered}
               max={progress.total}
               valueText={`${progress.answered} of ${progress.total}`}
-              tone="burgundy"
+              tone="brand"
             />
             {progress.scorable > 0 ? (
               <Meter
@@ -169,7 +169,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
                       </span>
                     ) : null}
                     {question.ai_generated === 1 ? (
-                      <Badge tone="gold">Drafted with AI, edited by professor</Badge>
+                      <Badge tone="accent">Drafted with AI, edited by professor</Badge>
                     ) : null}
                   </div>
 
@@ -209,7 +209,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
                               size="sm"
                               className={
                                 response?.confidence === level
-                                  ? "border-burgundy-400 bg-burgundy-50 text-burgundy-700"
+                                  ? "border-brand-400 bg-brand-50 text-brand-700"
                                   : undefined
                               }
                               aria-pressed={response?.confidence === level}
@@ -257,7 +257,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
                                   className={[
                                     "w-full justify-start text-left",
                                     chosen
-                                      ? "border-burgundy-400 bg-burgundy-50"
+                                      ? "border-brand-400 bg-brand-50"
                                       : "",
                                     reveal && option.is_correct === 1
                                       ? "border-track-500 bg-track-50"
@@ -334,7 +334,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
                   )}
 
                   {answered && autoScored ? (
-                    <div className="mt-3 border-t border-sand-100 pt-3">
+                    <div className="mt-3 border-t border-tan-100 pt-3">
                       <p
                         className={
                           response?.is_correct === 1

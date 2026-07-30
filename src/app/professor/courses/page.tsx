@@ -43,7 +43,7 @@ export default async function CoursesPage() {
               <CardBody>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[0.78rem] font-medium uppercase tracking-wide text-burgundy-600">
+                    <p className="text-[0.78rem] font-medium uppercase tracking-wide text-brand-600">
                       {course.code}
                     </p>
                     <h2 className="mt-1 font-serif text-xl leading-snug">
@@ -68,13 +68,13 @@ export default async function CoursesPage() {
                   <Badge>{COURSE_FORMAT_LABELS[course.format]}</Badge>
                   {course.term ? <Badge>{course.term}</Badge> : null}
                   {course.access_code ? (
-                    <Badge tone="burgundy">Code {course.access_code}</Badge>
+                    <Badge tone="brand">Code {course.access_code}</Badge>
                   ) : (
                     <Badge tone="attention">No active code</Badge>
                   )}
                 </div>
 
-                <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-sand-100 pt-3 text-[0.82rem] text-ink-500">
+                <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
                   <div className="flex gap-1.5">
                     <dt>Students</dt>
                     <dd className="font-medium text-ink-700">

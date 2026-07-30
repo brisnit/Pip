@@ -60,7 +60,7 @@ export function seedDemonstrationData(db: Db) {
          id, professor_id, title, code, description, term, meeting_days, meeting_time,
          location, format, image_theme, estimated_enrollment, start_date, end_date,
          is_demo, created_at, updated_at
-       ) VALUES (?,?,?,?,?,?,?,?,?,'hybrid','burgundy',?,?,?,1,?,?)`,
+       ) VALUES (?,?,?,?,?,?,?,?,?,'hybrid','teal',?,?,?,1,?,?)`,
     ).run(
       courseId,
       professorId,

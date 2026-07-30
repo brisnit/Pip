@@ -85,7 +85,7 @@ export default async function StudentReadinessPage({
               ) : null}
             </div>
             {upcoming ? (
-              <div className="shrink-0 rounded-md border border-sand-200 bg-cream-100 px-4 py-3 text-[0.85rem]">
+              <div className="shrink-0 rounded-md border border-tan-200 bg-paper-100 px-4 py-3 text-[0.85rem]">
                 <p className="font-medium text-ink-800">{upcoming.title}</p>
                 <p className="mt-0.5 text-ink-500">
                   {formatDateTime(upcoming.scheduled_at)}
@@ -127,7 +127,7 @@ export default async function StudentReadinessPage({
                 list here means missing evidence, not a missing ability.
               </p>
             ) : (
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {readiness.strengths.map((row) => (
                   <li key={row.objective.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -166,7 +166,7 @@ export default async function StudentReadinessPage({
                 No topic is showing weak evidence right now.
               </p>
             ) : (
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {readiness.gaps.map((row) => (
                   <li key={row.objective.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -207,7 +207,7 @@ export default async function StudentReadinessPage({
         <CardBody className="space-y-6">
           <ReasonList reasons={readiness.reasons} title="In short" />
 
-          <div className="border-t border-sand-100 pt-5">
+          <div className="border-t border-tan-100 pt-5">
             <h3 className="mb-3 text-sm font-semibold">Signals that carry weight</h3>
             {scoredSignals.length === 0 ? (
               <p className="text-sm text-ink-500">
@@ -238,7 +238,7 @@ export default async function StudentReadinessPage({
             )}
           </div>
 
-          <div className="border-t border-sand-100 pt-5">
+          <div className="border-t border-tan-100 pt-5">
             <h3 className="mb-2 text-sm font-semibold">
               Context, not counted against you
             </h3>
@@ -253,7 +253,7 @@ export default async function StudentReadinessPage({
           </div>
 
           {readiness.unassessed.length > 0 ? (
-            <div className="border-t border-sand-100 pt-5">
+            <div className="border-t border-tan-100 pt-5">
               <h3 className="mb-2 text-sm font-semibold">
                 Not enough information yet
               </h3>
@@ -286,7 +286,7 @@ export default async function StudentReadinessPage({
                 it
               </caption>
               <thead>
-                <tr className="border-b border-sand-200 bg-cream-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
+                <tr className="border-b border-tan-200 bg-paper-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
                   <th scope="col" className="px-4 py-2.5 font-medium">
                     Objective
                   </th>
@@ -304,14 +304,14 @@ export default async function StudentReadinessPage({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-sand-100">
+              <tbody className="divide-y divide-tan-100">
                 {readiness.objectives.map((row) => (
                   <tr key={row.objective.id} className="align-top">
                     <th
                       scope="row"
                       className="px-4 py-3 text-left font-normal text-ink-700"
                     >
-                      <span className="font-medium text-burgundy-600">
+                      <span className="font-medium text-brand-600">
                         {row.objective.code}
                       </span>{" "}
                       {row.objective.text}
@@ -369,7 +369,7 @@ export default async function StudentReadinessPage({
           }
         />
         <CardBody className="p-0">
-          <ul className="divide-y divide-sand-100">
+          <ul className="divide-y divide-tan-100">
             {(assigned.length > 0
               ? assigned.map((rec) => ({
                   key: rec.id,
@@ -390,11 +390,11 @@ export default async function StudentReadinessPage({
             ).map((item) => (
               <li key={item.key} className="px-5 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone="burgundy">
+                  <Badge tone="brand">
                     {SUPPORT_PATHWAY_LABELS[item.pathway]}
                   </Badge>
                   {item.assigned ? (
-                    <Badge tone="gold">On your plan</Badge>
+                    <Badge tone="accent">On your plan</Badge>
                   ) : (
                     <span className="text-[0.75rem] text-ink-400">suggested</span>
                   )}

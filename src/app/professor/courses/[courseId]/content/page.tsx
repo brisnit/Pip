@@ -206,7 +206,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                       </div>
                     </div>
 
-                    <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-sand-100 pt-3 text-[0.82rem] text-ink-500">
+                    <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
                       <div className="flex gap-1.5">
                         <dt>Sections</dt>
                         <dd className="font-medium text-ink-700">
@@ -240,8 +240,8 @@ export default async function ContentPage({ params, searchParams }: Props) {
                     </dl>
 
                     {segments.length > 0 ? (
-                      <details className="mt-4 border-t border-sand-100 pt-3">
-                        <summary className="cursor-pointer text-sm font-medium text-burgundy-700">
+                      <details className="mt-4 border-t border-tan-100 pt-3">
+                        <summary className="cursor-pointer text-sm font-medium text-brand-700">
                           Outline and interactive moments
                         </summary>
                         <ol className="mt-3 space-y-3">
@@ -264,7 +264,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                                         key={moment.id}
                                         className="text-[0.82rem] text-ink-500"
                                       >
-                                        <span className="text-gold-500">
+                                        <span className="text-accent-700">
                                           {INTERACTION_TYPE_LABELS[moment.type]}
                                         </span>
                                         {" — "}
@@ -302,13 +302,13 @@ export default async function ContentPage({ params, searchParams }: Props) {
         ) : (
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {materials.map((material) => (
                   <li key={material.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="burgundy">
+                          <Badge tone="brand">
                             {CONTENT_TYPE_LABELS[material.content_type]}
                           </Badge>
                           {material.visibility !== "students" ? (
@@ -370,7 +370,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                           </p>
                         ) : null}
                         {material.student_instructions ? (
-                          <p className="mt-1.5 rounded border border-sand-100 bg-cream-100 px-2 py-1 text-[0.8rem] text-ink-600">
+                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.8rem] text-ink-600">
                             For students: {material.student_instructions}
                           </p>
                         ) : null}

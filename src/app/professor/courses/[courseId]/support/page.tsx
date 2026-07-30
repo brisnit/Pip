@@ -117,7 +117,7 @@ export default async function SupportPage({
             </dl>
 
             {summary.length > 0 ? (
-              <div className="border-t border-sand-100 pt-5">
+              <div className="border-t border-tan-100 pt-5">
                 <h3 className="mb-3 text-sm font-semibold">By pathway</h3>
                 <ul className="space-y-3">
                   {summary.map((row) => (
@@ -177,13 +177,13 @@ export default async function SupportPage({
         ) : (
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-sand-100">
+              <ul className="divide-y divide-tan-100">
                 {requests.map((request) => (
                   <li key={request.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="burgundy">
+                          <Badge tone="brand">
                             {
                               SUPPORT_REQUEST_KIND_LABELS[
                                 request.kind as SupportRequestKind
@@ -227,13 +227,13 @@ export default async function SupportPage({
                           </p>
                         ) : null}
                         {request.message ? (
-                          <p className="mt-1.5 rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.85rem] leading-relaxed text-ink-600">
+                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] leading-relaxed text-ink-600">
                             {request.message}
                           </p>
                         ) : null}
                         {request.prep_summary ? (
                           <details className="mt-2">
-                            <summary className="cursor-pointer text-[0.82rem] font-medium text-burgundy-700">
+                            <summary className="cursor-pointer text-[0.82rem] font-medium text-brand-700">
                               Preparation summary
                             </summary>
                             <p className="mt-1 whitespace-pre-line text-[0.82rem] text-ink-600">
@@ -315,11 +315,11 @@ export default async function SupportPage({
                   action={<StatusPill status={result.status} size="sm" />}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-sand-100">
+                  <ul className="divide-y divide-tan-100">
                     {recs.map((rec) => (
                       <li key={rec.id} className="px-5 py-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="burgundy">
+                          <Badge tone="brand">
                             {SUPPORT_PATHWAY_LABELS[rec.pathway]}
                           </Badge>
                           <Badge
@@ -354,7 +354,7 @@ export default async function SupportPage({
                         ) : null}
 
                         {rec.student_response ? (
-                          <p className="mt-1.5 rounded border border-sand-100 bg-cream-100 px-2 py-1 text-[0.82rem] text-ink-600">
+                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
                             Student: &ldquo;{rec.student_response}&rdquo;
                           </p>
                         ) : null}

@@ -46,7 +46,7 @@ export function LivePoller({
   }, [on, intervalSeconds, router]);
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-md border border-sand-200 bg-cream-100 px-3 py-2 text-[0.82rem]">
+    <div className="flex flex-wrap items-center gap-3 rounded-md border border-tan-200 bg-paper-100 px-3 py-2 text-[0.82rem]">
       <span className="text-ink-600">
         Prototype refresh: polls every {intervalSeconds}s. No realtime
         infrastructure is configured.

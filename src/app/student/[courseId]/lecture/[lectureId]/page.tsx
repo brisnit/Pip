@@ -247,7 +247,7 @@ export default async function StudentLecturePage({ params }: Props) {
                               </span>
                               {segment.heading}
                             </h3>
-                            <span className="shrink-0 font-mono text-[0.8rem] text-burgundy-500">
+                            <span className="shrink-0 font-mono text-[0.8rem] text-brand-500">
                               {formatClock(segment.start_seconds)}
                             </span>
                           </div>
@@ -259,12 +259,12 @@ export default async function StudentLecturePage({ params }: Props) {
                           ) : null}
 
                           {segment.transcript_excerpt ? (
-                            <blockquote className="mt-3 border-l-2 border-gold-300 pl-3 text-[0.85rem] italic text-ink-500">
+                            <blockquote className="mt-3 border-l-2 border-accent-300 pl-3 text-[0.85rem] italic text-ink-500">
                               {segment.transcript_excerpt}
                             </blockquote>
                           ) : null}
 
-                          <div className="mt-4 border-t border-sand-100 pt-3">
+                          <div className="mt-4 border-t border-tan-100 pt-3">
                             <p
                               className="mb-2 text-[0.78rem] font-medium uppercase tracking-wide text-ink-400"
                               id={`marks-${segment.id}`}
@@ -335,7 +335,7 @@ export default async function StudentLecturePage({ params }: Props) {
                                             ? "border-attention-500 bg-attention-50 text-attention-600"
                                             : marker === "clear"
                                               ? "border-track-500 bg-track-50 text-track-600"
-                                              : "border-burgundy-400 bg-burgundy-50 text-burgundy-700"
+                                              : "border-brand-400 bg-brand-50 text-brand-700"
                                           : undefined
                                       }
                                     >
@@ -370,7 +370,7 @@ export default async function StudentLecturePage({ params }: Props) {
                                     type="submit"
                                     variant="secondary"
                                     size="sm"
-                                    className="border-gold-400 bg-gold-100 text-gold-600"
+                                    className="border-accent-500 bg-accent-50 text-accent-700"
                                     aria-pressed
                                   >
                                     <span aria-hidden="true">⚑</span> Bookmarked
@@ -426,7 +426,7 @@ export default async function StudentLecturePage({ params }: Props) {
                           </div>
 
                           {segmentInteractions.length > 0 ? (
-                            <div className="mt-4 space-y-3 border-t border-sand-100 pt-4">
+                            <div className="mt-4 space-y-3 border-t border-tan-100 pt-4">
                               {segmentInteractions.map((interaction) => (
                                 <InteractionCard
                                   key={interaction.id}
@@ -441,9 +441,9 @@ export default async function StudentLecturePage({ params }: Props) {
                             </div>
                           ) : null}
 
-                          <div className="mt-4 space-y-2 border-t border-sand-100 pt-4">
+                          <div className="mt-4 space-y-2 border-t border-tan-100 pt-4">
                             <details>
-                              <summary className="cursor-pointer text-sm font-medium text-burgundy-700">
+                              <summary className="cursor-pointer text-sm font-medium text-brand-700">
                                 Take a note here
                                 {segmentNotes.length > 0
                                   ? ` (${segmentNotes.length} saved)`
@@ -455,7 +455,7 @@ export default async function StudentLecturePage({ params }: Props) {
                             </details>
 
                             <details>
-                              <summary className="cursor-pointer text-sm font-medium text-burgundy-700">
+                              <summary className="cursor-pointer text-sm font-medium text-brand-700">
                                 Ask about this section
                               </summary>
                               <div className="mt-3">
@@ -465,16 +465,16 @@ export default async function StudentLecturePage({ params }: Props) {
                           </div>
 
                           {segmentNotes.length > 0 ? (
-                            <ul className="mt-4 space-y-2 border-t border-sand-100 pt-3">
+                            <ul className="mt-4 space-y-2 border-t border-tan-100 pt-3">
                               {segmentNotes.map((note) => (
                                 <li
                                   key={note.id}
-                                  className="rounded border border-sand-100 bg-cream-100 px-3 py-2"
+                                  className="rounded border border-tan-100 bg-paper-100 px-3 py-2"
                                 >
                                   <div className="flex flex-wrap items-center gap-2">
                                     <Badge>{NOTE_KIND_LABELS[note.kind]}</Badge>
                                     {note.shared_with_professor === 1 ? (
-                                      <Badge tone="gold">Shared</Badge>
+                                      <Badge tone="accent">Shared</Badge>
                                     ) : (
                                       <span className="text-[0.72rem] text-ink-400">
                                         private
@@ -550,7 +550,7 @@ export default async function StudentLecturePage({ params }: Props) {
                     section above.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-sand-100">
+                  <ul className="divide-y divide-tan-100">
                     {questions.map((question) => {
                       const mine = question.student_id === student.studentId;
                       const voted = votedIds.has(question.id);
@@ -559,7 +559,7 @@ export default async function StudentLecturePage({ params }: Props) {
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <Badge tone="burgundy">
+                                <Badge tone="brand">
                                   {QUESTION_KIND_LABELS[question.kind]}
                                 </Badge>
                                 <Badge
@@ -628,7 +628,7 @@ export default async function StudentLecturePage({ params }: Props) {
                                   aria-pressed={voted}
                                   className={
                                     voted
-                                      ? "border-burgundy-400 bg-burgundy-50 text-burgundy-700"
+                                      ? "border-brand-400 bg-brand-50 text-brand-700"
                                       : undefined
                                   }
                                 >
@@ -658,7 +658,7 @@ export default async function StudentLecturePage({ params }: Props) {
             <Card>
               <CardHeader title="Timeline" level={3} />
               <CardBody className="p-0">
-                <ol className="divide-y divide-sand-100">
+                <ol className="divide-y divide-tan-100">
                   {segments.map((segment) => {
                     const set = markersBySegment.get(segment.id);
                     const noteCount = (notesBySegment.get(segment.id) ?? []).length;
@@ -666,7 +666,7 @@ export default async function StudentLecturePage({ params }: Props) {
                       <li key={segment.id}>
                         <a
                           href={`#segment-${segment.id}`}
-                          className="block px-4 py-2.5 no-underline hover:bg-cream-100"
+                          className="block px-4 py-2.5 no-underline hover:bg-paper-100"
                         >
                           <span className="flex items-baseline justify-between gap-2">
                             <span className="min-w-0 text-[0.85rem] text-ink-700">
@@ -687,12 +687,12 @@ export default async function StudentLecturePage({ params }: Props) {
                                 </span>
                               ) : null}
                               {set?.has("important") ? (
-                                <span className="text-burgundy-600">
+                                <span className="text-brand-600">
                                   ★ important
                                 </span>
                               ) : null}
                               {set?.has("exam_likely") ? (
-                                <span className="text-gold-600">✎ exam</span>
+                                <span className="text-accent-700">✎ exam</span>
                               ) : null}
                               {noteCount > 0 ? (
                                 <span className="text-ink-500">
@@ -717,7 +717,7 @@ export default async function StudentLecturePage({ params }: Props) {
                 <ul className="space-y-2">
                   {objectives.map((objective) => (
                     <li key={objective.id} className="text-[0.85rem]">
-                      <span className="font-medium text-burgundy-600">
+                      <span className="font-medium text-brand-600">
                         {objective.code}
                       </span>{" "}
                       <span className="text-ink-600">{objective.text}</span>
@@ -744,7 +744,7 @@ export default async function StudentLecturePage({ params }: Props) {
                         </dd>
                       ) : null}
                       {concept.perspective ? (
-                        <dd className="mt-1 rounded border border-gold-200 bg-gold-100 px-2 py-1.5 text-[0.78rem] leading-relaxed text-gold-600">
+                        <dd className="mt-1 rounded border border-accent-200 bg-accent-50 px-2 py-1.5 text-[0.78rem] leading-relaxed text-accent-700">
                           <span className="font-semibold">
                             Traditions differ here.
                           </span>{" "}
@@ -815,7 +815,7 @@ export default async function StudentLecturePage({ params }: Props) {
             <Card>
               <CardHeader title="Your bookmarks" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {bookmarks.map((bookmark) => (
                     <li key={bookmark.id} className="px-4 py-2">
                       <a

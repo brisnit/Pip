@@ -20,10 +20,10 @@ function Frame({
   return (
     <div className="flex min-h-screen flex-col">
       <PrototypeBanner />
-      <header className="border-b border-sand-100 bg-white">
+      <header className="border-b border-tan-100 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">{masthead}</div>
         {subnav ? (
-          <div className="mx-auto max-w-6xl border-t border-sand-100 px-4 sm:px-6">
+          <div className="mx-auto max-w-6xl border-t border-tan-100 px-4 sm:px-6">
             {subnav}
           </div>
         ) : null}
@@ -38,7 +38,7 @@ function Frame({
         </main>
       </div>
 
-      <footer className="border-t border-sand-100 bg-white">
+      <footer className="border-t border-tan-100 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           <p>
             {product.name} — a prototype for {product.institution.name}. Not an
@@ -81,7 +81,7 @@ export function ProfessorShell({
         <div className="flex flex-wrap items-center justify-between gap-4 py-4">
           <div className="flex min-w-0 items-center gap-5">
             <BrandLockup />
-            <span className="hidden rounded-full border border-burgundy-200 bg-burgundy-50 px-2.5 py-0.5 text-[0.72rem] font-semibold uppercase tracking-wide text-burgundy-700 sm:inline">
+            <span className="hidden rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-[0.72rem] font-semibold uppercase tracking-wide text-brand-700 sm:inline">
               Professor portal
             </span>
           </div>
@@ -90,7 +90,7 @@ export function ProfessorShell({
               Acting as{" "}
               <span className="font-medium text-ink-800">{professorName}</span>
             </span>
-            <Link href="/" className="text-burgundy-600">
+            <Link href="/" className="text-brand-600">
               Exit
             </Link>
           </div>
@@ -100,7 +100,7 @@ export function ProfessorShell({
         <div className="flex flex-col gap-1">
           <NavTabs items={topNav} label="Professor sections" />
           {courseNav ? (
-            <div className="border-t border-sand-100 pt-1">
+            <div className="border-t border-tan-100 pt-1">
               {courseTitle ? (
                 <p className="pb-1 pt-1.5 text-[0.78rem] uppercase tracking-wide text-ink-400">
                   {courseCode} · {courseTitle}
@@ -156,7 +156,7 @@ export function StudentShell({
         <div className="flex flex-wrap items-center justify-between gap-4 py-4">
           <div className="flex min-w-0 items-center gap-5">
             <BrandLockup />
-            <div className="hidden min-w-0 border-l border-sand-200 pl-5 sm:block">
+            <div className="hidden min-w-0 border-l border-tan-200 pl-5 sm:block">
               <p className="truncate font-serif text-[0.95rem] text-ink-800">
                 {courseCode} · {courseTitle}
               </p>
@@ -168,7 +168,7 @@ export function StudentShell({
               Signed in as{" "}
               <span className="font-medium text-ink-800">{studentName}</span>
             </span>
-            <Link href="/join" className="text-burgundy-600">
+            <Link href="/join" className="text-brand-600">
               Switch course
             </Link>
           </div>
@@ -182,7 +182,7 @@ export function StudentShell({
       aside={
         <div className="sticky top-6 space-y-6">
           <NavList items={items} label="Course sections" />
-          <div className="rounded-md border border-sand-100 bg-cream-50 p-3 text-[0.8rem] text-ink-500">
+          <div className="rounded-md border border-tan-100 bg-paper-50 p-3 text-[0.8rem] text-ink-500">
             <p className="font-semibold text-ink-700">Your notes are private</p>
             <p className="mt-1">
               Your professor sees aggregated comprehension data, questions you
@@ -222,7 +222,7 @@ export function PublicShell({
   return (
     <div className="flex min-h-screen flex-col">
       <PrototypeBanner />
-      <header className="border-b border-sand-100 bg-white">
+      <header className="border-b border-tan-100 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <BrandLockup size="md" />
           <nav aria-label="Prototype entry points" className="flex items-center gap-5 text-sm">
@@ -240,12 +240,12 @@ export function PublicShell({
       >
         {children}
       </main>
-      <footer className="border-t border-sand-100 bg-white">
+      <footer className="border-t border-tan-100 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           <p>
-            {product.name} — a prototype for {product.institution.name}. The
-            institution name is used to describe the intended setting of this
-            prototype; no official branding is reproduced.
+            {product.name} — a prototype for {product.institution.name}, built to
+            the supplied brand guidelines. Not an official{" "}
+            {product.institution.shortName} system.
           </p>
         </div>
       </footer>

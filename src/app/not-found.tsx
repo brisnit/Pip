@@ -6,7 +6,7 @@ export default function NotFound() {
       id="main"
       className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-16 sm:px-6"
     >
-      <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-burgundy-600">
+      <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
         Not found
       </p>
       <h1 className="mt-3 font-serif text-3xl">
@@ -21,13 +21,13 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/professor/dashboard"
-          className="inline-flex items-center justify-center rounded-md border border-burgundy-600 bg-burgundy-600 px-4 py-2.5 text-[0.95rem] font-medium text-cream-50 no-underline transition-colors hover:bg-burgundy-700"
+          className="inline-flex items-center justify-center rounded-none border border-cta-600 bg-cta-600 px-4 py-2.5 text-[0.95rem] font-medium text-white no-underline transition-colors hover:bg-cta-700"
         >
           Professor portal
         </Link>
         <Link
           href="/join"
-          className="inline-flex items-center justify-center rounded-md border border-sand-200 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-cream-100"
+          className="inline-flex items-center justify-center rounded-none border border-tan-300 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-paper-100"
         >
           Join a course
         </Link>

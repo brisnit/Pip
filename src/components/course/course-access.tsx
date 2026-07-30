@@ -37,7 +37,7 @@ export async function CourseQr({
         // The QR code is decorative here: the URL and the code are both printed
         // as text below it, so a screen-reader user is never dependent on it.
         aria-hidden="true"
-        className="inline-block rounded-md border border-sand-200 bg-white p-2 [&_svg]:block"
+        className="inline-block rounded-md border border-tan-200 bg-white p-2 [&_svg]:block"
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       <figcaption className="mt-2 text-[0.8rem] text-ink-500">
@@ -68,7 +68,7 @@ export async function CourseAccessPanel({
             Course code
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <p className="font-mono text-2xl tracking-[0.2em] text-burgundy-700">
+            <p className="font-mono text-2xl tracking-[0.2em] text-brand-700">
               {accessCode}
             </p>
             <CopyButton value={accessCode} label="Copy code" />
@@ -80,7 +80,7 @@ export async function CourseAccessPanel({
             Student link
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <code className="min-w-0 break-all rounded border border-sand-100 bg-cream-100 px-2 py-1 text-[0.82rem]">
+            <code className="min-w-0 break-all rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem]">
               {url}
             </code>
             <CopyButton value={url} label="Copy link" />
@@ -119,7 +119,7 @@ export async function PrintableAccessCard({
   return (
     <Card className="mx-auto max-w-xl">
       <CardBody className="text-center">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-burgundy-600">
+        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-brand-600">
           {product.institution.name}
         </p>
         <h2 className="mt-3 font-serif text-2xl">
@@ -134,7 +134,7 @@ export async function PrintableAccessCard({
           <CourseQr accessCode={accessCode} size={260} />
         </div>
 
-        <div className="mt-6 border-t border-sand-100 pt-6">
+        <div className="mt-6 border-t border-tan-100 pt-6">
           <p className="text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
             Or go to
           </p>
@@ -142,7 +142,7 @@ export async function PrintableAccessCard({
           <p className="mt-4 text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
             Course code
           </p>
-          <p className="mt-1 font-mono text-3xl tracking-[0.22em] text-burgundy-700">
+          <p className="mt-1 font-mono text-3xl tracking-[0.22em] text-brand-700">
             {accessCode}
           </p>
         </div>

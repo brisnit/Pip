@@ -7,13 +7,20 @@ import { cn } from "@/lib/cn";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
 
+/**
+ * Primary follows the style guide's Primary CTA exactly: the tertiary blue
+ * (#005979) with white text, and square corners. White on that blue is 7.76:1.
+ *
+ * Secondary and ghost are derived rather than specified — the guide gives one
+ * button — so they stay quiet and let the CTA carry the emphasis.
+ */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-burgundy-600 text-cream-50 border-burgundy-600 hover:bg-burgundy-700 hover:border-burgundy-700",
+    "bg-cta-600 text-white border-cta-600 hover:bg-cta-700 hover:border-cta-700",
   secondary:
-    "bg-white text-ink-800 border-sand-200 hover:bg-cream-100 hover:border-sand-300",
+    "bg-white text-ink-800 border-tan-300 hover:bg-paper-100 hover:border-tan-400",
   ghost:
-    "bg-transparent text-burgundy-600 border-transparent hover:bg-burgundy-50 underline underline-offset-2 decoration-burgundy-200",
+    "bg-transparent text-cta-600 border-transparent hover:bg-brand-50 underline underline-offset-2 decoration-cta-300",
   danger:
     "bg-white text-concern-600 border-concern-200 hover:bg-concern-50 hover:border-concern-500",
 };
@@ -24,7 +31,8 @@ const SIZES: Record<Size, string> = {
 };
 
 const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-md border font-medium " +
+  // rounded-none: the style guide's button is a sharp rectangle.
+  "inline-flex items-center justify-center gap-2 rounded-none border font-medium " +
   "transition-colors disabled:cursor-not-allowed disabled:opacity-55 no-underline text-center";
 
 export function Button({
@@ -58,7 +66,7 @@ export function ButtonLink({
 // Surfaces -------------------------------------------------------------------
 
 const CARD_SURFACE =
-  "rounded-lg border border-sand-100 bg-white shadow-[0_1px_2px_rgba(28,26,24,0.04)]";
+  "rounded-lg border border-tan-100 bg-white shadow-[0_1px_2px_rgba(28,26,24,0.04)]";
 
 export function Card({
   as = "section",
@@ -100,7 +108,7 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-start justify-between gap-3 border-b border-sand-100 px-5 py-4 sm:px-6",
+        "flex flex-wrap items-start justify-between gap-3 border-b border-tan-100 px-5 py-4 sm:px-6",
         className,
       )}
     >
@@ -162,14 +170,14 @@ export function Badge({
   className,
   children,
 }: {
-  tone?: "neutral" | "burgundy" | "gold" | "track" | "attention" | "concern";
+  tone?: "neutral" | "brand" | "accent" | "track" | "attention" | "concern";
   className?: string;
   children: ReactNode;
 }) {
   const tones = {
-    neutral: "bg-cream-200 text-ink-600 border-sand-200",
-    burgundy: "bg-burgundy-50 text-burgundy-700 border-burgundy-200",
-    gold: "bg-gold-100 text-gold-600 border-gold-200",
+    neutral: "bg-paper-200 text-ink-600 border-tan-200",
+    brand: "bg-brand-50 text-brand-700 border-brand-200",
+    accent: "bg-accent-50 text-accent-700 border-accent-200",
     track: "bg-track-50 text-track-600 border-track-200",
     attention: "bg-attention-50 text-attention-600 border-attention-200",
     concern: "bg-concern-50 text-concern-600 border-concern-200",
@@ -211,10 +219,10 @@ export function Notice({
   className?: string;
 }) {
   const tones = {
-    info: "border-sand-200 bg-cream-200 text-ink-700",
+    info: "border-tan-200 bg-paper-200 text-ink-700",
     caution: "border-attention-200 bg-attention-50 text-attention-600",
-    privacy: "border-burgundy-200 bg-burgundy-50 text-burgundy-800",
-    ai: "border-gold-200 bg-gold-100 text-gold-600",
+    privacy: "border-brand-200 bg-brand-50 text-brand-800",
+    ai: "border-accent-200 bg-accent-50 text-accent-700",
   }[tone];
 
   const glyph = { info: "i", caution: "!", privacy: "◈", ai: "◆" }[tone];
@@ -256,7 +264,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "rounded-lg border border-dashed border-sand-200 bg-cream-50 px-6 py-10 text-center",
+        "rounded-lg border border-dashed border-tan-200 bg-paper-50 px-6 py-10 text-center",
         className,
       )}
     >
@@ -314,17 +322,17 @@ export function Meter({
   value,
   max = 1,
   valueText,
-  tone = "burgundy",
+  tone = "brand",
 }: {
   label: string;
   value: number;
   max?: number;
   valueText: string;
-  tone?: "burgundy" | "track" | "attention" | "concern" | "unknown";
+  tone?: "brand" | "track" | "attention" | "concern" | "unknown";
 }) {
   const pct = max === 0 ? 0 : Math.max(0, Math.min(1, value / max)) * 100;
   const barTone = {
-    burgundy: "bg-burgundy-500",
+    brand: "bg-accent-400",
     track: "bg-track-500",
     attention: "bg-attention-500",
     concern: "bg-concern-500",
@@ -344,7 +352,7 @@ export function Meter({
         aria-valuemin={0}
         aria-valuemax={max}
         aria-valuetext={valueText}
-        className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-cream-300"
+        className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-paper-300"
       >
         <div className={cn("h-full rounded-full", barTone)} style={{ width: `${pct}%` }} />
       </div>

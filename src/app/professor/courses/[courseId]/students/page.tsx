@@ -154,7 +154,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                   total={aggregate.total}
                 />
                 {aggregate.hardestObjectives.length > 0 ? (
-                  <div className="border-t border-sand-100 pt-5">
+                  <div className="border-t border-tan-100 pt-5">
                     <h3 className="text-sm font-semibold">
                       Objectives to reteach first
                     </h3>
@@ -180,7 +180,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                   </div>
                 ) : null}
                 {aggregate.confusingConcepts.length > 0 ? (
-                  <div className="border-t border-sand-100 pt-5">
+                  <div className="border-t border-tan-100 pt-5">
                     <h3 className="text-sm font-semibold">
                       Most common confusion
                     </h3>
@@ -210,8 +210,8 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                     aria-current={statusFilter === null ? "true" : undefined}
                     className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                       statusFilter === null
-                        ? "border-burgundy-600 bg-burgundy-600 font-medium text-cream-50"
-                        : "border-sand-200 bg-white text-ink-600"
+                        ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
+                        : "border-tan-200 bg-white text-ink-600"
                     }`}
                   >
                     All ({roster.length})
@@ -224,8 +224,8 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                       aria-current={statusFilter === status ? "true" : undefined}
                       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                         statusFilter === status
-                          ? "border-burgundy-600 bg-burgundy-600 font-medium text-cream-50"
-                          : "border-sand-200 bg-white text-ink-600"
+                          ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
+                          : "border-tan-200 bg-white text-ink-600"
                       }`}
                     >
                       <span aria-hidden="true">
@@ -270,7 +270,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                       support plan size.
                     </caption>
                     <thead>
-                      <tr className="border-b border-sand-200 bg-cream-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
+                      <tr className="border-b border-tan-200 bg-paper-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
                         <th scope="col" className="px-4 py-2.5 font-medium">
                           Student
                         </th>
@@ -300,7 +300,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-sand-100">
+                    <tbody className="divide-y divide-tan-100">
                       {rows.map(({ student, result, recommendations: recs, openFollowUps }) => {
                         const participation = result.signals.find(
                           (s) => s.kind === "participation_breadth",
@@ -324,7 +324,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                                 {student.name}
                               </Link>
                               {result.override ? (
-                                <span className="mt-1 block text-[0.75rem] font-normal text-burgundy-600">
+                                <span className="mt-1 block text-[0.75rem] font-normal text-brand-600">
                                   Status set manually
                                 </span>
                               ) : null}

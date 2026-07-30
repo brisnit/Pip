@@ -119,7 +119,7 @@ export default async function StudentResourcesPage({
                   <Card as="li" key={material.id}>
                     <CardBody className="p-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {CONTENT_TYPE_LABELS[material.content_type]}
                         </Badge>
                         {material.date_label ? (
@@ -159,7 +159,7 @@ export default async function StudentResourcesPage({
                       ) : null}
 
                       {material.student_instructions ? (
-                        <p className="mt-2 rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.85rem] text-ink-700">
+                        <p className="mt-2 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-700">
                           <span className="font-medium">
                             From {course.professor_name}:
                           </span>{" "}
@@ -210,7 +210,7 @@ export default async function StudentResourcesPage({
                     level={3}
                   />
                   <CardBody className="p-0">
-                    <ul className="divide-y divide-sand-100">
+                    <ul className="divide-y divide-tan-100">
                       {items.map((item) => (
                         <li key={item.id} className="px-5 py-2.5">
                           <div className="flex flex-wrap items-baseline gap-2">
@@ -220,7 +220,7 @@ export default async function StudentResourcesPage({
                               </span>
                             ) : null}
                             {item.date_label ? (
-                              <Badge tone="gold">{item.date_label}</Badge>
+                              <Badge tone="accent">{item.date_label}</Badge>
                             ) : null}
                           </div>
                           <p className="text-[0.88rem] text-ink-700">
@@ -257,7 +257,7 @@ export default async function StudentResourcesPage({
             <ul className="space-y-2">
               {objectives.map((objective) => (
                 <li key={objective.id} className="flex gap-3 text-sm">
-                  <span className="shrink-0 font-medium text-burgundy-600">
+                  <span className="shrink-0 font-medium text-brand-600">
                     {objective.code}
                   </span>
                   <span className="text-ink-700">{objective.text}</span>
@@ -290,7 +290,7 @@ export default async function StudentResourcesPage({
                     </dd>
                   ) : null}
                   {concept.perspective ? (
-                    <dd className="mt-1.5 rounded-md border border-gold-200 bg-gold-100 px-3 py-2 text-[0.82rem] leading-relaxed text-gold-600">
+                    <dd className="mt-1.5 rounded-md border border-accent-200 bg-accent-50 px-3 py-2 text-[0.82rem] leading-relaxed text-accent-700">
                       <span className="font-semibold">
                         Traditions differ here.
                       </span>{" "}

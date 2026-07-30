@@ -29,7 +29,7 @@ function inline(text: string, keyPrefix: string) {
       nodes.push(
         <code
           key={key}
-          className="rounded bg-cream-200 px-1 py-0.5 text-[0.9em]"
+          className="rounded bg-paper-200 px-1 py-0.5 text-[0.9em]"
         >
           {token.slice(1, -1)}
         </code>,
@@ -200,7 +200,7 @@ export function Transcript({ source }: { source: string | null | undefined }) {
           <p key={index} className="text-[0.9rem] leading-relaxed text-ink-600">
             {match ? (
               <>
-                <span className="mr-2 select-none font-mono text-[0.78rem] text-burgundy-500">
+                <span className="mr-2 select-none font-mono text-[0.78rem] text-brand-500">
                   {match[1]}
                 </span>
                 {match[2]}

@@ -1,81 +1,115 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   Fuller Learning Companion — prototype design system
-   Deep burgundy / warm neutral / cream / charcoal, restrained gold accent.
-   All pairings below were chosen to clear WCAG 2.2 AA on their intended
-   background (see docs/product-architecture.md → Design system).
+   Fuller Learning Companion — design system
+
+   Built from the Fuller Seminary style guide in public/brand assets/:
+
+     Primary   #042B32   deep teal
+     Secondary #00ADC7   cyan
+     Tan       #D8D2C4
+     Tertiary  #005979   the Primary CTA colour
+     Black     #0C1821
+     White     #ffffff
+
+   Typography: Noto Serif (primary, headings) and Noto Sans (secondary, body),
+   both loaded and self-hosted by next/font in src/app/layout.tsx.
+
+   Two constraints shaped the ramps built around those six colours:
+
+   1. The secondary cyan is only 2.69:1 against white, so it can never carry
+      text. It is used for fills, borders and graphics; anything cyan that has
+      to be *read* uses accent-600 or accent-700.
+   2. WCAG 1.4.11 wants 3:1 for the boundary of an interactive control, which
+      the brand tan cannot give against white. Form controls therefore use
+      tan-400 (3.55:1) while decorative dividers keep the lighter tans.
+
+   Every pairing the app renders is verified — see docs/product-architecture.md
+   → Design system for the table.
    ========================================================================== */
 
 @theme {
-  /* Brand ---------------------------------------------------------------- */
-  --color-burgundy-50: #f9f0f1;
-  --color-burgundy-100: #f0dbde;
-  --color-burgundy-200: #ddb3ba;
-  --color-burgundy-300: #c4808c;
-  --color-burgundy-400: #a55263;
-  --color-burgundy-500: #8a2d40;
-  --color-burgundy-600: #6b1f2e;
-  --color-burgundy-700: #551825;
-  --color-burgundy-800: #3d111a;
-  --color-burgundy-900: #290b12;
+  /* Brand teal, from Primary #042B32 --------------------------------------- */
+  --color-brand-50: #eef4f5;
+  --color-brand-100: #d4e3e6;
+  --color-brand-200: #a6c5cb;
+  --color-brand-300: #6d9aa4;
+  --color-brand-400: #3c6f7c;
+  --color-brand-500: #0b4451;
+  --color-brand-600: #042b32;
+  --color-brand-700: #032228;
+  --color-brand-800: #02181c;
+  --color-brand-900: #010f12;
 
-  --color-cream-50: #fdfbf7;
-  --color-cream-100: #fbf7f0;
-  --color-cream-200: #f5efe4;
-  --color-cream-300: #ece3d3;
+  /* Tertiary blue #005979 — primary calls to action ----------------------- */
+  --color-cta-300: #4aa3c2;
+  --color-cta-400: #0b7fa5;
+  --color-cta-500: #006b8c;
+  --color-cta-600: #005979;
+  --color-cta-700: #004761;
 
-  --color-sand-100: #e7dfd2;
-  --color-sand-200: #d8cdb9;
-  --color-sand-300: #c2b49c;
-  --color-sand-400: #a08f76;
-  --color-sand-500: #7c6d57;
+  /* Secondary cyan #00ADC7 — fills and accents, never small text ---------- */
+  --color-accent-50: #e6f8fb;
+  --color-accent-100: #c1eff5;
+  --color-accent-200: #84dfeb;
+  --color-accent-300: #3ec9dc;
+  --color-accent-400: #00adc7;
+  --color-accent-500: #008ba1;
+  --color-accent-600: #006b7d;
+  --color-accent-700: #00505e;
 
-  --color-ink-400: #6f6862;
-  --color-ink-500: #55504a;
-  --color-ink-600: #403b36;
-  --color-ink-700: #2a2724;
-  --color-ink-800: #1c1a18;
-  --color-ink-900: #12100f;
+  /* Paper — near-white grounds with a hint of the tan ---------------------- */
+  --color-paper-50: #fbfaf8;
+  --color-paper-100: #f6f4f0;
+  --color-paper-200: #efece5;
+  --color-paper-300: #e7e3d9;
 
-  --color-gold-100: #f6ecd6;
-  --color-gold-200: #e8d3a4;
-  --color-gold-300: #d3b46e;
-  --color-gold-400: #b08542;
-  --color-gold-500: #8a6528;
-  --color-gold-600: #6b4d1c;
+  /* Tan #D8D2C4 ----------------------------------------------------------- */
+  --color-tan-100: #e7e3d9;
+  --color-tan-200: #d8d2c4;
+  --color-tan-300: #c2bba8;
+  --color-tan-400: #8f877a;
+  --color-tan-500: #7d7566;
 
-  /* Readiness statuses. Never used as the sole signal — every surface pairs
-     these with an icon and a text label. */
-  --color-track-50: #eef5f0;
-  --color-track-100: #d8e8de;
-  --color-track-200: #a9cbb8;
-  --color-track-500: #2f6b4f;
-  --color-track-600: #245139;
+  /* Ink, from Black #0C1821 ----------------------------------------------- */
+  --color-ink-400: #5a6b74;
+  --color-ink-500: #42545e;
+  --color-ink-600: #2a3c46;
+  --color-ink-700: #182a33;
+  --color-ink-800: #0c1821;
+  --color-ink-900: #060e14;
 
-  --color-attention-50: #fbf3e3;
-  --color-attention-100: #f6e6c6;
-  --color-attention-200: #e6c98c;
-  --color-attention-500: #8a5f10;
-  --color-attention-600: #6d4a0a;
+  /* Readiness statuses. Never the sole signal — every surface pairs these
+     with a shape glyph and a text label. Tuned to sit with the teal palette
+     while staying unmistakably green / amber / red / grey. */
+  --color-track-50: #eaf4ef;
+  --color-track-100: #d2e8dc;
+  --color-track-200: #a3cbb7;
+  --color-track-500: #1e6b50;
+  --color-track-600: #14513c;
 
-  --color-concern-50: #fbeeec;
-  --color-concern-100: #f6dcd7;
-  --color-concern-200: #e5b3a9;
-  --color-concern-500: #a3382a;
-  --color-concern-600: #822a1f;
+  --color-attention-50: #fdf3e2;
+  --color-attention-100: #f8e6c4;
+  --color-attention-200: #e9c98a;
+  --color-attention-500: #8a5a00;
+  --color-attention-600: #6d4700;
 
-  --color-unknown-50: #f1f2f3;
-  --color-unknown-100: #e3e5e7;
-  --color-unknown-200: #c6cace;
-  --color-unknown-500: #55606a;
-  --color-unknown-600: #414a52;
+  --color-concern-50: #fceeec;
+  --color-concern-100: #f7dcd8;
+  --color-concern-200: #e6b3aa;
+  --color-concern-500: #a3342a;
+  --color-concern-600: #82271f;
+
+  --color-unknown-50: #eef1f3;
+  --color-unknown-100: #e0e5e8;
+  --color-unknown-200: #c3ccd1;
+  --color-unknown-500: #4a5c66;
+  --color-unknown-600: #394951;
 
   /* Type ----------------------------------------------------------------- */
-  --font-serif: var(--font-display), "Iowan Old Style", "Palatino Linotype",
-    Palatino, Georgia, ui-serif, serif;
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-display), "Noto Serif", Georgia, ui-serif, serif;
+  --font-sans: var(--font-body), "Noto Sans", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
 
   --text-display: 3.25rem;
   --text-display--line-height: 1.06;
@@ -83,15 +117,16 @@
 }
 
 :root {
-  --page: var(--color-cream-100);
+  --page: var(--color-paper-100);
   --surface: #ffffff;
-  --surface-muted: var(--color-cream-200);
-  --border: var(--color-sand-100);
-  --border-strong: var(--color-sand-200);
+  --surface-muted: var(--color-paper-200);
+  --border: var(--color-tan-100);
+  --border-strong: var(--color-tan-200);
+  --control-border: var(--color-tan-400);
   --text: var(--color-ink-800);
   --text-muted: var(--color-ink-500);
   --text-subtle: var(--color-ink-400);
-  --focus: var(--color-burgundy-500);
+  --focus: var(--color-cta-600);
 }
 
 @layer base {
@@ -124,6 +159,23 @@
     text-wrap: balance;
   }
 
+  /*
+     Tailwind's preflight resets links to `color: inherit` with no decoration, which
+     leaves an unstyled link indistinguishable from body text — a WCAG 1.4.1 failure.
+     Restore a real link treatment; components that deliberately opt out (navigation,
+     card rows, the brand lockup) already carry `no-underline`.
+  */
+  a {
+    color: var(--color-cta-600);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  a:hover {
+    color: var(--color-cta-700);
+  }
+
   /* Visible, high-contrast focus for every interactive element. */
   :focus-visible {
     outline: 2px solid var(--focus);
@@ -132,8 +184,8 @@
   }
 
   ::selection {
-    background-color: var(--color-burgundy-100);
-    color: var(--color-burgundy-800);
+    background-color: var(--color-accent-100);
+    color: var(--color-brand-700);
   }
 
   input,
@@ -196,7 +248,7 @@
     }
 
     & blockquote {
-      border-inline-start: 3px solid var(--color-gold-300);
+      border-inline-start: 3px solid var(--color-accent-300);
       padding-inline-start: 1rem;
       color: var(--text-muted);
       font-style: italic;

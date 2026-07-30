@@ -131,9 +131,11 @@ export default function AboutPage() {
 
       <h2 className="mt-10 font-serif text-xl">Brand</h2>
       <p className="mt-3 text-ink-600">
-        {product.institution.name} is named to describe the intended setting of
-        this prototype. No official logo or protected brand asset is reproduced or
-        fetched; the wordmark is a typographic placeholder.
+        Colours, typography and the logo follow the {product.institution.name} style
+        guide supplied for this project. The logo is served from this application&rsquo;s
+        own origin, and the two typefaces — Noto Serif and Noto Sans — are downloaded at
+        build time and self-hosted, so no request goes to a third party while you are
+        using the prototype.
       </p>
 
       <p className="mt-10">

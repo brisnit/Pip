@@ -142,7 +142,7 @@ export default async function CourseOverviewPage({
       />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Badge tone="burgundy">{course.code}</Badge>
+        <Badge tone="brand">{course.code}</Badge>
         <Badge>{COURSE_FORMAT_LABELS[course.format]}</Badge>
         {course.term ? <Badge>{course.term}</Badge> : null}
         {course.is_demo === 1 ? <DemoBadge /> : null}
@@ -166,7 +166,7 @@ export default async function CourseOverviewPage({
                 description="Issue a code so students can join this course."
               />
             )}
-            <div className="border-t border-sand-100 pt-5">
+            <div className="border-t border-tan-100 pt-5">
               <RotateCodeForm courseId={courseId} />
             </div>
           </CardBody>
@@ -228,7 +228,7 @@ export default async function CourseOverviewPage({
             description={`${setupSteps.length - outstanding.length} of ${setupSteps.length} steps complete.`}
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {setupSteps.map((step) => (
                 <li
                   key={step.label}
@@ -286,7 +286,7 @@ export default async function CourseOverviewPage({
           <CardBody>
             <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
             {aggregate.hardestObjectives.length > 0 ? (
-              <div className="mt-6 border-t border-sand-100 pt-5">
+              <div className="mt-6 border-t border-tan-100 pt-5">
                 <h3 className="text-sm font-semibold">
                   Objectives with the weakest evidence
                 </h3>
@@ -324,7 +324,7 @@ export default async function CourseOverviewPage({
                 syllabus.
               </p>
             ) : (
-              <ol className="divide-y divide-sand-100">
+              <ol className="divide-y divide-tan-100">
                 {modules.map((module) => {
                   const moduleLectures = lectures.filter(
                     (lecture) => lecture.module_id === module.id,
@@ -389,7 +389,7 @@ export default async function CourseOverviewPage({
             <ul className="space-y-2">
               {objectives.map((objective) => (
                 <li key={objective.id} className="flex gap-3 text-sm">
-                  <span className="shrink-0 font-medium text-burgundy-600">
+                  <span className="shrink-0 font-medium text-brand-600">
                     {objective.code}
                   </span>
                   <span className="text-ink-700">{objective.text}</span>

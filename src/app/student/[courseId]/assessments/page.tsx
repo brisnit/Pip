@@ -98,7 +98,7 @@ export default async function StudentAssessmentsPage({
                             </p>
                           ) : null}
                           {assessment.professor_guidance ? (
-                            <p className="mt-2 max-w-2xl rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                            <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                               <span className="font-medium">
                                 From {course.professor_name}:
                               </span>{" "}
@@ -123,13 +123,13 @@ export default async function StudentAssessmentsPage({
                       </div>
 
                       {assessment.progress.total > 0 ? (
-                        <div className="mt-4 space-y-3 border-t border-sand-100 pt-3">
+                        <div className="mt-4 space-y-3 border-t border-tan-100 pt-3">
                           <Meter
                             label="Questions answered"
                             value={assessment.progress.answered}
                             max={assessment.progress.total}
                             valueText={`${assessment.progress.answered} of ${assessment.progress.total}`}
-                            tone="burgundy"
+                            tone="brand"
                           />
                           {assessment.progress.scorable > 0 ? (
                             <Meter
@@ -176,7 +176,7 @@ export default async function StudentAssessmentsPage({
                         <div className="flex flex-wrap items-start justify-between gap-4">
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                              <Badge tone="burgundy">
+                              <Badge tone="brand">
                                 {ASSESSMENT_TYPE_LABELS[assessment.type]}
                               </Badge>
                               {assessment.scheduled_at &&
@@ -201,7 +201,7 @@ export default async function StudentAssessmentsPage({
                               </p>
                             ) : null}
                             {assessment.professor_guidance ? (
-                              <p className="mt-2 max-w-2xl rounded border border-sand-100 bg-cream-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                              <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                                 <span className="font-medium">
                                   From {course.professor_name}:
                                 </span>{" "}
@@ -220,7 +220,7 @@ export default async function StudentAssessmentsPage({
                         </div>
 
                         {humanGraded ? (
-                          <p className="mt-3 border-t border-sand-100 pt-3 text-[0.82rem] text-ink-500">
+                          <p className="mt-3 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
                             Written work is read by your professor. No automated
                             score is produced or implied.
                           </p>

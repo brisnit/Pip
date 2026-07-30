@@ -104,7 +104,7 @@ export default async function InsightsPage({
             <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
 
             {trend.length > 1 ? (
-              <div className="border-t border-sand-100 pt-5">
+              <div className="border-t border-tan-100 pt-5">
                 <h3 className="text-sm font-semibold">
                   Status over time
                 </h3>
@@ -119,7 +119,7 @@ export default async function InsightsPage({
                       Number of students in each readiness band, per recorded day
                     </caption>
                     <thead>
-                      <tr className="border-b border-sand-200 text-ink-500">
+                      <tr className="border-b border-tan-200 text-ink-500">
                         <th scope="col" className="py-1.5 pr-4 font-medium">
                           Date
                         </th>
@@ -137,7 +137,7 @@ export default async function InsightsPage({
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-sand-100">
+                    <tbody className="divide-y divide-tan-100">
                       {trend.map((point) => (
                         <tr key={point.date}>
                           <th scope="row" className="py-1.5 pr-4 text-left font-normal text-ink-600">
@@ -162,7 +162,7 @@ export default async function InsightsPage({
                 </div>
               </div>
             ) : (
-              <div className="border-t border-sand-100 pt-5">
+              <div className="border-t border-tan-100 pt-5">
                 <h3 className="text-sm font-semibold">Status over time</h3>
                 <p className="mt-1 text-sm text-ink-500">
                   Not enough recorded history for a trend yet. Snapshots are
@@ -430,13 +430,13 @@ export default async function InsightsPage({
                     Nothing outstanding.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-sand-100">
+                  <ul className="divide-y divide-tan-100">
                     {openQuestions.map((question) => (
                       <li key={question.id} className="px-5 py-4">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <Badge tone="burgundy">
+                              <Badge tone="brand">
                                 {QUESTION_KIND_LABELS[question.kind]}
                               </Badge>
                               {question.votes > 0 ? (
@@ -468,7 +468,7 @@ export default async function InsightsPage({
                               {relativeTime(question.created_at)}
                             </p>
                             {question.transcript_excerpt ? (
-                              <blockquote className="mt-2 border-l-2 border-gold-300 pl-3 text-[0.82rem] italic text-ink-500">
+                              <blockquote className="mt-2 border-l-2 border-accent-300 pl-3 text-[0.82rem] italic text-ink-500">
                                 {question.transcript_excerpt}
                               </blockquote>
                             ) : null}
@@ -515,7 +515,7 @@ export default async function InsightsPage({
                   description={`${answeredQuestions.length} answered`}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-sand-100">
+                  <ul className="divide-y divide-tan-100">
                     {answeredQuestions.map((question) => (
                       <li key={question.id} className="px-5 py-3">
                         <div className="flex flex-wrap items-center gap-2">
@@ -566,7 +566,7 @@ export default async function InsightsPage({
             description="Jump to a student's detail view to see the evidence behind their status."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {roster.map((student) => {
                 const result = readiness.find(
                   (r) => r.studentId === student.id,
@@ -575,7 +575,7 @@ export default async function InsightsPage({
                   <li key={student.id}>
                     <Link
                       href={`/professor/courses/${courseId}/students/${student.id}`}
-                      className="flex items-center justify-between gap-3 px-5 py-2.5 no-underline hover:bg-cream-100"
+                      className="flex items-center justify-between gap-3 px-5 py-2.5 no-underline hover:bg-paper-100"
                     >
                       <span className="min-w-0 truncate text-sm text-ink-800">
                         {student.name}

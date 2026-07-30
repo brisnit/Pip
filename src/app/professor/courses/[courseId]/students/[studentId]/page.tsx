@@ -155,7 +155,7 @@ export default async function StudentDetailPage({ params }: Props) {
             <ConfidenceNote confidence={readiness.confidence} />
             <ReasonList reasons={readiness.reasons} />
 
-            <div className="border-t border-sand-100 pt-5">
+            <div className="border-t border-tan-100 pt-5">
               <h3 className="mb-3 text-sm font-semibold">Signals in detail</h3>
               <ul className="space-y-3">
                 {readiness.signals.map((signal) => (
@@ -218,7 +218,7 @@ export default async function StudentDetailPage({ params }: Props) {
                 />
               </dl>
               <DetailList
-                className="mt-5 grid-cols-1 border-t border-sand-100 pt-4 sm:grid-cols-1"
+                className="mt-5 grid-cols-1 border-t border-tan-100 pt-4 sm:grid-cols-1"
                 items={[
                   { label: "Email", value: student.email },
                   { label: "Student ID", value: student.student_id_number },
@@ -255,12 +255,12 @@ export default async function StudentDetailPage({ params }: Props) {
             description="Standing per objective, with the evidence behind it."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-sand-100">
+            <ul className="divide-y divide-tan-100">
               {readiness.objectives.map((row) => (
                 <li key={row.objective.id} className="px-5 py-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <p className="min-w-0 text-sm">
-                      <span className="font-medium text-burgundy-600">
+                      <span className="font-medium text-brand-600">
                         {row.objective.code}
                       </span>{" "}
                       <span className="text-ink-700">{row.objective.text}</span>
@@ -307,11 +307,11 @@ export default async function StudentDetailPage({ params }: Props) {
                   This student has not submitted any questions.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {questions.map((question) => (
                     <li key={question.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {QUESTION_KIND_LABELS[question.kind]}
                         </Badge>
                         <Badge
@@ -336,7 +336,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   ))}
                 </ul>
               )}
-              <p className="border-t border-sand-100 px-5 py-3 text-[0.82rem]">
+              <p className="border-t border-tan-100 px-5 py-3 text-[0.82rem]">
                 <Link href={`/professor/courses/${courseId}/insights`}>
                   Answer questions in the comprehension dashboard →
                 </Link>
@@ -357,7 +357,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   private, and this screen cannot read them.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {sharedNotes.map((note) => (
                     <li key={note.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -404,7 +404,7 @@ export default async function StudentDetailPage({ params }: Props) {
             />
             <CardBody className="space-y-4">
               <AssignAllForm courseId={courseId} studentId={studentId} />
-              <ul className="divide-y divide-sand-100 border-t border-sand-100">
+              <ul className="divide-y divide-tan-100 border-t border-tan-100">
                 {drafts.map((draft, index) => {
                   const already = assignedKeys.has(
                     `${draft.pathway}::${draft.title}`,
@@ -416,7 +416,7 @@ export default async function StudentDetailPage({ params }: Props) {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="burgundy">
+                          <Badge tone="brand">
                             {SUPPORT_PATHWAY_LABELS[draft.pathway]}
                           </Badge>
                           <Badge
@@ -474,11 +474,11 @@ export default async function StudentDetailPage({ params }: Props) {
                   your own below.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {recommendations.map((rec) => (
                     <li key={rec.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone="burgundy">
+                        <Badge tone="brand">
                           {SUPPORT_PATHWAY_LABELS[rec.pathway]}
                         </Badge>
                         <Badge
@@ -502,7 +502,7 @@ export default async function StudentDetailPage({ params }: Props) {
                         {rec.title}
                       </p>
                       {rec.student_response ? (
-                        <p className="mt-1 rounded border border-sand-100 bg-cream-100 px-2 py-1 text-[0.82rem] text-ink-600">
+                        <p className="mt-1 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
                           Student: &ldquo;{rec.student_response}&rdquo;
                         </p>
                       ) : null}
@@ -517,7 +517,7 @@ export default async function StudentDetailPage({ params }: Props) {
               )}
 
               {requests.length > 0 ? (
-                <div className="border-t border-sand-100 px-5 py-4">
+                <div className="border-t border-tan-100 px-5 py-4">
                   <h3 className="text-sm font-semibold">Requests submitted</h3>
                   <ul className="mt-2 space-y-2">
                     {requests.map((request) => (
@@ -577,7 +577,7 @@ export default async function StudentDetailPage({ params }: Props) {
           <CardBody className="space-y-5">
             <ProfessorNoteForm courseId={courseId} studentId={studentId} />
             {notes.length > 0 ? (
-              <ul className="divide-y divide-sand-100 border-t border-sand-100">
+              <ul className="divide-y divide-tan-100 border-t border-tan-100">
                 {notes.map((note) => (
                   <li key={note.id} className="py-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -624,7 +624,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   No recorded activity.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {activity.map((event) => (
                     <li key={event.id} className="px-5 py-2.5">
                       <p className="text-[0.85rem] text-ink-700">
@@ -648,7 +648,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   Nothing marked confusing.
                 </p>
               ) : (
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {confusingMarkers.map((marker) => (
                     <li key={marker.id} className="px-5 py-2.5">
                       <p className="text-[0.85rem] text-ink-700">
@@ -673,7 +673,7 @@ export default async function StudentDetailPage({ params }: Props) {
             <Card>
               <CardHeader title="Status history" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {overrideHistory.map((entry) => (
                     <li key={entry.id} className="px-5 py-2.5">
                       <div className="flex items-center gap-2">

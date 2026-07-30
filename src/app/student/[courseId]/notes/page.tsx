@@ -126,8 +126,8 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                 }
                 className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                   !kindFilter && !query.lecture && !query.module
-                    ? "border-burgundy-600 bg-burgundy-600 font-medium text-cream-50"
-                    : "border-sand-200 bg-white text-ink-600"
+                    ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
+                    : "border-tan-200 bg-white text-ink-600"
                 }`}
               >
                 All ({allNotes.length})
@@ -139,8 +139,8 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                   aria-current={kindFilter === row.kind ? "true" : undefined}
                   className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                     kindFilter === row.kind
-                      ? "border-burgundy-600 bg-burgundy-600 font-medium text-cream-50"
-                      : "border-sand-200 bg-white text-ink-600"
+                      ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
+                      : "border-tan-200 bg-white text-ink-600"
                   }`}
                 >
                   {NOTE_KIND_LABELS[row.kind]} ({row.count})
@@ -177,7 +177,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge>{NOTE_KIND_LABELS[note.kind]}</Badge>
                           {note.shared_with_professor === 1 ? (
-                            <Badge tone="gold">Shared with professor</Badge>
+                            <Badge tone="accent">Shared with professor</Badge>
                           ) : (
                             <span className="text-[0.75rem] text-ink-400">
                               private
@@ -189,7 +189,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                             </span>
                           ) : null}
                           {note.scripture_reference ? (
-                            <Badge tone="burgundy">
+                            <Badge tone="brand">
                               {note.scripture_reference}
                             </Badge>
                           ) : null}
@@ -246,7 +246,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     </div>
 
                     {note.lecture_id && note.segment_id ? (
-                      <p className="mt-2 border-t border-sand-100 pt-2 text-[0.8rem]">
+                      <p className="mt-2 border-t border-tan-100 pt-2 text-[0.8rem]">
                         <Link
                           href={`/student/${courseId}/lecture/${note.lecture_id}#segment-${note.segment_id}`}
                         >
@@ -286,7 +286,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             />
             <CardBody className="space-y-5">
               <StudyGuideForm courseId={courseId} />
-              <div className="border-t border-sand-100 pt-4">
+              <div className="border-t border-tan-100 pt-4">
                 <FlashcardForm
                   courseId={courseId}
                   lectures={lectures.map((lecture) => ({
@@ -358,7 +358,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                   </div>
                 ) : null}
                 {questionNotes.length > 0 ? (
-                  <div className="border-t border-sand-100 pt-3">
+                  <div className="border-t border-tan-100 pt-3">
                     <h4 className="text-[0.8rem] font-semibold uppercase tracking-wide text-ink-400">
                       In your own notes, not yet asked
                     </h4>
@@ -383,7 +383,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             <Card>
               <CardHeader title="Bookmarks" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {bookmarks.map((bookmark) => (
                     <li key={bookmark.id} className="px-4 py-2">
                       <Link
@@ -410,7 +410,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             <Card>
               <CardHeader title="Group by module" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-sand-100">
+                <ul className="divide-y divide-tan-100">
                   {modules.map((module) => {
                     const count = allNotes.filter(
                       (note) => note.module_title === module.title,
@@ -481,7 +481,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     ))}
                   </ul>
                   {guide.reviewQuestions.length > 0 ? (
-                    <div className="border-t border-sand-100 pt-4">
+                    <div className="border-t border-tan-100 pt-4">
                       <h3 className="text-[0.92rem] font-semibold">
                         Questions to test yourself
                       </h3>
@@ -522,7 +522,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     {cards.map((card, index) => (
                       <li
                         key={index}
-                        className="rounded-md border border-sand-100 bg-cream-50 p-3"
+                        className="rounded-md border border-tan-100 bg-paper-50 p-3"
                       >
                         <details>
                           <summary className="cursor-pointer text-[0.9rem] font-medium text-ink-800">

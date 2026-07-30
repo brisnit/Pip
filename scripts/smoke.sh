@@ -239,7 +239,13 @@ check "about page lists what is deliberately absent" "$(has "$ABOUT" 'What it de
 LANDING=$(get "$BASE/")
 check "skip link present" "$(has "$LANDING" 'Skip to main content')"
 check "persistent prototype banner present" "$(has "$LANDING" 'not a secure student-record system')"
-check "html lang is set" "$(has "$LANDING" '<html lang="en">')"
+check "html lang is set" "$(hasre "$LANDING" '<html [^>]*lang="en"')"
+check "Fuller logo is rendered, not a text placeholder" "$(hasre "$LANDING" 'Fuller_Logo\.png|_next/image\?url=%2Fbrand')"
+check "logo asset is served" "$([ "$(code "$BASE/brand/Fuller_Logo.png")" = "200" ] && echo 1 || echo 0)"
+check "brand teal compiled into css" "$([ "$(grep -rli '042b32' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+check "brand cyan compiled into css" "$([ "$(grep -rli '00adc7' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+check "Noto fonts self-hosted in the build" "$([ "$(find "$PROJECT/.next" -name '*.woff2' 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+check "no stale burgundy palette in css" "$([ "$(grep -rli '6b1f2e' "$PROJECT/.next/static" 2>/dev/null | head -1)" = "" ] && echo 1 || echo 0)"
 check "reduced-motion support shipped in css" "$([ "$(grep -rl 'prefers-reduced-motion' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
 
 printf "\n%s\n" "════════════════════════════════"

@@ -28,7 +28,7 @@ export default function ErrorBoundary({
       id="main"
       className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-16 sm:px-6"
     >
-      <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-burgundy-600">
+      <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
         Prototype error
       </p>
       <h1 className="mt-3 font-serif text-3xl">This screen did not load</h1>
@@ -52,7 +52,7 @@ export default function ErrorBoundary({
         </div>
       ) : null}
 
-      <div className="mt-6 rounded-lg border border-sand-200 bg-cream-200 p-5">
+      <div className="mt-6 rounded-lg border border-tan-200 bg-paper-200 p-5">
         <h2 className="text-sm font-semibold">Things worth checking, in order</h2>
 
         <ol className="mt-3 space-y-4 text-sm text-ink-600">
@@ -66,7 +66,7 @@ export default function ErrorBoundary({
               only the pages you have not visited yet — which looks exactly like
               this. Stop the server, then:
             </p>
-            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+            <pre className="mt-2 overflow-x-auto rounded border border-tan-200 bg-white px-3 py-2 text-[0.85rem]">
               npm run build && npm run start
             </pre>
           </li>
@@ -75,7 +75,7 @@ export default function ErrorBoundary({
             <p className="font-medium text-ink-800">
               Does the database hold seeded data?
             </p>
-            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+            <pre className="mt-2 overflow-x-auto rounded border border-tan-200 bg-white px-3 py-2 text-[0.85rem]">
               npm run db:reset
             </pre>
           </li>
@@ -88,13 +88,13 @@ export default function ErrorBoundary({
               iCloud, Dropbox and OneDrive copy and sometimes replace open files.
               Point the database somewhere unsynced:
             </p>
-            <pre className="mt-2 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+            <pre className="mt-2 overflow-x-auto rounded border border-tan-200 bg-white px-3 py-2 text-[0.85rem]">
               PROTOTYPE_DB_PATH=/tmp/flc.db npm run dev
             </pre>
           </li>
         </ol>
 
-        <p className="mt-4 border-t border-sand-300 pt-3 text-sm text-ink-600">
+        <p className="mt-4 border-t border-tan-300 pt-3 text-sm text-ink-600">
           The full stack trace is in the terminal running the server. Under{" "}
           <code>npm run dev</code> it is also shown above and in the dev overlay;
           production builds omit it from the browser deliberately.
@@ -112,13 +112,13 @@ export default function ErrorBoundary({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center justify-center rounded-md border border-burgundy-600 bg-burgundy-600 px-4 py-2.5 text-[0.95rem] font-medium text-cream-50 transition-colors hover:bg-burgundy-700"
+          className="inline-flex items-center justify-center rounded-none border border-cta-600 bg-cta-600 px-4 py-2.5 text-[0.95rem] font-medium text-white transition-colors hover:bg-cta-700"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-md border border-sand-200 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-cream-100"
+          className="inline-flex items-center justify-center rounded-none border border-tan-300 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-paper-100"
         >
           Back to home
         </Link>
