@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
-import { mkdirSync } from "node:fs";
-import { dirname, isAbsolute, join } from "node:path";
+import { mkdirSync, statSync } from "node:fs";
+import { dirname, isAbsolute, join, sep } from "node:path";
+import { homedir } from "node:os";
 import { SCHEMA_SQL, SCHEMA_VERSION } from "./schema";
 import { seedDemonstrationData } from "./seed";
 
@@ -11,6 +12,11 @@ declare global {
   var __flcDb: Db | undefined;
   // Set once seeding has been confirmed, so the check is not repeated per call.
   var __flcSeeded: boolean | undefined;
+  // Inode of the file the cached handle was opened against, so a file swapped by a
+  // sync client can be detected. See `sameFileAsOpenHandle`.
+  var __flcInode: number | undefined;
+  // Guards the one-time synced-folder warning.
+  var __flcWarnedSync: boolean | undefined;
 }
 
 /**
@@ -24,9 +30,54 @@ function dbPath(): string {
   return join(process.cwd(), configured ?? ".data/prototype.db");
 }
 
+/**
+ * Warns once if the database sits in a directory a sync client is likely to touch.
+ *
+ * This is not hypothetical. A project kept on an iCloud-synced Desktop will have its
+ * SQLite file and write-ahead log copied while they are open, producing truncated
+ * duplicates like `prototype 2.db` and, worse, occasionally replacing the live file —
+ * which breaks the open handle of any running server.
+ */
+function warnIfSynced(path: string) {
+  if (globalThis.__flcWarnedSync) return;
+  globalThis.__flcWarnedSync = true;
+
+  const home = homedir();
+  const risky = ["Desktop", "Documents", "Dropbox", "OneDrive", "Google Drive"];
+  const inRiskyDir = risky.some((dir) =>
+    path.startsWith(`${home}${sep}${dir}${sep}`),
+  );
+  if (!inRiskyDir) return;
+
+  console.warn(
+    `[flc] The prototype database is at ${path}, inside a folder that iCloud, ` +
+      `Dropbox or OneDrive may sync. Sync clients copy and sometimes replace open ` +
+      `SQLite files, which corrupts them and breaks a running server. Set ` +
+      `PROTOTYPE_DB_PATH to somewhere outside the synced tree, for example ` +
+      `PROTOTYPE_DB_PATH=/tmp/flc-prototype.db`,
+  );
+}
+
+/**
+ * True when the cached handle still refers to the file currently at `dbPath()`.
+ *
+ * A sync client that replaces the database leaves the running process holding an
+ * unlinked inode: reads either return stale data or fail outright. Comparing inodes
+ * costs one `stat` and turns a confusing server error into a transparent reopen.
+ */
+function sameFileAsOpenHandle(path: string): boolean {
+  if (globalThis.__flcInode === undefined) return false;
+  try {
+    return statSync(path).ino === globalThis.__flcInode;
+  } catch {
+    return false; // deleted underneath us
+  }
+}
+
 function open(): Db {
   const path = dbPath();
   mkdirSync(dirname(path), { recursive: true });
+  warnIfSynced(path);
 
   const db = new Database(path);
   db.pragma("journal_mode = WAL");
@@ -58,8 +109,10 @@ function open(): Db {
  * intended guard rail.
  */
 export function getDb(): Db {
+  const path = dbPath();
   const cached = globalThis.__flcDb;
-  if (cached) {
+
+  if (cached && sameFileAsOpenHandle(path)) {
     // A handle cached against an unseeded database is useless, and caching one is
     // how a single transient seed failure used to break every later request. Cheap
     // re-check until seeding is confirmed, then never again.
@@ -67,11 +120,31 @@ export function getDb(): Db {
     return cached;
   }
 
+  if (cached) {
+    // The file was replaced or removed underneath us — a sync client, or a
+    // `db:reset` run against a live server. Drop the stale handle and reopen.
+    console.warn(
+      "[flc] the prototype database file changed underneath the open handle — reopening",
+    );
+    try {
+      cached.close();
+    } catch {
+      // already unusable; nothing to salvage
+    }
+    globalThis.__flcDb = undefined;
+    globalThis.__flcSeeded = false;
+  }
+
   // Seed before publishing the handle: if seeding throws, the next call retries
   // with a fresh connection rather than serving an empty database forever.
   const db = open();
   ensureSeeded(db);
   globalThis.__flcDb = db;
+  try {
+    globalThis.__flcInode = statSync(path).ino;
+  } catch {
+    globalThis.__flcInode = undefined;
+  }
   return db;
 }
 

@@ -132,17 +132,31 @@ QR code and a printable access card.
 
 ### Do not keep the database in a synced folder
 
-If the project lives in iCloud Drive, Dropbox, OneDrive or similar, the sync client
-will copy `prototype.db` and its write-ahead log while they are open, leaving files
-like `prototype 2.db` and `prototype 3.db-wal` behind. A stale `-wal` beside a fresh
-database can corrupt it.
+**This is the most likely cause of a confusing server error on macOS.** If the project
+lives under `~/Desktop`, `~/Documents`, Dropbox, OneDrive or Google Drive, the sync
+client copies `prototype.db` and its write-ahead log while they are open — leaving
+truncated duplicates like `prototype 2.db` — and will sometimes replace the live file
+outright. A running server then holds a handle to an unlinked inode, and every query
+either returns stale data or fails.
 
-`npm run db:reset` clears those duplicates. To avoid it entirely, point the database
-outside the synced tree:
+The app now defends itself: it compares the open handle's inode against the file on
+disk and transparently reopens when they differ, logging
+`the prototype database file changed underneath the open handle — reopening`. It also
+warns at startup if the database is inside a folder likely to be synced.
+
+Defence is not a fix. Move the database out of the synced tree:
 
 ```bash
 PROTOTYPE_DB_PATH=/tmp/flc-prototype.db npm run dev
 ```
+
+Or move the whole project somewhere unsynced, such as `~/code`. `npm run db:reset`
+clears any duplicates already left behind.
+
+### After changing the database while a server is running
+
+`npm run db:reset` against a live server is safe — the server detects the replaced
+file and reopens. If you see stale data anyway, restart the server.
 
 ### QR codes point at localhost
 

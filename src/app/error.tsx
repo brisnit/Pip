@@ -38,6 +38,20 @@ export default function ErrorBoundary({
         not lost any data — this is a rendering failure, not a corruption.
       </p>
 
+      {/*
+        Next.js replaces server error messages with a generic string in production
+        builds, so this is only meaningful under `npm run dev`. Showing it there is
+        the difference between diagnosing this in seconds and guessing.
+      */}
+      {error.message ? (
+        <div className="mt-6">
+          <h2 className="text-sm font-semibold">What actually threw</h2>
+          <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-md border border-concern-200 bg-concern-50 px-3 py-2 text-[0.82rem] leading-relaxed text-concern-600">
+            {error.message}
+          </pre>
+        </div>
+      ) : null}
+
       <div className="mt-6 rounded-lg border border-sand-200 bg-cream-200 p-5">
         <h2 className="text-sm font-semibold">Most likely cause</h2>
         <p className="mt-2 text-sm text-ink-600">
