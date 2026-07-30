@@ -22,12 +22,19 @@ export const product = {
      * here and updating the ratio in <BrandLockup>.
      */
     logo: {
-      src: "/brand/Fuller_Logo.png",
-      width: 1456,
-      height: 184,
+      /**
+       * A 640×81 copy of the supplied lockup, downscaled from the 1456×184 original
+       * that sits beside it. Displayed at most 34px tall, so 640px is already well
+       * past 2× on a retina screen, and it halves the file size.
+       */
+      src: "/brand/fuller-logo.png",
+      width: 640,
+      height: 81,
       /** Alt text describes what the image depicts — the wordmark reads "Fuller
        *  Seminary", not the full legal name. */
       alt: "Fuller Seminary",
+      /** The untouched asset as supplied, kept as the source of truth. */
+      original: "/brand/Fuller_Logo.png",
     },
     styleGuide: "/brand/Style Guide.png",
   },

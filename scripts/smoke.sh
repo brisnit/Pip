@@ -240,8 +240,13 @@ LANDING=$(get "$BASE/")
 check "skip link present" "$(has "$LANDING" 'Skip to main content')"
 check "persistent prototype banner present" "$(has "$LANDING" 'not a secure student-record system')"
 check "html lang is set" "$(hasre "$LANDING" '<html [^>]*lang="en"')"
-check "Fuller logo is rendered, not a text placeholder" "$(hasre "$LANDING" 'Fuller_Logo\.png|_next/image\?url=%2Fbrand')"
-check "logo asset is served" "$([ "$(code "$BASE/brand/Fuller_Logo.png")" = "200" ] && echo 1 || echo 0)"
+check "Fuller logo is rendered, not a text placeholder" "$(has "$LANDING" 'src="/brand/fuller-logo.png"')"
+check "logo asset is served" "$([ "$(code "$BASE/brand/fuller-logo.png")" = "200" ] && echo 1 || echo 0)"
+# The lockup is on every screen, so it must not depend on the image optimiser:
+# query-string image URLs get blocked by privacy extensions and need sharp on the host.
+check "logo src is a plain path, not an optimiser URL" "$([ "$(curl -s "$BASE/" | grep -c '_next/image')" = "0" ] && echo 1 || echo 0)"
+LOGO_META=$(curl -s -o /dev/null -w "%{content_type} %{size_download}" "$BASE/brand/fuller-logo.png")
+check "logo is served as a non-trivial png" "$(awk '{ exit !($1 == "image/png" && $2 > 5000) }' <<<"$LOGO_META" && echo 1 || echo 0)" "$LOGO_META"
 check "brand teal compiled into css" "$([ "$(grep -rli '042b32' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
 check "brand cyan compiled into css" "$([ "$(grep -rli '00adc7' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
 check "Noto fonts self-hosted in the build" "$([ "$(find "$PROJECT/.next" -name '*.woff2' 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"

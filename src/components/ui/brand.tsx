@@ -6,15 +6,22 @@ import { cn } from "@/lib/cn";
 /**
  * The Fuller Seminary lockup, paired with the product name.
  *
- * Uses the supplied logo at public/brand/Fuller_Logo.png (1456×184, so 7.913:1).
- * Heights are set explicitly and the width derived from that ratio, which keeps the
- * mark crisp and reserves the right space before the image loads — no layout shift.
+ * Heights are set explicitly and the width derived from the asset's ratio, so the
+ * right space is reserved before the image loads — no layout shift.
  *
  * The image carries the institution name, and "Learning Companion" is real text
  * beside it, so the surrounding link reads as "Fuller Seminary Learning Companion".
  *
- * `priority` is set because this sits in the masthead of every page: it is always
- * above the fold and should never lazy-load.
+ * `priority`, because this sits in the masthead of every page and should never
+ * lazy-load.
+ *
+ * `unoptimized` is deliberate. It makes the src a plain `/brand/fuller-logo.png`
+ * instead of `/_next/image?url=…&w=…`, which matters for three reasons: query-string
+ * image URLs are a common casualty of privacy extensions and ad blockers, the
+ * optimiser rejects widths outside its configured set, and it needs `sharp` on the
+ * host. For a 21KB asset already sized for its slot there is nothing to optimise, so
+ * the machinery is pure risk. The lockup appears on every screen — it has to be the
+ * most reliable image in the app, not the cleverest.
  */
 const LOGO_RATIO =
   product.institution.logo.width / product.institution.logo.height;
@@ -48,8 +55,7 @@ export function BrandLockup({
         width={width}
         height={height}
         priority
-        className="h-auto w-auto"
-        style={{ height, width }}
+        unoptimized
       />
       {showProduct ? (
         <>

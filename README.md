@@ -88,7 +88,7 @@ Prints the course ID and a cookie value to set in your browser.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run verify` | 60 assertions over the data layer and the full vertical slice |
-| `npm run smoke` | 141 assertions against a running server |
+| `npm run smoke` | 143 assertions against a running server |
 | `npm run check:contrast` | Verify every colour pairing clears WCAG AA |
 | `npm run db:reset` | Delete and re-seed the database |
 | `npm run dev:session -- "<name>"` | Mint a student session cookie |
@@ -182,6 +182,13 @@ clears any duplicates already left behind.
 
 `npm run db:reset` against a live server is safe — the server detects the replaced
 file and reopens. If you see stale data anyway, restart the server.
+
+### The logo shows as a broken image
+
+The logo is served as a plain path (`/brand/fuller-logo.png`), not through Next's
+image optimiser, precisely so this cannot happen — optimiser URLs carry a query string
+and get blocked by some privacy extensions. If you still see a broken image, it is a
+stale page: hard-reload with Cmd-Shift-R.
 
 ### QR codes point at localhost
 

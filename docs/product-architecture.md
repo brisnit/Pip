@@ -288,15 +288,31 @@ were retuned to sit alongside it without losing that.
 
 ### Brand assets
 
-`public/brand/Fuller_Logo.png` (1456×184) is the supplied lockup, rendered by
-`<BrandLockup>` through `next/image` with explicit height and a width derived from the
-ratio, so there is no layout shift. `product.institution.logo` in
-`src/config/product.ts` holds the path, dimensions and alt text; swapping the file
-means editing that one object. Alt text is "Fuller Seminary" because that is what the
-wordmark reads — the surrounding link resolves to "Fuller Seminary Learning
-Companion".
+`public/brand/Fuller_Logo.png` (1456×184) is the supplied lockup, kept as the source
+of truth. `public/brand/fuller-logo.png` is a 640×81 downscale of it — the size
+actually served, since the mark is displayed at most 34px tall, which puts 640px well
+past 2× on a retina screen at half the bytes.
 
-`public/brand/Style Guide.png` is kept alongside it as the reference.
+`<BrandLockup>` renders it with an explicit height and a width derived from the ratio,
+so the space is reserved before the image loads and there is no layout shift.
+`product.institution.logo` in `src/config/product.ts` holds both paths, the
+dimensions and the alt text; swapping the asset means editing that one object.
+
+Alt text is "Fuller Seminary" because that is what the wordmark reads — the
+surrounding link resolves to "Fuller Seminary Learning Companion".
+
+**`unoptimized` is deliberate.** It makes the src a plain `/brand/fuller-logo.png`
+rather than `/_next/image?url=…&w=…`. Three reasons, and the first is the one that
+actually bit: query-string image URLs are a routine casualty of privacy extensions and
+ad blockers, so the logo can appear broken in a browser while the server is serving it
+perfectly. The optimiser also rejects widths outside its configured set, and it wants
+`sharp` present on the host. For a 21KB asset already sized for its slot there is
+nothing left to optimise, so all that machinery is downside. The lockup is on every
+screen — it needs to be the most reliable image in the app, not the cleverest. Two
+smoke assertions hold the line: the src must be a plain path, and no page may contain
+an `_next/image` reference.
+
+`public/brand/Style Guide.png` is kept alongside as the reference.
 
 ## Accessibility
 
