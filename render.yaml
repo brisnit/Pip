@@ -45,11 +45,18 @@ services:
       - key: PROTOTYPE_DB_PATH
         value: /tmp/flc-prototype.db
 
-      # Shared password for the whole site. Render generates one on first deploy;
-      # read it from the service's Environment tab and share it with the link.
-      # Replace it with something memorable if you would rather.
+      # Shared password for the whole site.
+      #
+      # `sync: false` makes Render prompt you for the value while it creates the
+      # service, so you choose something you can read out in a meeting rather than
+      # having to fetch a generated string from the dashboard. Change it any time
+      # from the service's Environment tab; every existing session is invalidated,
+      # because the cookie is derived from the password.
+      #
+      # Leave it blank at the prompt to run with no gate at all — the site is then
+      # fully open to anyone with the URL.
       - key: DEMO_ACCESS_PASSWORD
-        generateValue: true
+        sync: false
 
       - key: NODE_VERSION
         value: "22"

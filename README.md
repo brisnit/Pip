@@ -202,9 +202,11 @@ filesystem, and writes would vanish between page loads.
 1. Push to GitHub (already done if you cloned this).
 2. Go to <https://dashboard.render.com/blueprints> → **New Blueprint Instance** →
    select this repository. Render reads `render.yaml` and creates the service.
-3. Wait for the first build, then open the `*.onrender.com` URL it gives you.
-4. Open the service's **Environment** tab and copy the generated
-   `DEMO_ACCESS_PASSWORD`. Share it alongside the link.
+3. Render prompts you for `DEMO_ACCESS_PASSWORD`. Type whatever you want to give
+   stakeholders — you choose it, nothing generates it for you. Leaving it blank runs
+   the site with no gate at all.
+4. Wait for the first build, then open the `*.onrender.com` URL it gives you. Share
+   that link and the password together.
 
 After that, every push to `main` redeploys automatically.
 
@@ -223,6 +225,10 @@ carries the exact lines, commented out.
 
 Setting `DEMO_ACCESS_PASSWORD` puts the whole site behind one shared password:
 any request without a valid cookie is redirected to `/unlock`.
+
+You choose the password when Render creates the service, and can change it any time
+from the service's **Environment** tab. Changing it signs everyone out, because the
+cookie is derived from it.
 
 It is **not authentication** — one password, no identity, no roles, no audit trail.
 It exists because the professor portal has no login and shows student-shaped records,
