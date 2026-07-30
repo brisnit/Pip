@@ -1,0 +1,80 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+
+/**
+ * Route error boundary.
+ *
+ * Next.js redacts error messages in production builds, so the raw cause is only
+ * available in the dev overlay and the server log. This page therefore does two
+ * things instead of pretending to explain: it says where to look, and it names the
+ * one recovery step that fixes the overwhelmingly common cause in a prototype
+ * backed by a local database — a database that exists but was never seeded.
+ */
+export default function ErrorBoundary({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error("[flc] route error:", error);
+  }, [error]);
+
+  return (
+    <main
+      id="main"
+      className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-16 sm:px-6"
+    >
+      <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-burgundy-600">
+        Prototype error
+      </p>
+      <h1 className="mt-3 font-serif text-3xl">This screen did not load</h1>
+
+      <p className="mt-4 text-ink-600">
+        Something threw on the server while rendering this page. The prototype has
+        not lost any data — this is a rendering failure, not a corruption.
+      </p>
+
+      <div className="mt-6 rounded-lg border border-sand-200 bg-cream-200 p-5">
+        <h2 className="text-sm font-semibold">Most likely cause</h2>
+        <p className="mt-2 text-sm text-ink-600">
+          The local database exists but holds no seeded data, so there is no
+          professor or course to show. Rebuilding it takes a few seconds:
+        </p>
+        <pre className="mt-3 overflow-x-auto rounded border border-sand-200 bg-white px-3 py-2 text-[0.85rem]">
+          npm run db:reset
+        </pre>
+        <p className="mt-3 text-sm text-ink-600">
+          Then reload. If you are running <code>npm run dev</code>, the exact error
+          is in the terminal and in the dev overlay.
+        </p>
+      </div>
+
+      {error.digest ? (
+        <p className="mt-4 text-[0.82rem] text-ink-400">
+          Error digest <code>{error.digest}</code> — search your server log for this
+          to find the full stack trace.
+        </p>
+      ) : null}
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={reset}
+          className="inline-flex items-center justify-center rounded-md border border-burgundy-600 bg-burgundy-600 px-4 py-2.5 text-[0.95rem] font-medium text-cream-50 transition-colors hover:bg-burgundy-700"
+        >
+          Try again
+        </button>
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-md border border-sand-200 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-cream-100"
+        >
+          Back to home
+        </Link>
+      </div>
+    </main>
+  );
+}

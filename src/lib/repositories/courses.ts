@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getDb, nowIso } from "@/lib/db/client";
+import { getDb, nowIso, recoverIfEmpty } from "@/lib/db/client";
 import { newCourseCode, newId, normalizeCourseCode } from "@/lib/db/ids";
 import type {
   ConceptRow,
@@ -27,13 +27,30 @@ export function getProfessor(id: string): ProfessorRow | null {
  * the whole change when auth arrives — see docs/future-authentication-plan.md.
  */
 export function getActiveProfessor(): ProfessorRow {
-  const row = getDb()
-    .prepare<[], ProfessorRow>(
-      "SELECT * FROM professors ORDER BY is_demo DESC, created_at ASC LIMIT 1",
-    )
-    .get();
-  if (!row) throw new Error("No professor record found — the seed did not run.");
-  return row;
+  const query = () =>
+    getDb()
+      .prepare<[], ProfessorRow>(
+        "SELECT * FROM professors ORDER BY is_demo DESC, created_at ASC LIMIT 1",
+      )
+      .get();
+
+  const row = query();
+  if (row) return row;
+
+  // The database was emptied or replaced underneath a running process. Rebuild the
+  // demonstration data and try once more rather than 500ing until a restart.
+  console.warn(
+    "[flc] no professor record found — attempting to re-seed the prototype database",
+  );
+  if (recoverIfEmpty()) {
+    const recovered = query();
+    if (recovered) return recovered;
+  }
+
+  throw new Error(
+    "The prototype database has a schema but no seeded data, and re-seeding it " +
+      "failed. Stop the server and run `npm run db:reset` to rebuild it.",
+  );
 }
 
 // Courses --------------------------------------------------------------------
@@ -87,6 +104,26 @@ export function findCourseByAccessCode(code: string): CourseSummary | null {
       )
       .get(normalized) ?? null
   );
+}
+
+/**
+ * Seeded demonstration courses with an active access code.
+ *
+ * Used on the join screen so a code is always discoverable. Without this, someone
+ * opening the prototype for the first time has no way to reach the student
+ * experience — the code only exists on a professor screen they may not have visited.
+ * Restricted to `is_demo = 1` so a real course's code is never advertised.
+ */
+export function listDemoCourses(): CourseSummary[] {
+  return getDb()
+    .prepare<[], CourseSummary>(
+      `${COURSE_SUMMARY_SQL}
+       WHERE c.is_demo = 1
+         AND EXISTS (SELECT 1 FROM course_codes
+                     WHERE course_id = c.id AND active = 1)
+       ORDER BY c.created_at`,
+    )
+    .all();
 }
 
 export type CreateCourseInput = {

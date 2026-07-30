@@ -9,7 +9,10 @@
  */
 process.env.PROTOTYPE_DB_PATH ??= ".data/verify.db";
 
+import Database from "better-sqlite3";
+import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { getDb } from "../src/lib/db/client";
 import { READINESS_PRESENTATION } from "../src/lib/domain/vocabulary";
 import {
@@ -563,6 +566,81 @@ check(
       .get()!.n === 0,
   `${written} written questions, 0 auto-marked`,
 );
+
+section("Concurrent seeding (regression guard)");
+
+/**
+ * `next build` collects page data across nine worker processes. On a cold database
+ * they all open it at once. Before the emptiness check moved inside a BEGIN
+ * IMMEDIATE transaction, they all saw zero professors, all ran the seed, and every
+ * process but the first died on `UNIQUE constraint failed: course_codes.code` —
+ * surfacing as a 500 on whichever route that worker was rendering.
+ */
+{
+  const raceDb = resolve(".data/race-check.db");
+  for (const suffix of ["", "-wal", "-shm"]) {
+    try {
+      rmSync(`${raceDb}${suffix}`);
+    } catch {
+      // nothing to clean up
+    }
+  }
+
+  const workers = 9;
+  const results = await Promise.all(
+    Array.from({ length: workers }, () =>
+      new Promise<{ code: number; out: string }>((done) => {
+        const child = spawn(
+          process.execPath,
+          [process.argv[1].replace(/verify-prototype\.mts$/, "seed-race-worker.mts")],
+          {
+            env: {
+              ...process.env,
+              PROTOTYPE_DB_PATH: raceDb,
+              NODE_OPTIONS: "--conditions=react-server --import tsx",
+            },
+          },
+        );
+        let out = "";
+        child.stdout.on("data", (d) => (out += d));
+        child.stderr.on("data", (d) => (out += d));
+        child.on("close", (code) => done({ code: code ?? 1, out: out.trim() }));
+      }),
+    ),
+  );
+
+  const crashed = results.filter((r) => r.code !== 0);
+  check(
+    `all ${workers} concurrent cold-start openers succeed`,
+    crashed.length === 0,
+    crashed.length > 0
+      ? crashed[0].out.split("\n")[0]
+      : `${workers} of ${workers}`,
+  );
+
+  const raceHandle = new Database(raceDb, { readonly: true });
+  const professors = raceHandle
+    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")
+    .get()!.n;
+  const codes = raceHandle
+    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM course_codes")
+    .get()!.n;
+  const seededStudents = raceHandle
+    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM students")
+    .get()!.n;
+  raceHandle.close();
+
+  check("seeding ran exactly once", professors === 1 && codes === 1, `professors=${professors} codes=${codes}`);
+  check("no duplicated student rows", seededStudents === 12, `students=${seededStudents}`);
+
+  for (const suffix of ["", "-wal", "-shm"]) {
+    try {
+      rmSync(`${raceDb}${suffix}`);
+    } catch {
+      // nothing to clean up
+    }
+  }
+}
 
 console.log("");
 if (failures > 0) {

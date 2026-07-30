@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicShell } from "@/components/layout/shells";
-import { Card, CardBody, Notice } from "@/components/ui/primitives";
+import {
+  Badge,
+  ButtonLink,
+  Card,
+  CardBody,
+  CardHeader,
+  DemoBadge,
+  Notice,
+} from "@/components/ui/primitives";
 import { currentStudent } from "@/lib/role/role-context";
-import { getCourse } from "@/lib/repositories/courses";
+import { getCourse, listDemoCourses } from "@/lib/repositories/courses";
 import { CourseCodeForm } from "./join-forms";
 
 export const metadata: Metadata = { title: "Join a course" };
 
+// Reads the live course list, so it must not be prerendered.
+export const dynamic = "force-dynamic";
+
 export default async function JoinPage() {
   const student = await currentStudent();
   const existingCourse = student ? getCourse(student.courseId) : null;
+  const demoCourses = listDemoCourses();
 
   return (
     <PublicShell>
@@ -39,6 +51,50 @@ export default async function JoinPage() {
           <CourseCodeForm />
         </CardBody>
       </Card>
+
+      {demoCourses.length > 0 ? (
+        <Card className="mt-6">
+          <CardHeader
+            title="Demonstration course"
+            description="Seeded with this prototype so you can try the student experience without a professor sharing a code first."
+            action={<DemoBadge />}
+          />
+          <CardBody className="space-y-4">
+            {demoCourses.map((course) => (
+              <div
+                key={course.id}
+                className="flex flex-wrap items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink-800">
+                    {course.code} — {course.title}
+                  </p>
+                  <p className="mt-0.5 text-[0.82rem] text-ink-500">
+                    {course.professor_name} · {course.student_count} students
+                    already joined
+                  </p>
+                  <p className="mt-1.5">
+                    <Badge tone="burgundy">Code {course.access_code}</Badge>
+                  </p>
+                </div>
+                <ButtonLink
+                  href={`/join/${course.access_code}`}
+                  variant="secondary"
+                  size="sm"
+                  className="shrink-0"
+                >
+                  Join {course.code}
+                </ButtonLink>
+              </div>
+            ))}
+            <p className="border-t border-sand-100 pt-4 text-[0.82rem] text-ink-500">
+              Everything in this course is fictional demonstration data. A real
+              course code would come from your professor, in class or by email — it
+              would not be listed on a public page like this.
+            </p>
+          </CardBody>
+        </Card>
+      ) : null}
 
       <section className="mt-10">
         <h2 className="font-serif text-xl">Scanning a QR code</h2>

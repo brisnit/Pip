@@ -184,7 +184,7 @@ premise of noticing a struggling student early.
   draft-invisibility rule is demonstrable. The Luther lecture is built out fully:
   7 segments, 14 slides, 4 scripture references, 5 concepts, a transcript,
   teaching notes, student notes, and 13 interactive moments.
-- **22 interactive moments** in total, spanning nine types
+- **21 interactive moments** in total, spanning nine types
 - **3 assessments**: a practice review (8 questions including a deliberately
   unscoreable short answer), a midterm, an essay
 - **12 students** with hand-tuned activity producing a genuine spread:

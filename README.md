@@ -58,9 +58,10 @@ The database is created and seeded automatically on first request. No setup step
    readiness bands. **Students** → open **Noor Haddad** to see why she reads as
    *Needs review*, signal by signal.
 3. **Assign the whole suggested plan** at the bottom of her detail view.
-4. Copy the course code from the course overview — `CH504R` — then open
-   <http://localhost:3000/join> in a private window, enter the code, and join as any
-   name.
+4. Open <http://localhost:3000/join> in a private window. The seeded course and its
+   code (`CH504R`) are listed there under **Demonstration course** — click **Join
+   CH504** and enter any name. (A real course code would come from a professor in
+   class; it is listed here only because this course is demonstration data.)
 5. Open **Martin Luther and the Doctrine of Justification**. Mark a section
    confusing, take a timestamped note, answer the comprehension checks.
 6. Open **Study readiness** to see what that added up to, and **Support plan** to
@@ -96,6 +97,60 @@ working data alone. `npm run smoke` needs a server running on port 3111:
 npm run build
 PORT=3111 npm run start &
 npm run smoke
+```
+
+---
+
+## Troubleshooting
+
+### "This page couldn't load — a server error occurred"
+
+Almost always a database that has a schema but no seeded rows, which leaves nothing
+for the professor portal to show. Fix:
+
+```bash
+npm run db:reset
+```
+
+The app also now recovers from this by itself — `getActiveProfessor()` re-seeds and
+retries before giving up — so you should only see it if re-seeding also failed. The
+real error is in your terminal, and in the dev overlay under `npm run dev`.
+
+This used to happen for a genuine reason. `ensureSeeded()` checked whether the
+database was empty *outside* the seed transaction, so when several processes opened
+a cold database at once — `next build` collects page data across nine workers — they
+all saw zero professors, all ran the seed, and every process but the first died on
+`UNIQUE constraint failed: course_codes.code`. The check now runs inside a
+`BEGIN IMMEDIATE` transaction, so the losers wait for the lock, re-read a non-zero
+count, and no-op.
+
+### No course code to enter on "Join a course"
+
+The `/join` page lists the seeded demonstration course and its code under
+**Demonstration course**. The code is also on the professor course overview, with a
+QR code and a printable access card.
+
+### Do not keep the database in a synced folder
+
+If the project lives in iCloud Drive, Dropbox, OneDrive or similar, the sync client
+will copy `prototype.db` and its write-ahead log while they are open, leaving files
+like `prototype 2.db` and `prototype 3.db-wal` behind. A stale `-wal` beside a fresh
+database can corrupt it.
+
+`npm run db:reset` clears those duplicates. To avoid it entirely, point the database
+outside the synced tree:
+
+```bash
+PROTOTYPE_DB_PATH=/tmp/flc-prototype.db npm run dev
+```
+
+### QR codes point at localhost
+
+Expected — that is the default base URL. A phone cannot reach your laptop's
+`localhost`. Set the address the phone can actually reach:
+
+```bash
+NEXT_PUBLIC_APP_URL=http://192.168.0.10:3000 npm run dev
 ```
 
 ---

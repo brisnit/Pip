@@ -9,6 +9,8 @@ export type Db = Database.Database;
 declare global {
   // Reused across hot reloads in dev so we don't open a new handle per request.
   var __flcDb: Db | undefined;
+  // Set once seeding has been confirmed, so the check is not repeated per call.
+  var __flcSeeded: boolean | undefined;
 }
 
 /**
@@ -56,24 +58,73 @@ function open(): Db {
  * intended guard rail.
  */
 export function getDb(): Db {
-  if (!globalThis.__flcDb) {
-    globalThis.__flcDb = open();
-    ensureSeeded(globalThis.__flcDb);
+  const cached = globalThis.__flcDb;
+  if (cached) {
+    // A handle cached against an unseeded database is useless, and caching one is
+    // how a single transient seed failure used to break every later request. Cheap
+    // re-check until seeding is confirmed, then never again.
+    if (!globalThis.__flcSeeded) ensureSeeded(cached);
+    return cached;
   }
-  return globalThis.__flcDb;
+
+  // Seed before publishing the handle: if seeding throws, the next call retries
+  // with a fresh connection rather than serving an empty database forever.
+  const db = open();
+  ensureSeeded(db);
+  globalThis.__flcDb = db;
+  return db;
 }
 
 /**
- * Seeds demonstration data the first time the database is created. Idempotent:
- * a non-empty `professors` table is treated as already seeded.
+ * Seeds demonstration data the first time the database is created.
+ *
+ * The emptiness check runs *inside* an IMMEDIATE transaction, which matters more
+ * than it looks. `next build` collects page data across nine worker processes, and
+ * a cold start can have several of them open the same new database at once. With
+ * the check outside the transaction they all saw zero professors, all ran the seed,
+ * and every process but the first died on
+ * `UNIQUE constraint failed: course_codes.code` — surfacing as a 500 on whichever
+ * route that worker was rendering.
+ *
+ * BEGIN IMMEDIATE takes the write lock up front, so the losers wait (up to
+ * `busy_timeout`), then re-read a non-zero count and no-op.
  */
 function ensureSeeded(db: Db) {
-  const { n } = db
-    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")
-    .get()!;
-  if (n > 0) return;
+  const seed = db.transaction(() => {
+    const { n } = db
+      .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")
+      .get()!;
+    if (n > 0) return false;
+    seedDemonstrationData(db);
+    return true;
+  });
 
-  seedDemonstrationData(db);
+  seed.immediate();
+  globalThis.__flcSeeded = true;
+}
+
+/**
+ * Re-seeds if the database has been emptied underneath a running process.
+ *
+ * `getDb()` deliberately stops checking once seeding is confirmed, because it is
+ * called several times per request and a COUNT on every call is wasted work. That
+ * leaves one hole: a database emptied or replaced while the server is running — a
+ * stray `db:reset`, or a sync service swapping the file — would 500 every request
+ * until a restart.
+ *
+ * Callers that genuinely cannot proceed without seeded data invoke this before
+ * giving up. Returns true if data is present afterwards.
+ */
+export function recoverIfEmpty(): boolean {
+  const db = getDb();
+  globalThis.__flcSeeded = false;
+  try {
+    ensureSeeded(db);
+    return true;
+  } catch (error) {
+    console.error("[flc] re-seed after empty database failed:", error);
+    return false;
+  }
 }
 
 /** Wraps a set of writes in a transaction. */
