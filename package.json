@@ -1,0 +1,38 @@
+{
+  "name": "fuller-learning-companion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify": "NODE_OPTIONS=--conditions=react-server tsx scripts/verify-prototype.mts",
+    "db:reset": "NODE_OPTIONS=--conditions=react-server tsx scripts/reset-db.mts",
+    "dev:session": "NODE_OPTIONS=--conditions=react-server tsx scripts/dev-session.mts",
+    "smoke": "bash scripts/smoke.sh"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.2",
+    "next": "16.2.12",
+    "qrcode": "^1.5.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.1",
+    "typescript": "^5"
+  }
+}

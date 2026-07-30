@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Fuller Learning Companion — prototype design system
+   Deep burgundy / warm neutral / cream / charcoal, restrained gold accent.
+   All pairings below were chosen to clear WCAG 2.2 AA on their intended
+   background (see docs/product-architecture.md → Design system).
+   ========================================================================== */
+
+@theme {
+  /* Brand ---------------------------------------------------------------- */
+  --color-burgundy-50: #f9f0f1;
+  --color-burgundy-100: #f0dbde;
+  --color-burgundy-200: #ddb3ba;
+  --color-burgundy-300: #c4808c;
+  --color-burgundy-400: #a55263;
+  --color-burgundy-500: #8a2d40;
+  --color-burgundy-600: #6b1f2e;
+  --color-burgundy-700: #551825;
+  --color-burgundy-800: #3d111a;
+  --color-burgundy-900: #290b12;
+
+  --color-cream-50: #fdfbf7;
+  --color-cream-100: #fbf7f0;
+  --color-cream-200: #f5efe4;
+  --color-cream-300: #ece3d3;
+
+  --color-sand-100: #e7dfd2;
+  --color-sand-200: #d8cdb9;
+  --color-sand-300: #c2b49c;
+  --color-sand-400: #a08f76;
+  --color-sand-500: #7c6d57;
+
+  --color-ink-400: #6f6862;
+  --color-ink-500: #55504a;
+  --color-ink-600: #403b36;
+  --color-ink-700: #2a2724;
+  --color-ink-800: #1c1a18;
+  --color-ink-900: #12100f;
+
+  --color-gold-100: #f6ecd6;
+  --color-gold-200: #e8d3a4;
+  --color-gold-300: #d3b46e;
+  --color-gold-400: #b08542;
+  --color-gold-500: #8a6528;
+  --color-gold-600: #6b4d1c;
+
+  /* Readiness statuses. Never used as the sole signal — every surface pairs
+     these with an icon and a text label. */
+  --color-track-50: #eef5f0;
+  --color-track-100: #d8e8de;
+  --color-track-200: #a9cbb8;
+  --color-track-500: #2f6b4f;
+  --color-track-600: #245139;
+
+  --color-attention-50: #fbf3e3;
+  --color-attention-100: #f6e6c6;
+  --color-attention-200: #e6c98c;
+  --color-attention-500: #8a5f10;
+  --color-attention-600: #6d4a0a;
+
+  --color-concern-50: #fbeeec;
+  --color-concern-100: #f6dcd7;
+  --color-concern-200: #e5b3a9;
+  --color-concern-500: #a3382a;
+  --color-concern-600: #822a1f;
+
+  --color-unknown-50: #f1f2f3;
+  --color-unknown-100: #e3e5e7;
+  --color-unknown-200: #c6cace;
+  --color-unknown-500: #55606a;
+  --color-unknown-600: #414a52;
+
+  /* Type ----------------------------------------------------------------- */
+  --font-serif: var(--font-display), "Iowan Old Style", "Palatino Linotype",
+    Palatino, Georgia, ui-serif, serif;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --text-display: 3.25rem;
+  --text-display--line-height: 1.06;
+  --text-display--letter-spacing: -0.02em;
+}
+
+:root {
+  --page: var(--color-cream-100);
+  --surface: #ffffff;
+  --surface-muted: var(--color-cream-200);
+  --border: var(--color-sand-100);
+  --border-strong: var(--color-sand-200);
+  --text: var(--color-ink-800);
+  --text-muted: var(--color-ink-500);
+  --text-subtle: var(--color-ink-400);
+  --focus: var(--color-burgundy-500);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--page);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    color: var(--color-ink-900);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* Visible, high-contrast focus for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-burgundy-100);
+    color: var(--color-burgundy-800);
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer utilities {
+  /* Screen-reader-only text, revealed on focus for skip links. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .prose-notes {
+    max-width: 68ch;
+
+    & p {
+      margin-block: 0.75em;
+    }
+
+    & h3 {
+      font-size: 1.0625rem;
+      margin-block: 1.4em 0.4em;
+    }
+
+    & ul {
+      list-style: disc;
+      padding-inline-start: 1.35em;
+      margin-block: 0.6em;
+    }
+
+    & ol {
+      list-style: decimal;
+      padding-inline-start: 1.35em;
+      margin-block: 0.6em;
+    }
+
+    & li {
+      margin-block: 0.3em;
+    }
+
+    & strong {
+      color: var(--color-ink-900);
+      font-weight: 600;
+    }
+
+    & blockquote {
+      border-inline-start: 3px solid var(--color-gold-300);
+      padding-inline-start: 1rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-block: 1em;
+    }
+  }
+}
+
+/* Respect reduced-motion for every transition and animation in the app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}
