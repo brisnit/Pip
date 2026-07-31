@@ -25,6 +25,24 @@ import { cn } from "@/lib/cn";
  *
  * Motion is a progressive enhancement. `prefers-reduced-motion` is honoured
  * globally in globals.css, which collapses every transition here to nothing.
+ *
+ * ── Two rules that keep hover stable ─────────────────────────────────────────
+ *
+ * 1. **Hovering must never change the layout above the pointer.** The peek used to
+ *    be a third column that existed only while a band was active, so revealing it
+ *    narrowed the row, slid the wheel out from under the cursor, unmounted itself,
+ *    and restored the layout — at which point the cursor was back over the arc and
+ *    the cycle ran again, several times a second. The peek now opens *below* the
+ *    wheel and the legend, so the card grows downwards and nothing the pointer is
+ *    resting on ever moves.
+ *
+ * 2. **The pointer target must not be the thing that animates.** The visible arc
+ *    grows when active, which moves its own edges; a cursor near an edge would fall
+ *    off the target it had just hit. So each band gets an invisible hit arc of
+ *    constant width that owns the pointer, and the visible arc is inert.
+ *
+ * Leaving is handled once, on the container, rather than per arc — crossing the gap
+ * between two bands should read as moving between them, not as leaving the wheel.
  */
 
 export type WheelTone = "track" | "attention" | "concern" | "unknown" | "brand";
@@ -120,144 +138,174 @@ export function HealthWheel({
   const dimension = size === "lg" ? "h-64 w-64" : "h-52 w-52";
 
   return (
-    <div className={cn("flex flex-col gap-6 sm:flex-row sm:items-center", className)}>
-      <div className="relative shrink-0 self-center">
-        <svg
-          viewBox="0 0 200 200"
-          className={cn(dimension, "-rotate-90")}
-          role="img"
-          aria-label={`${centerValue} ${centerLabel}. ${summary}.`}
+    <div className={cn("flex flex-col", className)}>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+        <div
+          className="relative shrink-0 self-center"
+          onMouseLeave={() => setActive(null)}
         >
-          {/* Track the arcs sit on, so an almost-empty wheel still reads as a ring. */}
-          <circle
-            cx="100"
-            cy="100"
-            r={RADIUS}
-            fill="none"
-            stroke="var(--color-paper-200)"
-            strokeWidth="16"
-          />
-          {arcs.map(({ segment, dash, offset }) => {
-            const isActive = active === segment.key;
-            const dimmed = active !== null && !isActive;
-            return (
+          <svg
+            viewBox="0 0 200 200"
+            className={cn(dimension, "-rotate-90")}
+            role="img"
+            aria-label={`${centerValue} ${centerLabel}. ${summary}.`}
+          >
+            {/* Track the arcs sit on, so an almost-empty wheel still reads as a ring. */}
+            <circle
+              cx="100"
+              cy="100"
+              r={RADIUS}
+              fill="none"
+              stroke="var(--color-paper-200)"
+              strokeWidth="16"
+            />
+            {arcs.map(({ segment, dash, offset }) => {
+              const isActive = active === segment.key;
+              const dimmed = active !== null && !isActive;
+              return (
+                <circle
+                  key={segment.key}
+                  cx="100"
+                  cy="100"
+                  r={RADIUS}
+                  fill="none"
+                  stroke={ARC_COLOUR[segment.tone]}
+                  strokeWidth={isActive ? 22 : 16}
+                  strokeDasharray={dash}
+                  strokeDashoffset={offset}
+                  strokeLinecap="butt"
+                  opacity={dimmed ? 0.35 : 1}
+                  className="pointer-events-none transition-all duration-300"
+                  aria-hidden="true"
+                />
+              );
+            })}
+
+            {/* Hit targets: constant width, so the region that answers the pointer
+                never moves while the arc beneath it grows. Drawn last so they sit
+                above the visible arcs, and transparent so they change nothing. */}
+            {arcs.map(({ segment, dash, offset }) => (
               <circle
-                key={segment.key}
+                key={`hit-${segment.key}`}
                 cx="100"
                 cy="100"
                 r={RADIUS}
                 fill="none"
-                stroke={ARC_COLOUR[segment.tone]}
-                strokeWidth={isActive ? 22 : 16}
+                stroke="transparent"
+                strokeWidth="24"
                 strokeDasharray={dash}
                 strokeDashoffset={offset}
                 strokeLinecap="butt"
-                opacity={dimmed ? 0.35 : 1}
-                className="cursor-pointer transition-all duration-300"
+                className="cursor-pointer"
                 onMouseEnter={() => setActive(segment.key)}
-                onMouseLeave={() => setActive(null)}
                 aria-hidden="true"
               />
-            );
-          })}
-        </svg>
+            ))}
+          </svg>
 
-        {/* Centre readout. Rotated back upright, and inert to pointer events so it
-            never steals a hover from the arc beneath it. */}
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span
-            className={cn(
-              "font-serif leading-none text-ink-900",
-              size === "lg" ? "text-4xl" : "text-3xl",
-            )}
-          >
-            {centerValue}
-          </span>
-          <span className="mt-1.5 max-w-28 text-[0.75rem] leading-tight text-ink-500">
-            {centerLabel}
-          </span>
+          {/* Centre readout. Rotated back upright, and inert to pointer events so
+              it never steals a hover from the arc beneath it. */}
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span
+              className={cn(
+                "font-serif leading-none text-ink-900",
+                size === "lg" ? "text-4xl" : "text-3xl",
+              )}
+            >
+              {centerValue}
+            </span>
+            <span className="mt-1.5 max-w-28 text-[0.75rem] leading-tight text-ink-500">
+              {centerLabel}
+            </span>
+          </div>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <ul className="space-y-1" onMouseLeave={() => setActive(null)}>
+            {segments.map((segment) => {
+              const isActive = active === segment.key;
+              const share =
+                total > 0 ? Math.round((segment.value / total) * 100) : 0;
+
+              const row = (
+                <>
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      className={cn("text-[0.9rem]", DOT_CLASS[segment.tone])}
+                    >
+                      {segment.glyph}
+                    </span>
+                    <span className="truncate text-[0.9rem] text-ink-700">
+                      {segment.label}
+                    </span>
+                  </span>
+                  <span className="shrink-0 tabular-nums text-[0.9rem] font-medium text-ink-800">
+                    {segment.value}
+                    {total > 0 ? (
+                      <span className="ml-1.5 font-normal text-ink-400">
+                        {share}%
+                      </span>
+                    ) : null}
+                  </span>
+                </>
+              );
+
+              const rowClass = cn(
+                "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left no-underline transition-colors",
+                isActive ? "bg-paper-200" : "hover:bg-paper-100",
+              );
+
+              return (
+                <li key={segment.key}>
+                  {segment.href ? (
+                    <Link
+                      href={segment.href}
+                      className={rowClass}
+                      onMouseEnter={() => setActive(segment.key)}
+                      onFocus={() => setActive(segment.key)}
+                      onBlur={() => setActive(null)}
+                      aria-describedby={isActive ? panelId : undefined}
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <span
+                      className={rowClass}
+                      onMouseEnter={() => setActive(segment.key)}
+                    >
+                      {row}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          {caption ? (
+            <p className="mt-3 px-3 text-[0.8rem] text-ink-400">{caption}</p>
+          ) : null}
         </div>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <ul className="space-y-1">
-          {segments.map((segment) => {
-            const isActive = active === segment.key;
-            const share = total > 0 ? Math.round((segment.value / total) * 100) : 0;
+      {/*
+         The peek, and the caption it stands in for.
 
-            const row = (
-              <>
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <span
-                    aria-hidden="true"
-                    className={cn("text-[0.9rem]", DOT_CLASS[segment.tone])}
-                  >
-                    {segment.glyph}
-                  </span>
-                  <span className="truncate text-[0.9rem] text-ink-700">
-                    {segment.label}
-                  </span>
-                </span>
-                <span className="shrink-0 tabular-nums text-[0.9rem] font-medium text-ink-800">
-                  {segment.value}
-                  {total > 0 ? (
-                    <span className="ml-1.5 font-normal text-ink-400">{share}%</span>
-                  ) : null}
-                </span>
-              </>
-            );
-
-            const rowClass = cn(
-              "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left no-underline transition-colors",
-              isActive ? "bg-paper-200" : "hover:bg-paper-100",
-            );
-
-            return (
-              <li key={segment.key}>
-                {segment.href ? (
-                  <Link
-                    href={segment.href}
-                    className={rowClass}
-                    onMouseEnter={() => setActive(segment.key)}
-                    onMouseLeave={() => setActive(null)}
-                    onFocus={() => setActive(segment.key)}
-                    onBlur={() => setActive(null)}
-                    aria-describedby={isActive ? panelId : undefined}
-                  >
-                    {row}
-                  </Link>
-                ) : (
-                  <span
-                    className={rowClass}
-                    onMouseEnter={() => setActive(segment.key)}
-                    onMouseLeave={() => setActive(null)}
-                  >
-                    {row}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-
-        {caption ? (
-          <p className="mt-3 px-3 text-[0.8rem] text-ink-400">{caption}</p>
-        ) : null}
-      </div>
-
-      {/* The peek. Rendered in flow rather than floating, so it never covers the
-          legend it was triggered from and needs no positioning logic. */}
-      <div
-        id={panelId}
-        role="status"
-        aria-live="polite"
-        className={cn(
-          "min-w-0 shrink-0 sm:w-56",
-          activeSegment?.detail ? "" : "sr-only",
-        )}
-      >
+         Always in the document, always below the wheel, so revealing a peek cannot
+         move the arc or the legend row that opened it — rule 1 at the top of this
+         file. `min-h` reserves the caption's own height so the idle case is steady
+         too, and the panel is inert to the pointer so it can never take a hover
+         from the thing that triggered it.
+      */}
+      {/*
+        No `aria-live`, deliberately. The legend rows point here with
+        `aria-describedby`, which announces the detail exactly when a keyboard user
+        asks for it by focusing a row; a live region would additionally announce on
+        every pointer movement across the wheel.
+      */}
+      <div id={panelId} className="min-w-0 empty:hidden">
         {activeSegment?.detail ? (
-          <div className="rounded-xl border border-tan-100 bg-white p-4 shadow-[0_4px_16px_rgba(4,43,50,0.06)]">
+          <div className="pointer-events-none mt-6 rounded-xl border border-tan-100 bg-paper-50 p-4">
             <p className="flex items-center gap-2 text-[0.78rem] font-semibold uppercase tracking-wide text-ink-500">
               <span
                 aria-hidden="true"

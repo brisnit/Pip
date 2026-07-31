@@ -143,7 +143,15 @@ export default async function ProfessorDashboard() {
 
   return (
     <ProfessorShell professorName={professor.name}>
-      <Welcome name={professor.name} term={term} />
+      <Welcome
+        name={professor.name}
+        term={term}
+        action={
+          <ButtonLink href="/professor/courses/new" size="lg">
+            + Create new course
+          </ButtonLink>
+        }
+      />
 
       <div className="mt-12 grid gap-6 xl:grid-cols-2">
         <Panel
@@ -174,23 +182,34 @@ export default async function ProfessorDashboard() {
           />
         </Panel>
       </div>
-
-      <div className="mt-12 flex justify-center">
-        <ButtonLink href="/professor/courses/new" size="lg">
-          + Create new course
-        </ButtonLink>
-      </div>
     </ProfessorShell>
   );
 }
 
-function Welcome({ name, term }: { name: string; term: string | null }) {
+/**
+ * The greeting, with the one action worth taking from here beside it.
+ *
+ * `action` is optional because the empty state below leads with the same button —
+ * offering it twice on a page with nothing else on it would be noise.
+ */
+function Welcome({
+  name,
+  term,
+  action,
+}: {
+  name: string;
+  term: string | null;
+  action?: React.ReactNode;
+}) {
   return (
-    <header className="pt-4">
-      <h1 className="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
-        {greeting()}, {salutation(name)}
-      </h1>
-      {term ? <p className="mt-3 text-lg text-ink-500">{term}</p> : null}
+    <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 pt-4">
+      <div className="min-w-0">
+        <h1 className="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+          {greeting()}, {salutation(name)}
+        </h1>
+        {term ? <p className="mt-3 text-lg text-ink-500">{term}</p> : null}
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
     </header>
   );
 }
