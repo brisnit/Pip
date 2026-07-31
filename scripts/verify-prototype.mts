@@ -577,69 +577,100 @@ section("Concurrent seeding (regression guard)");
  * surfacing as a 500 on whichever route that worker was rendering.
  */
 {
-  const raceDb = resolve(".data/race-check.db");
-  for (const suffix of ["", "-wal", "-shm"]) {
-    try {
-      rmSync(`${raceDb}${suffix}`);
-    } catch {
-      // nothing to clean up
+  const discard = (path: string) => {
+    for (const suffix of ["", "-wal", "-shm"]) {
+      try {
+        rmSync(`${path}${suffix}`);
+      } catch {
+        // nothing to clean up
+      }
     }
-  }
+  };
+
+  /** Open a fresh database with `workers` processes at once and count what landed. */
+  const coldStart = async (path: string, workers: number) => {
+    discard(path);
+    const results = await Promise.all(
+      Array.from({ length: workers }, () =>
+        new Promise<{ code: number; out: string }>((done) => {
+          const child = spawn(
+            process.execPath,
+            [
+              process.argv[1].replace(
+                /verify-prototype\.mts$/,
+                "seed-race-worker.mts",
+              ),
+            ],
+            {
+              env: {
+                ...process.env,
+                PROTOTYPE_DB_PATH: path,
+                NODE_OPTIONS: "--conditions=react-server --import tsx",
+              },
+            },
+          );
+          let out = "";
+          child.stdout.on("data", (d) => (out += d));
+          child.stderr.on("data", (d) => (out += d));
+          child.on("close", (code) => done({ code: code ?? 1, out: out.trim() }));
+        }),
+      ),
+    );
+
+    const handle = new Database(path, { readonly: true });
+    const count = (table: string) =>
+      handle.prepare<[], { n: number }>(`SELECT COUNT(*) AS n FROM ${table}`)
+        .get()!.n;
+    const counts = {
+      professors: count("professors"),
+      codes: count("course_codes"),
+      students: count("students"),
+      courses: count("courses"),
+    };
+    handle.close();
+    discard(path);
+
+    return { crashed: results.filter((r) => r.code !== 0), counts };
+  };
 
   const workers = 9;
-  const results = await Promise.all(
-    Array.from({ length: workers }, () =>
-      new Promise<{ code: number; out: string }>((done) => {
-        const child = spawn(
-          process.execPath,
-          [process.argv[1].replace(/verify-prototype\.mts$/, "seed-race-worker.mts")],
-          {
-            env: {
-              ...process.env,
-              PROTOTYPE_DB_PATH: raceDb,
-              NODE_OPTIONS: "--conditions=react-server --import tsx",
-            },
-          },
-        );
-        let out = "";
-        child.stdout.on("data", (d) => (out += d));
-        child.stderr.on("data", (d) => (out += d));
-        child.on("close", (code) => done({ code: code ?? 1, out: out.trim() }));
-      }),
-    ),
-  );
+  const race = await coldStart(resolve(".data/race-check.db"), workers);
 
-  const crashed = results.filter((r) => r.code !== 0);
   check(
     `all ${workers} concurrent cold-start openers succeed`,
-    crashed.length === 0,
-    crashed.length > 0
-      ? crashed[0].out.split("\n")[0]
+    race.crashed.length === 0,
+    race.crashed.length > 0
+      ? race.crashed[0].out.split("\n")[0]
       : `${workers} of ${workers}`,
   );
 
-  const raceHandle = new Database(raceDb, { readonly: true });
-  const professors = raceHandle
-    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")
-    .get()!.n;
-  const codes = raceHandle
-    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM course_codes")
-    .get()!.n;
-  const seededStudents = raceHandle
-    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM students")
-    .get()!.n;
-  raceHandle.close();
+  // The baseline is measured, not written down. Hardcoding the seed's row counts
+  // here meant that growing the seed broke the guard, which teaches whoever hits
+  // it to edit the number rather than to ask whether seeding actually duplicated.
+  const solo = await coldStart(resolve(".data/race-baseline.db"), 1);
+  const same = (key: keyof typeof race.counts) =>
+    race.counts[key] === solo.counts[key];
 
-  check("seeding ran exactly once", professors === 1 && codes === 1, `professors=${professors} codes=${codes}`);
-  check("no duplicated student rows", seededStudents === 12, `students=${seededStudents}`);
+  // Without this, a seed that silently did nothing would make every comparison
+  // below read 0 === 0 and pass.
+  check(
+    "the baseline opener actually seeded",
+    solo.crashed.length === 0 && solo.counts.courses > 0 && solo.counts.students > 0,
+    `courses=${solo.counts.courses} students=${solo.counts.students}`,
+  );
 
-  for (const suffix of ["", "-wal", "-shm"]) {
-    try {
-      rmSync(`${raceDb}${suffix}`);
-    } catch {
-      // nothing to clean up
-    }
-  }
+  check(
+    "seeding ran exactly once under load",
+    same("professors") && same("codes") && same("courses"),
+    `professors=${race.counts.professors}/${solo.counts.professors} ` +
+      `codes=${race.counts.codes}/${solo.counts.codes} ` +
+      `courses=${race.counts.courses}/${solo.counts.courses}`,
+  );
+  check(
+    "no duplicated student rows",
+    same("students"),
+    `students=${race.counts.students} against a single-opener baseline of ${solo.counts.students}`,
+  );
 }
 
 section("Demo access gate");

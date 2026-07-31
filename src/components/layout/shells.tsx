@@ -71,6 +71,8 @@ export function ProfessorShell({
   const topNav: NavItem[] = [
     { href: "/professor/dashboard", label: "Dashboard" },
     { href: "/professor/courses", label: "Courses", nested: true },
+    { href: "/professor/students", label: "Students" },
+    { href: "/professor/profile", label: "Profile" },
   ];
 
   return (
@@ -84,10 +86,12 @@ export function ProfessorShell({
             </span>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-ink-500">
-              Acting as{" "}
-              <span className="font-medium text-ink-800">{professorName}</span>
-            </span>
+            <Link href="/professor/profile" className="no-underline">
+              <span className="text-ink-500">Acting as </span>
+              <span className="font-medium text-ink-800 hover:underline">
+                {professorName}
+              </span>
+            </Link>
             <Link href="/" className="text-brand-600">
               Exit
             </Link>
@@ -162,10 +166,12 @@ export function StudentShell({
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-ink-500">
-              Signed in as{" "}
-              <span className="font-medium text-ink-800">{studentName}</span>
-            </span>
+            <Link href={`/student/${courseId}/profile`} className="no-underline">
+              <span className="text-ink-500">Signed in as </span>
+              <span className="font-medium text-ink-800 hover:underline">
+                {studentName}
+              </span>
+            </Link>
             <Link href="/join" className="text-brand-600">
               Switch course
             </Link>
@@ -205,6 +211,7 @@ export function studentCourseNav(courseId: string): NavItem[] {
     { href: `${base}/assessments`, label: "Assessments", nested: true },
     { href: `${base}/support`, label: "Support plan" },
     { href: `${base}/resources`, label: "Resources" },
+    { href: `${base}/profile`, label: "Profile" },
   ];
 }
 
@@ -226,7 +233,7 @@ export function PublicShell({
           <nav aria-label="Main" className="flex items-center gap-5 text-sm">
             <Link href="/about">About</Link>
             <Link href="/professor">Professor portal</Link>
-            <Link href="/join">Join a course</Link>
+            <Link href="/join">Student portal</Link>
           </nav>
         </div>
       </header>

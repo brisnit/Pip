@@ -43,15 +43,39 @@ JONAH=$(grep '^cookie:' <<<"$JONAH_OUT" | awk '{print $2}')
 step "1–2. The professor enters the portal"
 check "landing page renders the tagline" "$(has "$(get "$BASE/")" 'Turn teaching into an ongoing conversation')"
 check "/professor reaches the dashboard" "$(curl -sL -o /dev/null -w "%{url_effective}" "$BASE/professor" | grep -q "/professor/dashboard" && echo 1 || echo 0)"
+# The dashboard is a launchpad, not a worklist: two health wheels and one way
+# forward. The per-course worklists it used to carry are asserted against the
+# course page below, which is where they now live.
 DASH=$(get "$BASE/professor/dashboard")
 check "dashboard names the seeded professor" "$(has "$DASH" 'Miriam Carter')"
-check "dashboard shows the seeded course" "$(has "$DASH" 'CH504')"
-check "dashboard flags students needing follow-up" "$(has "$DASH" 'Students to follow up')"
-check "dashboard shows most confusing concepts" "$(has "$DASH" 'Most confusing moments')"
-check "dashboard shows unanswered questions" "$(has "$DASH" 'Questions awaiting a response')"
-check "dashboard shows upcoming lectures and exams" "$(has "$DASH" 'Upcoming assessments')"
-check "dashboard offers the required quick actions" "$(has "$DASH" 'Create support recommendation')"
+check "dashboard summarises health across every course" "$(has "$DASH" 'Course health')"
+check "dashboard summarises health across every student" "$(has "$DASH" 'Student health')"
+check "course health totals are computed, not stated" "$(hasre "$DASH" '[0-9]+ courses')"
+check "student health totals are computed, not stated" "$(hasre "$DASH" '[0-9]+ students')"
+check "wheels carry a glyph, never colour alone" "$(hasre "$DASH" '(◆|◐|●)')"
+check "each band reports a share as well as a count" "$(hasre "$DASH" '[0-9]+%')"
+check "unassessed students are their own band, not folded in" "$(has "$DASH" 'Not enough data yet')"
+check "health is not claimed to be a grade" "$(has "$DASH" 'not from a grade')"
+check "dashboard offers course creation" "$(has "$DASH" 'Create new course')"
+check "dashboard reaches the roster and the course list" "$(has "$DASH" '/professor/students')"
 check "course id resolved from a live query ($COURSE_ID)" "$([ -n "$COURSE_ID" ] && echo 1 || echo 0)"
+
+# The course page is the drill-in: everything waiting on the professor for one course.
+COURSE=$(get "$BASE/professor/courses/$COURSE_ID")
+check "course page flags students needing follow-up" "$(has "$COURSE" 'Students to follow up')"
+check "course page shows unanswered questions" "$(has "$COURSE" 'Questions awaiting a response')"
+check "course page shows upcoming lectures" "$(has "$COURSE" 'Upcoming lectures')"
+check "course page shows upcoming assessments" "$(has "$COURSE" 'Upcoming assessments')"
+check "course page shows recent activity" "$(has "$COURSE" 'Recent activity')"
+check "course page offers the support quick action" "$(has "$COURSE" 'Create support recommendation')"
+check "course page shows the class readiness spread" "$(has "$COURSE" 'Class understanding')"
+
+# Course list and faculty roster: the two paths off the dashboard wheels.
+LIST=$(get "$BASE/professor/courses")
+check "course list shows the seeded course" "$(has "$LIST" 'CH504')"
+check "course list can be filtered to one health band" "$(has "$(get "$BASE/professor/courses?health=needs_attention")" 'Needs attention')"
+ROSTER=$(get "$BASE/professor/students")
+check "faculty roster lists students across courses" "$(has "$ROSTER" 'Noor Haddad')"
 
 step "3. Course creation"
 check "course creation form loads" "$([ "$(code "$BASE/professor/courses/new")" = "200" ] && echo 1 || echo 0)"
@@ -130,10 +154,15 @@ check "contested key terms carry a perspective note" "$(has "$LEC" 'Traditions d
 check "class questions can be upvoted" "$(has "$LEC" 'Upvote a question')"
 check "the timeline reflects the student's own markers" "$(has "$LEC" 'confusing')"
 
+# The student home is now a whole-learning view: one readiness wheel across every
+# course they are in, then one obvious way back into the work.
 HOME=$(sget "$BASE/student/$COURSE_ID")
-check "student home renders where they stand" "$(has "$HOME" 'Where you stand')"
-check "student home gives one recommended next action" "$(has "$HOME" 'Recommended next action')"
-check "student home shows course progress" "$(has "$HOME" 'Course progress')"
+check "student home greets them by name" "$(has "$HOME" 'Noor')"
+check "student home shows learning health across their courses" "$(has "$HOME" 'Learning health')"
+check "readiness is stated as a percentage they can see" "$(hasre "$HOME" '[0-9]+%')"
+check "student home gives one obvious next action" "$(has "$HOME" 'Continue learning')"
+check "student home lists every course they are enrolled in" "$(has "$HOME" 'My courses')"
+check "student home never labels anyone as failing" "$([ "$(has "$HOME" 'failing')" = "0" ] && echo 1 || echo 0)"
 
 step "14–15. Readiness feedback"
 READY=$(sget "$BASE/student/$COURSE_ID/readiness")

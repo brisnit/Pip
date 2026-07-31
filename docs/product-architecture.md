@@ -44,7 +44,7 @@ rather than a runtime leak.
 ### Public
 | Route | Purpose |
 | --- | --- |
-| `/` | Landing. Two doors: professor portal, join a course. |
+| `/` | Landing. Two doors: professor portal, student portal. |
 | `/about` | What the prototype is and, at length, what it is not. |
 | `/professor` | Professor entry. Redirects to the dashboard; becomes the sign-in screen later. |
 | `/join` | Enter a course code, with an accessible alternative to scanning. |
@@ -53,10 +53,12 @@ rather than a runtime leak.
 ### Professor
 | Route | Purpose |
 | --- | --- |
-| `/professor/dashboard` | Who needs attention, what is confusing, what is unanswered, what is coming. |
-| `/professor/courses` | All courses with access codes and counts. |
+| `/professor/dashboard` | Launchpad. Course health and student health as two wheels, and one way to start a course. |
+| `/professor/courses` | All courses with access codes, counts and a health band; filterable by band. |
+| `/professor/students` | Faculty-wide roster across every course, filterable by cohort band. |
+| `/professor/profile` | The professor's own profile, with a completeness indicator. |
 | `/professor/courses/new` | Course creation. Issues code, link, QR, access card. |
-| `/professor/courses/[id]` | Overview: access panel, setup checklist, modules, objectives. |
+| `/professor/courses/[id]` | Overview: access panel, setup checklist, class understanding, students to follow up, open questions, what is coming, recent activity, modules, objectives. |
 | `/professor/courses/[id]/access-card` | Printable card with QR, URL and code. |
 | `/professor/courses/[id]/syllabus` | Syllabus intelligence: extract → review → publish. |
 | `/professor/courses/[id]/content` | Lectures and materials; visibility control. |
@@ -71,7 +73,8 @@ rather than a runtime leak.
 ### Student
 | Route | Purpose |
 | --- | --- |
-| `/student/[id]` | Course home with a single recommended next action. |
+| `/student/[id]` | Home. Learning health across every course they are in, one way back into the work, and their course list. |
+| `/student/[id]/profile` | The student's own profile, with a completeness indicator. |
 | `/student/[id]/lecture` | Lecture list grouped by module, with the student's own progress. |
 | `/student/[id]/lecture/[lid]` | **The interactive lecture.** |
 | `/student/[id]/notes` | All notes, filters, study tools, knowledge gaps. |
@@ -80,6 +83,15 @@ rather than a runtime leak.
 | `/student/[id]/assessments/[aid]` | Answer a practice set or assessment. |
 | `/student/[id]/support` | The support plan; accept, complete, decline, request help. |
 | `/student/[id]/resources` | Published materials by module, objectives, key terms. |
+
+### Where the dashboards stop
+
+Both dashboards answer one question — *what is the state of learning* — and then
+get out of the way. The per-course worklists (who to follow up, which questions are
+unanswered, what is scheduled) live on `/professor/courses/[id]`, because they are
+course-scoped questions; a professor teaching eight courses cannot act on a merged
+list of all of them. The wheels on the dashboard are the route in: each legend row
+is a link into the filtered list behind it.
 
 All data-bearing routes are `force-dynamic`. They read live SQLite on every
 request; prerendering them would bake build-time IDs into the HTML. (This was
@@ -245,6 +257,32 @@ keeps the "no request leaves the origin" claim in the privacy notes true.
 **Buttons.** The guide gives one button: tertiary blue, white label, square corners.
 That is `variant="primary"`, and `rounded-none` is deliberate. Form controls match.
 Secondary and ghost variants are derived, not specified, so they stay quiet.
+
+### The visualisation system
+
+`src/components/viz/health-wheel.tsx` is the one chart component, used for course
+health, cohort health and a student's own learning health. It takes segments with a
+label, a count, a tone and a link, and renders a ring with a figure in the middle.
+
+The accessibility design is the whole reason it is a component rather than three
+charts. **The ring is decoration.** Every segment is also a row in the legend, and
+those rows are real links: they take keyboard focus, and focusing one reveals the
+same detail panel that hovering an arc reveals. Nothing is reachable by pointer that
+is not reachable by keyboard, and nothing is conveyed by arc colour that is not also
+written in the legend as a glyph (● ◐ ◆ ○), a label, a count and a share. The `<svg>`
+carries `role="img"` and an `aria-label` that states the whole distribution in one
+sentence, so a screen reader gets the summary without traversing the legend.
+
+Arc geometry is `stroke-dasharray` and `stroke-dashoffset` on a circle — no charting
+library, no runtime dependency, and it renders on the server. Segments with a zero
+count are dropped from the ring but kept out of the legend only when they carry no
+meaning; "not enough data yet" is always shown when non-zero, because hiding it
+would imply a certainty the model does not have.
+
+The aggregation is separate, in `src/lib/domain/health.ts`, and is pure: thresholds
+in one place, no database access, no formatting. That is what makes the bands
+testable and what stops a chart from quietly inventing its own definition of
+"healthy".
 
 ### Two constraints the brand colours impose
 

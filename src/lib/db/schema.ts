@@ -31,7 +31,25 @@ CREATE TABLE IF NOT EXISTS professors (
   email      TEXT,
   bio        TEXT,
   is_demo    INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+
+  -- Profile. Every field optional: a profile is built up over time, and the
+  -- completeness indicator exists precisely because it starts empty.
+  -- No file storage is connected, so the photo is a URL or nothing; the UI falls
+  -- back to initials rather than a broken image.
+  photo_url            TEXT,
+  department           TEXT,
+  office               TEXT,
+  phone                TEXT,
+  office_hours         TEXT,
+  academic_interests   TEXT,
+  research_areas       TEXT,
+  credentials          TEXT,
+  website              TEXT,
+  linkedin             TEXT,
+  teaching_philosophy  TEXT,
+  calendar_availability TEXT,
+  profile_updated_at   TEXT
 );
 
 CREATE TABLE IF NOT EXISTS students (
@@ -40,7 +58,24 @@ CREATE TABLE IF NOT EXISTS students (
   email             TEXT,
   student_id_number TEXT,
   is_demo           INTEGER NOT NULL DEFAULT 0,
-  created_at        TEXT NOT NULL
+  created_at        TEXT NOT NULL,
+
+  -- Profile. All optional, all student-controlled.
+  photo_url               TEXT,
+  preferred_name          TEXT,
+  legal_name              TEXT,
+  program                 TEXT,
+  degree                  TEXT,
+  year_of_study           TEXT,
+  expected_graduation     TEXT,
+  advisor                 TEXT,
+  church                  TEXT,
+  ministry                TEXT,
+  timezone                TEXT,
+  learning_preferences    TEXT,
+  accessibility_needs     TEXT,
+  notification_preferences TEXT,
+  profile_updated_at      TEXT
 );
 
 -- Courses ------------------------------------------------------------------

@@ -80,3 +80,29 @@ export function formatFileSize(bytes: number | null | undefined): string | null 
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+/**
+ * Time-of-day greeting, from the server's clock.
+ *
+ * Lives here rather than in a component so the impurity is contained: a component
+ * that reads the clock during render is flagged by the React lint rules, and rightly.
+ */
+export function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+/**
+ * How to address someone in a salutation: "Dr. Carter" rather than the bare surname
+ * or the full "Dr. Miriam Carter", which reads oddly. Falls back to the whole name.
+ */
+export function salutation(fullName: string): string {
+  const match = /^((?:Dr|Prof|Professor|Rev|Fr|Sr|Mr|Ms|Mrs)\.?)\s+(.+)$/i.exec(
+    fullName.trim(),
+  );
+  if (!match) return fullName;
+  const surname = match[2].trim().split(/\s+/).pop();
+  return surname ? `${match[1]} ${surname}` : fullName;
+}

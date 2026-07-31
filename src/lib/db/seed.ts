@@ -11,6 +11,7 @@
  */
 import type { Db } from "./client";
 import { newId } from "./ids";
+import { seedFacultyLoad } from "./seed-faculty";
 import type { Marker, NoteKind, QuestionKind } from "@/lib/domain/vocabulary";
 
 /**
@@ -2359,6 +2360,7 @@ export function seedDemonstrationData(db: Db) {
   });
 
   seed();
+  seedFacultyLoad(db);
 }
 
 // ---------------------------------------------------------------- prose blocks

@@ -15,14 +15,18 @@ import {
   SectionHeading,
   Stat,
 } from "@/components/ui/primitives";
-import { StatusDistribution } from "@/components/ui/status";
+import { StatusDistribution, StatusPill } from "@/components/ui/status";
 import {
+  ASSESSMENT_TYPE_LABELS,
   COURSE_FORMAT_LABELS,
   DELIVERY_MODE_LABELS,
   LECTURE_STATUS_LABELS,
+  QUESTION_KIND_LABELS,
 } from "@/lib/domain/vocabulary";
-import { formatDate, formatDayMonth, percent } from "@/lib/format";
+import { attentionRank } from "@/lib/domain/readiness";
+import { formatDate, formatDayMonth, percent, relativeTime } from "@/lib/format";
 import { listAssessments } from "@/lib/repositories/assessments";
+import { listQuestions, listRecentActivity } from "@/lib/repositories/engagement";
 import { getSyllabus, listMaterials } from "@/lib/repositories/content";
 import {
   getCourse,
@@ -70,6 +74,35 @@ export default async function CourseOverviewPage({
     roster.map((s) => s.id),
   );
   const aggregate = classAggregate(courseId, readiness);
+
+  // Worst first, so the person most in need of a conversation is at the top.
+  // Students without enough evidence are included deliberately: "we do not know"
+  // is itself a reason to follow up, and dropping them would hide them.
+  const byStudent = new Map(readiness.map((row) => [row.studentId, row.result]));
+  const needingAttention = roster
+    .map((student) => ({ student, result: byStudent.get(student.id) }))
+    .filter((row) => row.result !== undefined && row.result.status !== "on_track")
+    .map((row) => ({ student: row.student, result: row.result! }))
+    .sort(
+      (a, b) =>
+        attentionRank(a.result.status) - attentionRank(b.result.status) ||
+        (a.result.score ?? 1) - (b.result.score ?? 1),
+    );
+
+  const upcomingLectures = lectures.filter(
+    (lecture) =>
+      lecture.status === "scheduled" ||
+      lecture.status === "live" ||
+      lecture.status === "draft",
+  );
+
+  // Practice assessments are self-serve and undated, so they are not "upcoming".
+  const upcomingAssessments = assessments.filter(
+    (assessment) => assessment.is_practice === 0 && assessment.scheduled_at,
+  );
+
+  const openQuestions = listQuestions(courseId, { status: "open", limit: 6 });
+  const activity = listRecentActivity(courseId, 8);
 
   const setupSteps = [
     {
@@ -129,6 +162,13 @@ export default async function CourseOverviewPage({
               size="sm"
             >
               Add lecture
+            </ButtonLink>
+            <ButtonLink
+              href={`/professor/courses/${courseId}/support`}
+              variant="secondary"
+              size="sm"
+            >
+              Create support recommendation
             </ButtonLink>
             <ButtonLink
               href={`/professor/courses/${courseId}/syllabus`}
@@ -369,6 +409,206 @@ export default async function CourseOverviewPage({
                   );
                 })}
               </ol>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+
+      {/*
+        Who needs a conversation, and what is waiting on the professor.
+
+        These lived on the professor dashboard until the dashboard became a
+        faculty-wide launchpad. They are course-scoped questions — "which of *my
+        CH504 students* is struggling", "which questions in *this course* are
+        unanswered" — so this is where they belong. The dashboard now routes here.
+      */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader
+            title="Students to follow up"
+            description={
+              needingAttention.length === 0
+                ? "Nobody is flagged right now."
+                : `${needingAttention.length} of ${roster.length} students`
+            }
+            action={
+              <Link
+                href={`/professor/courses/${courseId}/students`}
+                className="text-[0.85rem]"
+              >
+                Whole roster →
+              </Link>
+            }
+          />
+          <CardBody className="p-0">
+            {needingAttention.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-ink-500">
+                Every student with enough recorded activity is on track.
+              </p>
+            ) : (
+              <ul className="divide-y divide-tan-100">
+                {needingAttention.slice(0, 6).map(({ student, result }) => (
+                  <li key={student.id}>
+                    <Link
+                      href={`/professor/courses/${courseId}/students/${student.id}`}
+                      className="flex items-center justify-between gap-3 px-5 py-3 no-underline hover:bg-paper-100"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-ink-800">
+                          {student.name}
+                        </span>
+                        <span className="block truncate text-[0.8rem] text-ink-500">
+                          {result.gaps[0]
+                            ? `Weakest: ${result.gaps[0].objective.code}`
+                            : "No specific objective flagged"}
+                          {" · "}
+                          {relativeTime(student.last_activity_at)}
+                        </span>
+                      </span>
+                      <StatusPill status={result.status} size="sm" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="Questions awaiting a response"
+            description={`${openQuestions.length} open`}
+            action={
+              <Link
+                href={`/professor/courses/${courseId}/insights`}
+                className="text-[0.85rem]"
+              >
+                Answer questions →
+              </Link>
+            }
+          />
+          <CardBody className="p-0">
+            {openQuestions.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-ink-500">
+                No open questions. Everything submitted has been answered or
+                addressed in class.
+              </p>
+            ) : (
+              <ul className="divide-y divide-tan-100">
+                {openQuestions.map((question) => (
+                  <li key={question.id} className="px-5 py-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge tone="brand">
+                        {QUESTION_KIND_LABELS[question.kind]}
+                      </Badge>
+                      {question.votes > 0 ? (
+                        <span className="text-[0.78rem] text-ink-500">
+                          {question.votes} upvote
+                          {question.votes === 1 ? "" : "s"}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1.5 text-sm text-ink-700">
+                      {question.body}
+                    </p>
+                    <p className="mt-1 text-[0.8rem] text-ink-400">
+                      {question.student_name}
+                      {question.segment_heading
+                        ? ` · on "${question.segment_heading}"`
+                        : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <Card>
+          <CardHeader title="Upcoming lectures" level={3} />
+          <CardBody className="p-0">
+            {upcomingLectures.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-ink-500">
+                No scheduled or draft lectures.
+              </p>
+            ) : (
+              <ul className="divide-y divide-tan-100">
+                {upcomingLectures.map((lecture) => (
+                  <li key={lecture.id} className="px-5 py-3">
+                    <p className="text-sm font-medium text-ink-800">
+                      {lecture.title}
+                    </p>
+                    <p className="mt-0.5 text-[0.8rem] text-ink-500">
+                      {formatDayMonth(lecture.scheduled_at)} ·{" "}
+                      {DELIVERY_MODE_LABELS[lecture.delivery_mode]} ·{" "}
+                      {LECTURE_STATUS_LABELS[lecture.status]}
+                    </p>
+                    {lecture.status === "live" ? (
+                      <p className="mt-1.5 text-[0.82rem]">
+                        <Link
+                          href={`/professor/courses/${courseId}/lectures/${lecture.id}/live`}
+                        >
+                          Open live console →
+                        </Link>
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Upcoming assessments" level={3} />
+          <CardBody className="p-0">
+            {upcomingAssessments.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-ink-500">
+                No dated assessments yet.
+              </p>
+            ) : (
+              <ul className="divide-y divide-tan-100">
+                {upcomingAssessments.map((assessment) => (
+                  <li key={assessment.id} className="px-5 py-3">
+                    <p className="text-sm font-medium text-ink-800">
+                      {assessment.title}
+                    </p>
+                    <p className="mt-0.5 text-[0.8rem] text-ink-500">
+                      {ASSESSMENT_TYPE_LABELS[assessment.type]} ·{" "}
+                      {formatDayMonth(assessment.scheduled_at)}
+                      {assessment.weight_label
+                        ? ` · ${assessment.weight_label}`
+                        : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Recent activity" level={3} />
+          <CardBody className="p-0">
+            {activity.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-ink-500">
+                Nothing recorded in this course yet.
+              </p>
+            ) : (
+              <ul className="divide-y divide-tan-100">
+                {activity.map((event) => (
+                  <li key={event.id} className="px-5 py-2.5">
+                    <p className="text-[0.85rem] text-ink-700">
+                      {event.summary}
+                    </p>
+                    <p className="text-[0.78rem] text-ink-400">
+                      {relativeTime(event.created_at)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             )}
           </CardBody>
         </Card>

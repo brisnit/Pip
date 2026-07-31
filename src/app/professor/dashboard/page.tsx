@@ -1,488 +1,225 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProfessorShell } from "@/components/layout/shells";
+import { HealthWheel, type WheelSegment } from "@/components/viz/health-wheel";
+import { ButtonLink, EmptyState } from "@/components/ui/primitives";
 import {
-  Badge,
-  ButtonLink,
-  Card,
-  CardBody,
-  CardHeader,
-  DemoBadge,
-  EmptyState,
-  Meter,
-  Notice,
-  SectionHeading,
-  Stat,
-} from "@/components/ui/primitives";
-import {
-  StatusDistribution,
-  StatusLegend,
-  StatusPill,
-} from "@/components/ui/status";
-import {
-  ASSESSMENT_TYPE_LABELS,
-  DELIVERY_MODE_LABELS,
-  LECTURE_STATUS_LABELS,
-  QUESTION_KIND_LABELS,
-} from "@/lib/domain/vocabulary";
-import { attentionRank } from "@/lib/domain/readiness";
-import { formatDayMonth, percent, relativeTime } from "@/lib/format";
-import { listAssessments } from "@/lib/repositories/assessments";
-import { listCourses } from "@/lib/repositories/courses";
-import {
-  listQuestions,
-  listRecentActivity,
-  listSegmentConfusion,
-} from "@/lib/repositories/engagement";
-import { listLectures } from "@/lib/repositories/lectures";
-import {
-  classAggregate,
-  readinessForCourse,
-} from "@/lib/repositories/readiness";
-import { listRoster } from "@/lib/repositories/students";
+  COHORT_PRESENTATION,
+  COURSE_HEALTH_BANDS,
+  COURSE_HEALTH_PRESENTATION,
+  type CohortBand,
+} from "@/lib/domain/health";
+import { greeting, percent, salutation } from "@/lib/format";
+import { coursesInBand, facultyOverview } from "@/lib/repositories/overview";
 import { requireProfessor } from "@/lib/role/role-context";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 /**
- * How to address someone in a greeting: "Dr. Carter" rather than either the bare
- * surname or the full "Dr. Miriam Carter", which reads oddly in a salutation.
- * Falls back to the whole name when there is no recognisable title.
+ * The professor's launchpad.
+ *
+ * Four things and nothing else: who you are, how your courses are, how your students
+ * are, and one way to start something new. Everything that used to live here —
+ * rosters, question queues, confusion tables — still exists, one click away, on the
+ * pages built for it.
+ *
+ * Every number is computed from recorded activity by `facultyOverview`. Nothing on
+ * this page is a literal.
  */
-function greetingName(fullName: string): string {
-  const match = /^((?:Dr|Prof|Professor|Rev|Fr|Sr|Mr|Ms|Mrs)\.?)\s+(.+)$/i.exec(
-    fullName.trim(),
-  );
-  if (!match) return fullName;
-  const surname = match[2].trim().split(/\s+/).pop();
-  return surname ? `${match[1]} ${surname}` : fullName;
-}
-
 export default async function ProfessorDashboard() {
   const { professor } = requireProfessor();
-  const courses = listCourses(professor.id);
+  const overview = facultyOverview(professor.id);
 
-  if (courses.length === 0) {
+  if (overview.courses.length === 0) {
     return (
       <ProfessorShell professorName={professor.name}>
-        <SectionHeading
-          level={1}
-          title="Dashboard"
-          description="You are not teaching any courses yet."
-        />
+        <Welcome name={professor.name} term={null} />
         <EmptyState
+          className="mt-10"
           title="Start with a course"
           description="Create a course to generate a student access link and QR code, then add a syllabus and your first lecture."
-          action={<ButtonLink href="/professor/courses/new">Create course</ButtonLink>}
+          action={
+            <ButtonLink href="/professor/courses/new">Create new course</ButtonLink>
+          }
         />
       </ProfessorShell>
     );
   }
 
-  // The dashboard focuses on the most recently created course, and lists the rest.
-  const primary = courses[0];
-  const roster = listRoster(primary.id);
-  const readiness = readinessForCourse(
-    primary.id,
-    roster.map((s) => s.id),
-  );
-  const aggregate = classAggregate(primary.id, readiness);
+  const term = overview.courses[0]?.course.term ?? null;
 
-  const needingAttention = roster
-    .map((student) => ({
-      student,
-      result: readiness.find((r) => r.studentId === student.id)!.result,
-    }))
-    .filter((row) => row.result.status !== "on_track")
-    .sort(
-      (a, b) =>
-        attentionRank(a.result.status) - attentionRank(b.result.status) ||
-        (a.result.score ?? 1) - (b.result.score ?? 1),
-    );
+  // ── Course health ─────────────────────────────────────────────────────────
+  const courseSegments: WheelSegment[] = COURSE_HEALTH_BANDS.filter(
+    // Only show "not enough activity" when it actually applies to something.
+    (band) => band !== "no_data" || overview.courseHealthCounts.no_data > 0,
+  ).map((band) => {
+    const presentation = COURSE_HEALTH_PRESENTATION[band];
+    const titles = coursesInBand(overview, band);
+    return {
+      key: band,
+      label: presentation.label,
+      glyph: presentation.glyph,
+      tone: presentation.tone,
+      value: overview.courseHealthCounts[band],
+      href: `/professor/courses?health=${band}`,
+      detail: {
+        heading: presentation.label,
+        items: titles,
+        empty: "No courses in this band.",
+      },
+    };
+  });
 
-  const lectures = listLectures(primary.id);
-  const upcomingLectures = lectures.filter(
-    (lecture) =>
-      lecture.status === "scheduled" ||
-      lecture.status === "live" ||
-      lecture.status === "draft",
-  );
-  const liveLecture = lectures.find((lecture) => lecture.status === "live");
+  // ── Student health ────────────────────────────────────────────────────────
+  const { cohort } = overview;
 
-  const assessments = listAssessments(primary.id).filter(
-    (assessment) => assessment.is_practice === 0 && assessment.scheduled_at,
-  );
+  const cohortDetail: Record<CohortBand, WheelSegment["detail"]> = {
+    ready: {
+      heading: "Ready",
+      stats: [
+        {
+          label: "Average confidence",
+          value:
+            cohort.averageConfidence !== null
+              ? `${cohort.averageConfidence.toFixed(1)} of 5`
+              : "—",
+        },
+        {
+          label: "Average readiness",
+          value: cohort.averageReadiness !== null ? percent(cohort.averageReadiness) : "—",
+        },
+      ],
+      empty: "No students are reading as ready yet.",
+    },
+    developing: {
+      heading: "Developing",
+      stats: [
+        {
+          label: "Share of cohort",
+          value:
+            cohort.total > 0
+              ? percent(cohort.counts.developing / cohort.total)
+              : "—",
+        },
+      ],
+      items: cohort.commonStruggles.slice(0, 4).map((s) => s.label),
+      empty: "Nobody is in this band.",
+    },
+    needs_support: {
+      heading: "Needs support",
+      stats: [
+        {
+          label: "Share of cohort",
+          value:
+            cohort.total > 0
+              ? percent(cohort.counts.needs_support / cohort.total)
+              : "—",
+        },
+      ],
+      items: cohort.confusingConcepts.slice(0, 5).map((c) => `${c.name} (${c.count})`),
+      empty: "Nobody has asked for support or fallen behind.",
+    },
+    no_data: {
+      heading: "Not enough data yet",
+      items: ["These students have not recorded enough activity to estimate."],
+      empty: "Every student has recorded enough activity.",
+    },
+  };
 
-  const openQuestions = listQuestions(primary.id, { status: "open", limit: 6 });
-  const confusion = listSegmentConfusion(primary.id).slice(0, 5);
-  const activity = listRecentActivity(primary.id, 8);
-
-  const quickActions = [
-    { href: `/professor/courses/new`, label: "Create course" },
-    { href: `/professor/courses/${primary.id}/syllabus`, label: "Upload syllabus" },
-    {
-      href: `/professor/courses/${primary.id}/lectures/new`,
-      label: "Add lecture",
-    },
-    {
-      href: `/professor/courses/${primary.id}/assessments`,
-      label: "Add assessment",
-    },
-    {
-      href: `/professor/courses/${primary.id}/content?add=teaching_notes`,
-      label: "Add teaching notes",
-    },
-    {
-      href: `/professor/courses/${primary.id}/students`,
-      label: "Review student readiness",
-    },
-    {
-      href: `/professor/courses/${primary.id}/support`,
-      label: "Create support recommendation",
-    },
-  ];
+  const cohortSegments: WheelSegment[] = (
+    ["ready", "developing", "needs_support", "no_data"] as CohortBand[]
+  ).map((band) => {
+    const presentation = COHORT_PRESENTATION[band];
+    return {
+      key: band,
+      label: presentation.label,
+      glyph: presentation.glyph,
+      tone: presentation.tone,
+      value: cohort.counts[band],
+      href: `/professor/students?band=${band}`,
+      detail: cohortDetail[band],
+    };
+  });
 
   return (
     <ProfessorShell professorName={professor.name}>
-      <SectionHeading
-        level={1}
-        title={`Good to see you, ${greetingName(professor.name)}`}
-        description="What needs your attention before the next class."
-        action={
-          liveLecture ? (
-            <ButtonLink
-              href={`/professor/courses/${primary.id}/lectures/${liveLecture.id}/live`}
-            >
-              Return to live console
-            </ButtonLink>
-          ) : (
-            <ButtonLink href="/professor/courses/new" variant="secondary">
-              Create course
-            </ButtonLink>
-          )
-        }
-      />
+      <Welcome name={professor.name} term={term} />
 
-      <nav aria-label="Quick actions" className="mb-8">
-        <ul className="flex flex-wrap gap-2">
-          {quickActions.map((action) => (
-            <li key={action.label}>
-              <Link
-                href={action.href}
-                className="inline-flex rounded-full border border-tan-200 bg-white px-3 py-1.5 text-[0.85rem] text-ink-700 no-underline hover:border-brand-300 hover:text-brand-700"
-              >
-                {action.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title={`${primary.code} — ${primary.title}`}
-            description={`${roster.length} students · ${primary.term ?? "term not set"}`}
-            action={
-              <ButtonLink
-                href={`/professor/courses/${primary.id}`}
-                variant="secondary"
-                size="sm"
-              >
-                Open course
-              </ButtonLink>
-            }
+      <div className="mt-12 grid gap-6 xl:grid-cols-2">
+        <Panel
+          title="Course health"
+          subtitle="Across everything you are teaching"
+          href="/professor/courses"
+          hrefLabel="All courses"
+        >
+          <HealthWheel
+            segments={courseSegments}
+            centerValue={String(overview.courses.length)}
+            centerLabel={overview.courses.length === 1 ? "course" : "courses"}
+            caption="Course health is read from each class's readiness spread, not from a grade."
           />
-          <CardBody>
-            <h3 className="mb-3 text-sm font-semibold">Class understanding</h3>
-            <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
+        </Panel>
 
-            <dl className="mt-6 grid grid-cols-2 gap-5 border-t border-tan-100 pt-5 sm:grid-cols-4">
-              <Stat
-                label="On track"
-                value={percent(aggregate.shares.on_track)}
-                tone="track"
-              />
-              <Stat
-                label="Needs review"
-                value={percent(aggregate.shares.needs_review)}
-                tone="attention"
-              />
-              <Stat
-                label="Support recommended"
-                value={percent(aggregate.shares.support_recommended)}
-                tone="concern"
-              />
-              <Stat
-                label="Not enough data"
-                value={percent(aggregate.shares.insufficient_data)}
-                tone="unknown"
-              />
-            </dl>
-
-            {aggregate.averageConfidence !== null ? (
-              <div className="mt-6 border-t border-tan-100 pt-5">
-                <Meter
-                  label="Average self-reported confidence across the class"
-                  value={aggregate.averageConfidence}
-                  max={5}
-                  valueText={`${aggregate.averageConfidence.toFixed(1)} of 5`}
-                  tone={
-                    aggregate.averageConfidence >= 4
-                      ? "track"
-                      : aggregate.averageConfidence >= 3
-                        ? "attention"
-                        : "concern"
-                  }
-                />
-              </div>
-            ) : null}
-          </CardBody>
-        </Card>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader
-              title="Students to follow up"
-              description={
-                needingAttention.length === 0
-                  ? "Nobody is flagged right now."
-                  : `${needingAttention.length} of ${roster.length} students`
-              }
-              level={3}
-            />
-            <CardBody className="p-0">
-              {needingAttention.length === 0 ? (
-                <p className="px-5 py-4 text-sm text-ink-500">
-                  Every student with enough recorded activity is on track.
-                </p>
-              ) : (
-                <ul className="divide-y divide-tan-100">
-                  {needingAttention.slice(0, 6).map(({ student, result }) => (
-                    <li key={student.id}>
-                      <Link
-                        href={`/professor/courses/${primary.id}/students/${student.id}`}
-                        className="flex items-center justify-between gap-3 px-5 py-3 no-underline hover:bg-paper-100"
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-medium text-ink-800">
-                            {student.name}
-                          </span>
-                          <span className="block truncate text-[0.8rem] text-ink-500">
-                            {result.gaps[0]
-                              ? `Weakest: ${result.gaps[0].objective.code}`
-                              : "No specific objective flagged"}
-                            {" · "}
-                            {relativeTime(student.last_activity_at)}
-                          </span>
-                        </span>
-                        <StatusPill status={result.status} size="sm" />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardBody>
-          </Card>
-
-          <StatusLegend />
-        </div>
+        <Panel
+          title="Student health"
+          subtitle="Everyone enrolled, across all courses"
+          href="/professor/students"
+          hrefLabel="All students"
+        >
+          <HealthWheel
+            segments={cohortSegments}
+            centerValue={String(cohort.total)}
+            centerLabel={cohort.total === 1 ? "student" : "students"}
+            caption="A student appears once per course they are enrolled in."
+          />
+        </Panel>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader
-            title="Most confusing moments"
-            description="Aggregated across the class. Individual students are never named here."
-            level={3}
-          />
-          <CardBody>
-            {confusion.length === 0 ? (
-              <p className="text-sm text-ink-500">
-                No lecture moments have been marked confusing yet.
-              </p>
-            ) : (
-              <ol className="space-y-3">
-                {confusion.map((row) => (
-                  <li key={row.segment_id}>
-                    <Meter
-                      label={`${row.heading} — ${row.lecture_title}`}
-                      value={row.confusing}
-                      max={Math.max(row.confusing + row.clear, 1)}
-                      valueText={`${row.confusing} confusing · ${row.clear} clear`}
-                      tone={row.confusing > row.clear ? "concern" : "attention"}
-                    />
-                  </li>
-                ))}
-              </ol>
-            )}
-            <p className="mt-4 text-[0.82rem] text-ink-500">
-              <Link href={`/professor/courses/${primary.id}/insights`}>
-                Open the comprehension dashboard →
-              </Link>
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="Questions awaiting a response"
-            description={`${openQuestions.length} open`}
-            level={3}
-          />
-          <CardBody className="p-0">
-            {openQuestions.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-ink-500">
-                No open questions. Everything submitted has been answered or
-                addressed in class.
-              </p>
-            ) : (
-              <ul className="divide-y divide-tan-100">
-                {openQuestions.map((question) => (
-                  <li key={question.id} className="px-5 py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="brand">
-                        {QUESTION_KIND_LABELS[question.kind]}
-                      </Badge>
-                      {question.votes > 0 ? (
-                        <span className="text-[0.78rem] text-ink-500">
-                          {question.votes} upvote{question.votes === 1 ? "" : "s"}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1.5 text-sm text-ink-700">{question.body}</p>
-                    <p className="mt-1 text-[0.8rem] text-ink-400">
-                      {question.student_name}
-                      {question.segment_heading
-                        ? ` · on "${question.segment_heading}"`
-                        : ""}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="border-t border-tan-100 px-5 py-3 text-[0.82rem]">
-              <Link href={`/professor/courses/${primary.id}/insights`}>
-                Answer questions →
-              </Link>
-            </p>
-          </CardBody>
-        </Card>
+      <div className="mt-12 flex justify-center">
+        <ButtonLink href="/professor/courses/new" size="lg">
+          + Create new course
+        </ButtonLink>
       </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card>
-          <CardHeader title="Upcoming lectures" level={3} />
-          <CardBody className="p-0">
-            {upcomingLectures.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-ink-500">
-                No scheduled or draft lectures.
-              </p>
-            ) : (
-              <ul className="divide-y divide-tan-100">
-                {upcomingLectures.map((lecture) => (
-                  <li key={lecture.id} className="px-5 py-3">
-                    <p className="text-sm font-medium text-ink-800">
-                      {lecture.title}
-                    </p>
-                    <p className="mt-0.5 text-[0.8rem] text-ink-500">
-                      {formatDayMonth(lecture.scheduled_at)} ·{" "}
-                      {DELIVERY_MODE_LABELS[lecture.delivery_mode]} ·{" "}
-                      {LECTURE_STATUS_LABELS[lecture.status]}
-                    </p>
-                    {lecture.status === "live" ? (
-                      <p className="mt-1.5 text-[0.82rem]">
-                        <Link
-                          href={`/professor/courses/${primary.id}/lectures/${lecture.id}/live`}
-                        >
-                          Open live console →
-                        </Link>
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="Upcoming assessments" level={3} />
-          <CardBody className="p-0">
-            {assessments.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-ink-500">
-                No dated assessments yet.
-              </p>
-            ) : (
-              <ul className="divide-y divide-tan-100">
-                {assessments.map((assessment) => (
-                  <li key={assessment.id} className="px-5 py-3">
-                    <p className="text-sm font-medium text-ink-800">
-                      {assessment.title}
-                    </p>
-                    <p className="mt-0.5 text-[0.8rem] text-ink-500">
-                      {ASSESSMENT_TYPE_LABELS[assessment.type]} ·{" "}
-                      {formatDayMonth(assessment.scheduled_at)}
-                      {assessment.weight_label ? ` · ${assessment.weight_label}` : ""}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="Recent activity" level={3} />
-          <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
-              {activity.map((event) => (
-                <li key={event.id} className="px-5 py-2.5">
-                  <p className="text-[0.85rem] text-ink-700">{event.summary}</p>
-                  <p className="text-[0.78rem] text-ink-400">
-                    {relativeTime(event.created_at)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
-      </div>
-
-      {courses.length > 1 ? (
-        <section className="mt-10">
-          <SectionHeading title="Your other courses" level={2} />
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {courses.slice(1).map((course) => (
-              <Card as="li" key={course.id}>
-                <CardBody>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="text-base font-semibold">
-                        <Link href={`/professor/courses/${course.id}`}>
-                          {course.code} — {course.title}
-                        </Link>
-                      </h3>
-                      <p className="mt-1 text-[0.82rem] text-ink-500">
-                        {course.student_count} students · {course.lecture_count}{" "}
-                        lectures
-                      </p>
-                    </div>
-                    {course.is_demo === 1 ? <DemoBadge /> : null}
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <Notice tone="privacy" className="mt-10">
-        Everything on this screen is aggregated coursework activity, questions
-        students chose to submit, and notes students explicitly shared. Private
-        student notes are never surfaced here or anywhere else in the professor
-        portal.
-      </Notice>
     </ProfessorShell>
+  );
+}
+
+function Welcome({ name, term }: { name: string; term: string | null }) {
+  return (
+    <header className="pt-4">
+      <h1 className="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+        {greeting()}, {salutation(name)}
+      </h1>
+      {term ? <p className="mt-3 text-lg text-ink-500">{term}</p> : null}
+    </header>
+  );
+}
+
+function Panel({
+  title,
+  subtitle,
+  href,
+  hrefLabel,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  href: string;
+  hrefLabel: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rise rounded-2xl border border-tan-100 bg-white p-6 shadow-soft sm:p-8">
+      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl">{title}</h2>
+          <p className="mt-1 text-[0.88rem] text-ink-500">{subtitle}</p>
+        </div>
+        <Link href={href} className="shrink-0 text-[0.85rem]">
+          {hrefLabel} →
+        </Link>
+      </div>
+      {children}
+    </section>
   );
 }

@@ -21,7 +21,7 @@ type Search = { searchParams: Promise<{ via?: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { courseCode } = await params;
   const course = findCourseByAccessCode(courseCode);
-  return { title: course ? `Join ${course.code}` : "Join a course" };
+  return { title: course ? `Join ${course.code}` : "Student portal" };
 }
 
 export default async function JoinCoursePage({

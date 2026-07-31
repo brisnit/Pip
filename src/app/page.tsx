@@ -25,7 +25,7 @@ export default function LandingPage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <ButtonLink href="/professor">Enter professor portal</ButtonLink>
         <ButtonLink href="/join" variant="secondary">
-          Join a course
+          Student portal
         </ButtonLink>
       </div>
 

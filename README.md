@@ -69,19 +69,21 @@ The database is created and seeded automatically on first request. No setup step
 ### Try the whole loop in two minutes
 
 1. Open <http://localhost:3000> and choose **Enter professor portal**.
-2. The dashboard shows CH504 with twelve seeded students spread across all four
-   readiness bands. **Students** → open **Noor Haddad** to see why she reads as
-   *Needs review*, signal by signal.
-3. **Assign the whole suggested plan** at the bottom of her detail view.
-4. Open <http://localhost:3000/join> in a private window. The seeded course and its
+2. The dashboard opens on two wheels: eight courses by health, and 134 enrolments
+   by readiness band. Hover or tab through the legend to see what each band holds.
+3. Click **Needs attention** on the course wheel, open a course, and read
+   **Students to follow up**. Or go straight to **Courses → CH504 → Students →
+   Noor Haddad** to see why they read as *Needs review*, signal by signal.
+4. **Assign the whole suggested plan** at the bottom of their detail view.
+5. Open <http://localhost:3000/join> in a private window. The seeded course and its
    code (`CH504R`) are listed there under **Demonstration course** — click **Join
    CH504** and enter any name. (A real course code would come from a professor in
    class; it is listed here only because this course is demonstration data.)
-5. Open **Martin Luther and the Doctrine of Justification**. Mark a section
+6. Open **Martin Luther and the Doctrine of Justification**. Mark a section
    confusing, take a timestamped note, answer the comprehension checks.
-6. Open **Study readiness** to see what that added up to, and **Support plan** to
+7. Open **Study readiness** to see what that added up to, and **Support plan** to
    see what to do about it.
-7. Back in the professor portal, that student is now on the roster with a status.
+8. Back in the professor portal, that student is now on the roster with a status.
 
 To enter as a seeded student without retyping a name:
 
@@ -162,7 +164,7 @@ all ran the seed, and every process but the first died on
 `BEGIN IMMEDIATE` transaction, so the losers wait for the lock, re-read a non-zero
 count, and no-op. `npm run verify` guards it with nine concurrent workers.
 
-### No course code to enter on "Join a course"
+### No course code to enter on the student portal
 
 The `/join` page lists the seeded demonstration course and its code under
 **Demonstration course**. The code is also on the professor course overview, with a

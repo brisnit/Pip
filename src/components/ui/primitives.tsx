@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 // Buttons --------------------------------------------------------------------
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-type Size = "sm" | "md";
+type Size = "sm" | "md" | "lg";
 
 /**
  * Primary follows the style guide's Primary CTA exactly: the tertiary blue
@@ -29,6 +29,7 @@ const VARIANTS: Record<Variant, string> = {
 const SIZES: Record<Size, string> = {
   sm: "px-3 py-1.5 text-[0.86rem]",
   md: "px-4 py-2.5 text-[0.95rem]",
+  lg: "px-7 py-3.5 text-[1.05rem]",
 };
 
 const BASE =
@@ -66,8 +67,13 @@ export function ButtonLink({
 
 // Surfaces -------------------------------------------------------------------
 
+/**
+ * Shadows are tinted with the brand teal rather than neutral black. A black shadow
+ * on a warm ground reads as grey and slightly dirty; a tinted one disappears into
+ * the palette, which is what "soft" actually means here.
+ */
 const CARD_SURFACE =
-  "rounded-lg border border-tan-100 bg-white shadow-[0_1px_2px_rgba(28,26,24,0.04)]";
+  "rounded-xl border border-tan-100 bg-white shadow-[0_1px_3px_rgba(4,43,50,0.04)]";
 
 export function Card({
   as = "section",

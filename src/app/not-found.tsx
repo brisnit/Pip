@@ -29,7 +29,7 @@ export default function NotFound() {
           href="/join"
           className="inline-flex items-center justify-center rounded-none border border-tan-300 bg-white px-4 py-2.5 text-[0.95rem] font-medium text-ink-800 no-underline transition-colors hover:bg-paper-100"
         >
-          Join a course
+          Student portal
         </Link>
       </div>
     </main>

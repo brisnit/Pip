@@ -73,6 +73,28 @@ Two accessibility problems surfaced during that pass and are fixed:
   behaviour — leaving them indistinguishable from text. This was true from the first
   commit and was only noticed while reworking the palette.
 
+## Dashboard redesign
+
+Both dashboards were worklists. They are now launchpads: the state of learning in
+about five seconds, then a route into the detail.
+
+- **A reusable visualisation system.** One `HealthWheel`, three uses. Built once,
+  keyboard-reachable, glyph-labelled, colour-independent. See
+  `product-architecture.md` for why the legend is the primary surface.
+- **Pure aggregation** in `lib/domain/health.ts` — course bands, cohort bands and
+  learning bands, with the thresholds in one place.
+- **A faculty-sized seed.** Seven further courses and a shared roster, because a
+  chart over one course is not a chart. 8 courses, 134 enrolments, a spread the
+  readiness model earns rather than one written into the seed.
+- **The worklists moved to the course page**, where they are course-scoped and
+  actionable, rather than merged across eight courses on the dashboard.
+- **Profiles for both roles**, field-driven from one definition so the form, the
+  display and the completeness indicator cannot drift apart. Every field optional.
+
+Known gaps: a student's enrolments are still matched by name, which is the same
+weak heuristic joining a course uses and is documented at both call sites. It has to
+become an account id under SSO — see 7.1.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.

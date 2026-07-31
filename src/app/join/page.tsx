@@ -14,7 +14,7 @@ import { currentStudent } from "@/lib/role/role-context";
 import { getCourse, listDemoCourses } from "@/lib/repositories/courses";
 import { CourseCodeForm } from "./join-forms";
 
-export const metadata: Metadata = { title: "Join a course" };
+export const metadata: Metadata = { title: "Student portal" };
 
 // Reads the live course list, so it must not be prerendered.
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export default async function JoinPage() {
 
   return (
     <PublicShell>
-      <h1 className="font-serif text-3xl">Join a course</h1>
+      <h1 className="font-serif text-3xl">Student portal</h1>
       <p className="mt-3 text-ink-600">
         Scan the QR code your professor displays, open the course link, or enter
         the course code below. No account is needed.

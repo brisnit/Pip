@@ -42,8 +42,8 @@ not a relationship, and it is parsed through typed helpers.
 
 | Table | Notes |
 | --- | --- |
-| `professors` | Seeded. One row in the prototype. |
-| `students` | Created on join. No credentials. |
+| `professors` | Seeded. One row in the prototype. Carries profile columns — title, department, office, office hours, credentials, teaching philosophy, calendar availability, photo URL, links — all nullable. |
+| `students` | Created on join. No credentials. Carries profile columns — preferred and legal name, program, degree, year, advisor, church, ministry context, timezone, learning preferences, accessibility needs — all nullable. |
 | `courses` | Title, code, description, term, meeting details, format, theme, enrolment, dates. |
 | `course_codes` | Separate from `courses` so a code can be rotated or retired without losing the trail of how students joined. One active code at a time. |
 | `course_entries` | Enrolment: course × student, unique, with `source` (`qr` / `link` / `code`) and `consent_at`. |
@@ -153,8 +153,14 @@ Every foreign key used in a list query is indexed, plus the composite keys the
 readiness gather relies on: `(student_id, course_id)` on notes, markers and
 confidence; `(course_id, status)` on questions and support requests;
 `(course_id, student_id, computed_at)` on snapshots. The heaviest read path is the
-readiness gather, which runs nine queries per student; on a 12-student seeded
-roster the whole roster computes in a few milliseconds.
+readiness gather, which runs nine queries per student.
+
+The faculty dashboard is now the heaviest path, not a single roster: it computes
+live readiness for every student in every course the professor teaches. Measured on
+the seeded load — 8 courses, 134 enrolments — it completes in about 130ms. That is
+acceptable for a prototype and would not be for a department. The fix when it
+matters is to read the most recent `readiness_snapshots` row per student rather than
+recomputing, which is what the snapshot table exists for.
 
 ## Migrations
 
@@ -173,6 +179,12 @@ justification lecture is always 19 days ago, the midterm always 11 days out — 
 shape of the data is deterministic while the dates stay current. A seed pinned to a
 literal calendar date reads as months stale within a term, which undercuts the whole
 premise of noticing a struggling student early.
+
+Two files. `seed.ts` builds CH504 in full depth — it is the course every screen in
+the vertical slice is demonstrated against. `seed-faculty.ts` then adds seven more
+courses at lower depth, because a dashboard that aggregates across a faculty load
+cannot be judged against a single course: one course makes every chart either 100%
+or 0%, which proves nothing about whether the visualisation works.
 
 - **Professor** Dr. Miriam Carter
 - **Course** CH504: Theology and the Protestant Reformation, code `CH504R`
@@ -199,6 +211,20 @@ premise of noticing a struggling student early.
 Noor Haddad's profile deliberately reproduces the worked example from the brief —
 2 of 5 related questions correct, low confidence reported twice, three related
 moments marked confusing.
+
+### The rest of the faculty load
+
+`seed-faculty.ts` adds **7 further courses** — BT501, NT520, LG511, ET530, LG522,
+TH515, PM540 — each with modules, four objectives, two lectures with segments and
+four comprehension questions. Each course declares a target spread of bands, and the
+seed produces answers, confidence ratings and confusion markers that *earn* that
+spread rather than writing the band into the database. The readiness model computes
+what it computes; if the model changes, these numbers move, which is the point.
+
+Twelve of the students are shared across courses, so a student appears in three to
+six of them and the faculty roster shows the same person more than once. Totals:
+**8 courses, 134 enrolments** across **4 healthy, 2 needs-review, 2 needs-attention**
+courses.
 
 Also seeded: 9 student questions with upvotes and one professor answer, notes both
 private and shared, two support requests, two professor notes with open follow-up,

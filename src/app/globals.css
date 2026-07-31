@@ -201,6 +201,40 @@
 }
 
 @layer utilities {
+  /*
+     A single, quiet entrance. Used on the dashboard panels so the page settles
+     rather than snapping into place. Collapsed to nothing by the reduced-motion
+     block at the end of this file — the content is never animated *in* from
+     invisibility, only nudged, so a user who disables motion loses nothing.
+  */
+  .rise {
+    animation: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .rise-2 {
+    animation-delay: 70ms;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Soft, brand-tinted elevation. */
+  .shadow-soft {
+    box-shadow: 0 2px 20px rgba(4, 43, 50, 0.05);
+  }
+
+  .shadow-lift {
+    box-shadow: 0 4px 24px rgba(4, 43, 50, 0.09);
+  }
+
   /* Screen-reader-only text, revealed on focus for skip links. */
   .sr-only-focusable:not(:focus):not(:focus-within) {
     position: absolute;
@@ -266,6 +300,13 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* `animation: … both` would otherwise hold the from-state for the 0.001ms
+     duration and, on some engines, leave content at opacity 0. Belt and braces. */
+  .rise {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

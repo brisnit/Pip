@@ -36,6 +36,19 @@ export type ProfessorRow = {
   bio: string | null;
   is_demo: number;
   created_at: string;
+  photo_url: string | null;
+  department: string | null;
+  office: string | null;
+  phone: string | null;
+  office_hours: string | null;
+  academic_interests: string | null;
+  research_areas: string | null;
+  credentials: string | null;
+  website: string | null;
+  linkedin: string | null;
+  teaching_philosophy: string | null;
+  calendar_availability: string | null;
+  profile_updated_at: string | null;
 };
 
 export type StudentRow = {
@@ -45,6 +58,21 @@ export type StudentRow = {
   student_id_number: string | null;
   is_demo: number;
   created_at: string;
+  photo_url: string | null;
+  preferred_name: string | null;
+  legal_name: string | null;
+  program: string | null;
+  degree: string | null;
+  year_of_study: string | null;
+  expected_graduation: string | null;
+  advisor: string | null;
+  church: string | null;
+  ministry: string | null;
+  timezone: string | null;
+  learning_preferences: string | null;
+  accessibility_needs: string | null;
+  notification_preferences: string | null;
+  profile_updated_at: string | null;
 };
 
 export type CourseRow = {
