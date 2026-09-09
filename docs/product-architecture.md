@@ -409,6 +409,19 @@ written in the legend as a glyph (● ◐ ◆ ○), a label, a count and a share
 carries `role="img"` and an `aria-label` that states the whole distribution in one
 sentence, so a screen reader gets the summary without traversing the legend.
 
+Arcs are thin (13 units on a 200 viewBox), round-capped, and separated by a real
+surface gap — the same mark spec the bars follow.
+
+**The round caps are geometrically corrected.** A round cap extends half a stroke
+width beyond each end of a dash, so painting `share × circumference` directly would
+make every band a full stroke longer than its value — and small bands worst. The dash
+is shortened by the stroke width and pushed forward by half of it, which puts the
+painted extent exactly on the band's share. A band narrower than the stroke cannot
+carry a round cap at all, so those fall back to butt caps rather than being drawn as a
+full-width lozenge; thinning the stroke instead would make ring thickness a second
+encoding of the same number. The active band thickens on hover and the correction
+scales with it, so pointing at a value never inflates it.
+
 Arcs are painted with the **400-level fill tones**, not the text tones. A chart is a
 large area of colour, and the same green that reads as calm in a 14px label reads as a
 traffic light at 40px — which made the dashboard look like a different product from

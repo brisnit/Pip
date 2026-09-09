@@ -91,10 +91,18 @@ const DOT_CLASS: Record<WheelTone, string> = {
   brand: "text-brand-600",
 };
 
-const RADIUS = 78;
+const RADIUS = 80;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-/** Visual breathing room between bands, in path units. */
-const GAP = 3;
+/** Thin marks: the ring is a line of data, not a block of colour. */
+const STROKE = 13;
+const STROKE_ACTIVE = 18;
+/**
+ * The surface gap between bands, in path units.
+ *
+ * White doing the separating, the same mechanism the stacked bars use — never a
+ * stroke drawn around a segment, which would add ink that is not data.
+ */
+const GAP = 7;
 
 export function HealthWheel({
   segments,
@@ -127,12 +135,52 @@ export function HealthWheel({
   const arcs = present.map((segment, index) => {
     const before = present.slice(0, index).reduce((sum, s) => sum + s.value, 0);
     const share = segment.value / total;
-    const length = Math.max(share * CIRCUMFERENCE - GAP, 1);
+    const width = active === segment.key ? STROKE_ACTIVE : STROKE;
+
+    /*
+      Round caps, with the geometry corrected for them.
+
+      A round cap adds half the stroke width beyond each end of the dash, so a naive
+      `dasharray` would paint every band a full stroke-width longer than its value —
+      a chart that overstates every number by the same amount still misstates them
+      all, and small bands worst. So the dash is shortened by the stroke width and
+      pushed forward by half of it, which puts the *painted* extent exactly on the
+      band's share minus the gap.
+
+      The width is read per segment because the active band thickens on hover; its
+      caps grow with it, and the correction has to grow too or hovering would inflate
+      the value being pointed at.
+    */
+    const painted = Math.max(share * CIRCUMFERENCE - GAP, 0);
+
+    /*
+      A round cap cannot be shorter than half the stroke, so a band narrower than the
+      stroke width would be painted as a full-width lozenge however small its value —
+      a 2% slice drawn at 9%. Those fall back to butt caps, which can be any length.
+      The alternative, thinning the stroke to fit, would make ring thickness a second
+      encoding of the same number; thickness has to stay constant for the arc length
+      to mean anything.
+    */
+    const rounded = painted >= width;
+    const dashLength = rounded
+      ? Math.max(painted - width, 0.01)
+      : Math.max(painted, 0.01);
+    const start =
+      (before / total) * CIRCUMFERENCE + GAP / 2 + (rounded ? width / 2 : 0);
+
+    // The pointer target is the band's full share, caps and gap included, so there
+    // is no dead strip between two bands where a hover falls through to nothing.
+    const hitLength = Math.max(share * CIRCUMFERENCE, 1);
+
     return {
       segment,
       share,
-      dash: `${length} ${CIRCUMFERENCE - length}`,
-      offset: -(before / total) * CIRCUMFERENCE,
+      width,
+      rounded,
+      dash: `${dashLength} ${CIRCUMFERENCE - dashLength}`,
+      offset: -start,
+      hitDash: `${hitLength} ${CIRCUMFERENCE - hitLength}`,
+      hitOffset: -(before / total) * CIRCUMFERENCE,
     };
   });
 
@@ -162,9 +210,9 @@ export function HealthWheel({
               r={RADIUS}
               fill="none"
               stroke="var(--color-paper-200)"
-              strokeWidth="16"
+              strokeWidth={STROKE}
             />
-            {arcs.map(({ segment, dash, offset }) => {
+            {arcs.map(({ segment, dash, offset, width, rounded }) => {
               const isActive = active === segment.key;
               const dimmed = active !== null && !isActive;
               return (
@@ -175,21 +223,23 @@ export function HealthWheel({
                   r={RADIUS}
                   fill="none"
                   stroke={ARC_COLOUR[segment.tone]}
-                  strokeWidth={isActive ? 22 : 16}
+                  strokeWidth={width}
                   strokeDasharray={dash}
                   strokeDashoffset={offset}
-                  strokeLinecap="butt"
-                  opacity={dimmed ? 0.35 : 1}
+                  strokeLinecap={rounded ? "round" : "butt"}
+                  opacity={dimmed ? 0.32 : 1}
                   className="pointer-events-none transition-all duration-300"
                   aria-hidden="true"
                 />
               );
             })}
 
-            {/* Hit targets: constant width, so the region that answers the pointer
-                never moves while the arc beneath it grows. Drawn last so they sit
+            {/* Hit targets. Constant width and the band's *full* share — caps and
+                gap included — so the region answering the pointer never moves while
+                the arc beneath it thickens, and there is no dead strip between two
+                bands where a hover falls through to nothing. Drawn last so they sit
                 above the visible arcs, and transparent so they change nothing. */}
-            {arcs.map(({ segment, dash, offset }) => (
+            {arcs.map(({ segment, hitDash, hitOffset }) => (
               <circle
                 key={`hit-${segment.key}`}
                 cx="100"
@@ -197,9 +247,9 @@ export function HealthWheel({
                 r={RADIUS}
                 fill="none"
                 stroke="transparent"
-                strokeWidth="24"
-                strokeDasharray={dash}
-                strokeDashoffset={offset}
+                strokeWidth={STROKE_ACTIVE + 8}
+                strokeDasharray={hitDash}
+                strokeDashoffset={hitOffset}
                 strokeLinecap="butt"
                 className="cursor-pointer"
                 onMouseEnter={() => setActive(segment.key)}

@@ -52,3 +52,6 @@ next-env.d.ts
 
 # Scratch space for intermediate files. Disposable.
 /.tmp/
+
+# Reference screenshots dropped in for design work — not part of the build.
+/public/Graphs*.png
