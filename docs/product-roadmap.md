@@ -95,6 +95,27 @@ Known gaps: a student's enrolments are still matched by name, which is the same
 weak heuristic joining a course uses and is documented at both call sites. It has to
 become an account id under SSO — see 7.1.
 
+## Hosting move: Render to Vercel
+
+Moved off Render at the request of whoever has to look at it. The blocker was that
+the prototype reads SQLite synchronously from local disk, which serverless hosting
+cannot provide.
+
+Resolved by swapping `better-sqlite3` for `libsql` — API-compatible, still
+synchronous — and opening an embedded Turso replica when the environment supplies
+one. Reads stay local and fast, writes go to a durable shared primary. No repository
+function changed, and the readiness gather did not need the snapshot rework that a
+network database would have forced.
+
+Two compatibility gaps found and closed in `lib/db/driver.ts`, both now guarded in
+`npm run verify`: thinner types on `prepare`, and no savepoint promotion for nested
+transactions. The second is the one that mattered — its failure mode is a silent
+rollback of the outer transaction.
+
+Still true afterwards: seeding is a deliberate, out-of-band act rather than something
+a cold start does. ~2,200 rows over the network would exceed any function timeout, so
+the database is created from a locally seeded file.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.

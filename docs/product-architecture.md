@@ -98,6 +98,42 @@ request; prerendering them would bake build-time IDs into the HTML. (This was
 caught by the smoke test rather than by inspection — the first build shipped a
 statically prerendered dashboard whose course links 404'd.)
 
+## Persistence and hosting
+
+One driver, two shapes, chosen by environment in `lib/db/client.ts`:
+
+- **A local file.** Development, and any host with a durable disk. Nothing special.
+- **An embedded Turso replica.** Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` and
+  libSQL keeps a local mirror on disk, answers reads from it at SQLite speed, and
+  forwards writes to a hosted primary.
+
+The replica is what makes serverless hosting possible without re-architecting the
+data layer. Every repository function is synchronous and the readiness gather runs
+nine queries per student — roughly 1,200 for a 134-student dashboard. Against a
+network database that is seconds per page load; against a local replica it is the
+~130ms it has always been. Writes are rare by comparison and can afford the round
+trip.
+
+The trade is consistency: an instance sees its own writes immediately and other
+instances' writes within `TURSO_SYNC_INTERVAL_MS` (default 2s). Worth knowing before
+building anything that assumes otherwise.
+
+`lib/db/driver.ts` is the seam. It exists for two differences between `libsql` and
+the `better-sqlite3` it replaced:
+
+1. **Types.** libsql's `prepare` takes one type parameter, not two, so rows come back
+   as `unknown`. The adapter restores the two-parameter shape and casts once, rather
+   than weakening ~280 correct call sites.
+2. **Nested transactions.** better-sqlite3 promotes an inner `transaction()` to a
+   SAVEPOINT; libsql issues a bare `BEGIN`, which throws — and whose error path
+   `ROLLBACK`s the *outer* transaction, discarding work the caller believed was
+   committed. The adapter reinstates savepoint promotion. The seed nests two levels
+   deep, and `npm run verify` guards the dangerous case: an inner transaction that
+   fails.
+
+Deployment specifics — creating the database, seeding it once out of band, the
+environment variables — are in `README.md`.
+
 ## The interactive lecture
 
 The centrepiece, and the reason the data model looks the way it does. The design

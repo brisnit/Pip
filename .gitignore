@@ -49,3 +49,6 @@ next-env.d.ts
 
 # local Claude Code settings (machine-specific absolute paths)
 .claude/settings.local.json
+
+# Scratch space for intermediate files. Disposable.
+/.tmp/

@@ -82,20 +82,26 @@ export const product = {
  *
  * Resolution order:
  *  1. `APP_URL` — set it explicitly and it always wins.
- *  2. `RENDER_EXTERNAL_URL` — injected by Render, so a deployment is correct with
- *     no configuration at all.
- *  3. `NEXT_PUBLIC_APP_URL` — kept for anyone already setting it.
- *  4. localhost, for development.
+ *  2. `VERCEL_PROJECT_PRODUCTION_URL` — the project's stable production hostname on
+ *     Vercel. Preferred over `VERCEL_URL`, which is the *deployment* hostname and
+ *     changes on every push: a QR code printed from a preview build would stop
+ *     resolving the moment the next deployment replaced it.
+ *  3. `VERCEL_URL` — so preview deployments still generate links that work.
+ *  4. `RENDER_EXTERNAL_URL` — injected by Render.
+ *  5. `NEXT_PUBLIC_APP_URL` — kept for anyone already setting it.
+ *  6. localhost, for development.
  */
 export function appBaseUrl(): string {
   const candidate =
     process.env.APP_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL ??
     process.env.RENDER_EXTERNAL_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
     "http://localhost:3000";
 
   const trimmed = candidate.trim().replace(/\/+$/, "");
-  // Render supplies a bare hostname in some configurations.
+  // Vercel supplies a bare hostname, and Render does in some configurations.
   return /^https?:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 

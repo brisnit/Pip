@@ -47,11 +47,19 @@ defaults were kept.
 spaces are invalid package names), so the scaffold was generated in a temporary
 directory and moved in. The package is named `fuller-learning-companion`.
 
-**SQLite via better-sqlite3.** The brief asked for persistent, database-backed
+**SQLite via libSQL (`libsql`).** The brief asked for persistent, database-backed
 prototype data and warned against holding core relationships in unstructured
 JSON. SQLite gives real tables, real foreign keys and real joins with no service
 to run. Verified working on Node 24 before anything was built on it. The file
 lives at `.data/prototype.db` and is gitignored.
+
+Originally `better-sqlite3`; swapped for `libsql`, which is API-compatible and
+synchronous but can also open an *embedded replica* of a hosted Turso database. That
+is what allows a serverless deployment without rewriting ~280 synchronous statements
+as async, and without the readiness gather — nine queries per student — turning into
+nine network round trips. `lib/db/driver.ts` covers the two places the two drivers
+differ: libsql ships thinner types, and it has no savepoint promotion for nested
+transactions. Both are guarded in `npm run verify`.
 
 **Tailwind CSS v4 with a token layer.** Design tokens are declared once in `@theme`
 in `src/app/globals.css` and no component hard-codes a hex value. Initially a
@@ -84,7 +92,7 @@ which matters for a page displaying student-shaped records.
 
 | Package | Purpose |
 | --- | --- |
-| `better-sqlite3` | prototype persistence |
+| `libsql` | prototype persistence; local file or embedded Turso replica |
 | `qrcode` | server-side QR generation |
 | `zod` | server-side form validation |
 | `server-only` | build-time guard on server modules |

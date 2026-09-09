@@ -1,15 +1,18 @@
-import Database from "better-sqlite3";
 import { mkdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, sep } from "node:path";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
+import { openDatabase, type Db } from "./driver";
 import { SCHEMA_SQL, SCHEMA_VERSION } from "./schema";
 import { seedDemonstrationData } from "./seed";
 
-export type Db = Database.Database;
+export type { Db };
 
 declare global {
   // Reused across hot reloads in dev so we don't open a new handle per request.
   var __flcDb: Db | undefined;
+  // When the handle is an embedded replica, the last time it pulled from the
+  // primary. See `syncReplica`.
+  var __flcSyncedAt: number | undefined;
   // Set once seeding has been confirmed, so the check is not repeated per call.
   var __flcSeeded: boolean | undefined;
   // Inode of the file the cached handle was opened against, so a file swapped by a
@@ -20,13 +23,43 @@ declare global {
 }
 
 /**
- * Where the prototype database lives. Confined to a `.data` directory under the
- * working directory unless `PROTOTYPE_DB_PATH` gives an absolute path, which keeps
- * the bundler's file tracing scoped rather than walking the whole project.
+ * Turso connection details, when the environment supplies them.
+ *
+ * The URL alone decides whether this is a hosted deployment. A URL without a token
+ * is a misconfiguration worth failing loudly on rather than silently falling back
+ * to a local file, which on a serverless host would mean every instance quietly
+ * serving its own private copy of the data.
+ */
+function turso(): { url: string; authToken: string } | null {
+  const url = process.env.TURSO_DATABASE_URL?.trim();
+  if (!url) return null;
+
+  const authToken = process.env.TURSO_AUTH_TOKEN?.trim();
+  if (!authToken) {
+    throw new Error(
+      "TURSO_DATABASE_URL is set but TURSO_AUTH_TOKEN is not. Both are required — " +
+        "set the token, or unset the URL to use a local database file.",
+    );
+  }
+
+  return { url, authToken };
+}
+
+/**
+ * Where the prototype database lives.
+ *
+ * With Turso configured this is the *local replica*, not the source of truth: a
+ * mirror libSQL keeps on disk so reads are answered locally at SQLite speed. It is
+ * therefore disposable, and belongs in the temp directory on a host whose only
+ * writable path is that. Without Turso it is the database itself, confined to a
+ * `.data` directory under the working directory unless `PROTOTYPE_DB_PATH` gives an
+ * absolute path, which keeps the bundler's file tracing scoped rather than walking
+ * the whole project.
  */
 function dbPath(): string {
   const configured = process.env.PROTOTYPE_DB_PATH;
   if (configured && isAbsolute(configured)) return configured;
+  if (turso()) return join(tmpdir(), "flc-replica.db");
   return join(process.cwd(), configured ?? ".data/prototype.db");
 }
 
@@ -74,31 +107,119 @@ function sameFileAsOpenHandle(path: string): boolean {
   }
 }
 
+/**
+ * How long a replica may serve reads before it pulls from the primary again.
+ *
+ * A replica sees its own writes immediately; this window is only about how quickly
+ * it sees *other instances'* writes. Syncing is one network round trip, and getDb()
+ * is called several times per request, so a couple of seconds collapses that to
+ * roughly one sync per request while keeping a demo feeling live.
+ */
+const SYNC_INTERVAL_MS = Number(process.env.TURSO_SYNC_INTERVAL_MS ?? 2000);
+
+/**
+ * Pulls changes from the primary, at most once per `SYNC_INTERVAL_MS`.
+ *
+ * A failed sync here is deliberately not fatal. The replica already holds a good
+ * copy of the data, so serving reads that are a few seconds stale is a far better
+ * outcome than failing the request, and the next call tries again.
+ *
+ * This is only safe *after* the first sync has succeeded — see `open`.
+ */
+function syncReplica(db: Db) {
+  const now = Date.now();
+  if (now - (globalThis.__flcSyncedAt ?? 0) < SYNC_INTERVAL_MS) return;
+  globalThis.__flcSyncedAt = now;
+  try {
+    db.sync();
+  } catch (error) {
+    console.warn("[flc] replica sync failed, serving local data:", error);
+  }
+}
+
+/**
+ * The first sync after opening a replica, which must not fail quietly.
+ *
+ * A newly created replica file is empty. If the primary is unreachable there is no
+ * "last good copy" to fall back on, so tolerating the failure would mean serving an
+ * empty database — and then trying to seed it, sending ~2,200 writes to a primary
+ * that is not answering. Failing here instead surfaces the real problem, and the
+ * next request retries with a fresh connection.
+ */
+function syncOrFail(db: Db, url: string) {
+  try {
+    db.sync();
+    globalThis.__flcSyncedAt = Date.now();
+  } catch (error) {
+    throw new Error(
+      `Could not reach the Turso primary at ${url}. The local replica is empty, so ` +
+        `there is nothing to serve. Check TURSO_DATABASE_URL and TURSO_AUTH_TOKEN.`,
+      { cause: error },
+    );
+  }
+}
+
 function open(): Db {
   const path = dbPath();
+  const remote = turso();
   mkdirSync(dirname(path), { recursive: true });
   warnIfSynced(path);
 
-  const db = new Database(path);
-  db.pragma("journal_mode = WAL");
-  db.pragma("foreign_keys = ON");
-  db.pragma("busy_timeout = 5000");
-  db.exec(SCHEMA_SQL);
+  // An embedded replica keeps a local mirror of the primary: reads are answered
+  // from `path` at SQLite speed, writes go to the primary and are applied locally.
+  // That is what lets this run on a host with no durable disk without rewriting the
+  // ~280 synchronous statements the repositories are built from, and without the
+  // readiness gather — nine queries per student — becoming nine network round trips.
+  const db = remote
+    ? openDatabase(path, { syncUrl: remote.url, authToken: remote.authToken })
+    : openDatabase(path);
 
-  const current = db
-    .prepare<[string], { value: string }>(
-      "SELECT value FROM schema_meta WHERE key = ?",
-    )
-    .get("schema_version");
+  if (remote) syncOrFail(db, remote.url);
 
-  if (!current) {
-    db.prepare("INSERT INTO schema_meta (key, value) VALUES (?, ?)").run(
-      "schema_version",
-      String(SCHEMA_VERSION),
-    );
+  // Pragmas are advisory here. On a plain file they are how WAL and foreign keys get
+  // switched on; against a replica libSQL owns the journal, so a rejected pragma is
+  // expected rather than a fault.
+  for (const pragma of [
+    "journal_mode = WAL",
+    "foreign_keys = ON",
+    "busy_timeout = 5000",
+  ]) {
+    try {
+      db.pragma(pragma);
+    } catch (error) {
+      if (!remote) throw error;
+      console.warn(`[flc] pragma "${pragma}" not applied to the replica:`, error);
+    }
+  }
+
+  // Applying the DDL is nearly free against a local file and distinctly not free
+  // against a replica, where every statement is a write forwarded to the primary —
+  // 47 tables plus indexes would be a round trip each, on every cold start. The
+  // schema is versioned, so read the version first (a local read on a replica) and
+  // only apply the DDL when it is missing or behind.
+  if (schemaVersion(db) !== SCHEMA_VERSION) {
+    db.exec(SCHEMA_SQL);
+    db.prepare<[string, string], void>(
+      "INSERT OR REPLACE INTO schema_meta (key, value) VALUES (?, ?)",
+    ).run("schema_version", String(SCHEMA_VERSION));
   }
 
   return db;
+}
+
+/** The recorded schema version, or null on a database that has no schema yet. */
+function schemaVersion(db: Db): number | null {
+  try {
+    const row = db
+      .prepare<[string], { value: string }>(
+        "SELECT value FROM schema_meta WHERE key = ?",
+      )
+      .get("schema_version");
+    return row ? Number(row.value) : null;
+  } catch {
+    // schema_meta itself does not exist — a brand new database.
+    return null;
+  }
 }
 
 /**
@@ -110,9 +231,16 @@ function open(): Db {
  */
 export function getDb(): Db {
   const path = dbPath();
+  const remote = turso();
   const cached = globalThis.__flcDb;
 
-  if (cached && sameFileAsOpenHandle(path)) {
+  // The inode check exists to catch a *sync client* replacing the file. A replica's
+  // file is libSQL's to manage — it rewrites it during sync — so applying the check
+  // there would read its normal behaviour as corruption and reopen on every call,
+  // re-downloading the database each time.
+  if (cached && (remote || sameFileAsOpenHandle(path))) {
+    if (remote) syncReplica(cached);
+
     // A handle cached against an unseeded database is useless, and caching one is
     // how a single transient seed failure used to break every later request. Cheap
     // re-check until seeding is confirmed, then never again.
@@ -140,10 +268,13 @@ export function getDb(): Db {
   const db = open();
   ensureSeeded(db);
   globalThis.__flcDb = db;
-  try {
-    globalThis.__flcInode = statSync(path).ino;
-  } catch {
-    globalThis.__flcInode = undefined;
+
+  if (!remote) {
+    try {
+      globalThis.__flcInode = statSync(path).ino;
+    } catch {
+      globalThis.__flcInode = undefined;
+    }
   }
   return db;
 }

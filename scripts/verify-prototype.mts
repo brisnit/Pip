@@ -9,10 +9,11 @@
  */
 process.env.PROTOTYPE_DB_PATH ??= ".data/verify.db";
 
-import Database from "better-sqlite3";
+import { openDatabase } from "../src/lib/db/driver";
 import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { resolve } from "node:path";
+import { appBaseUrl } from "../src/config/product";
 import { getDb } from "../src/lib/db/client";
 import { READINESS_PRESENTATION } from "../src/lib/domain/vocabulary";
 import {
@@ -617,7 +618,7 @@ section("Concurrent seeding (regression guard)");
       ),
     );
 
-    const handle = new Database(path, { readonly: true });
+    const handle = openDatabase(path, { readonly: true });
     const count = (table: string) =>
       handle.prepare<[], { n: number }>(`SELECT COUNT(*) AS n FROM ${table}`)
         .get()!.n;
@@ -671,6 +672,145 @@ section("Concurrent seeding (regression guard)");
     same("students"),
     `students=${race.counts.students} against a single-opener baseline of ${solo.counts.students}`,
   );
+}
+
+section("Driver: nested transactions");
+
+/**
+ * The one place libsql is not better-sqlite3-compatible, and the reason
+ * `lib/db/driver.ts` wraps it.
+ *
+ * better-sqlite3 promotes an inner `transaction()` to a SAVEPOINT; libsql issues a
+ * bare `BEGIN`, which throws inside an open transaction — and, worse, its error path
+ * runs `ROLLBACK`, which would discard the *outer* transaction's work while the
+ * caller believed it had committed. The seed nests two levels deep, so this is not
+ * hypothetical.
+ *
+ * Guarded here rather than left to the seed to catch, because the dangerous case is
+ * the one the seed never exercises: an inner transaction that *fails*.
+ */
+{
+  const path = resolve(".data/nesting-check.db");
+  for (const suffix of ["", "-wal", "-shm"]) {
+    try {
+      rmSync(`${path}${suffix}`);
+    } catch {
+      // nothing to clean up
+    }
+  }
+
+  const db = openDatabase(path);
+  db.exec("CREATE TABLE t (id INTEGER PRIMARY KEY, label TEXT NOT NULL)");
+  const insert = db.prepare<[number, string], void>(
+    "INSERT INTO t (id, label) VALUES (?, ?)",
+  );
+  const labels = () =>
+    db
+      .prepare<[], { label: string }>("SELECT label FROM t ORDER BY id")
+      .all()
+      .map((row) => row.label);
+
+  // 1. Both levels commit.
+  db.transaction(() => {
+    insert.run(1, "outer");
+    db.transaction(() => insert.run(2, "inner"))();
+  }).immediate();
+
+  check(
+    "a nested transaction commits with its parent",
+    labels().join(",") === "outer,inner",
+    labels().join(",") || "(empty)",
+  );
+
+  // 2. A failing inner transaction rolls back only itself, and the outer
+  //    transaction survives to commit. This is the case that silently lost data.
+  db.transaction(() => {
+    insert.run(3, "kept");
+    try {
+      db.transaction(() => {
+        insert.run(4, "discarded");
+        throw new Error("inner fails");
+      })();
+    } catch {
+      // handled by the caller, exactly as application code would
+    }
+  }).immediate();
+
+  const after = labels();
+  check(
+    "a failed inner transaction rolls back only its own writes",
+    after.includes("kept") && !after.includes("discarded"),
+    after.join(",") || "(empty)",
+  );
+  check(
+    "a failed inner transaction does not discard the outer transaction",
+    after.join(",") === "outer,inner,kept",
+    after.join(",") || "(empty)",
+  );
+
+  db.close();
+  for (const suffix of ["", "-wal", "-shm"]) {
+    try {
+      rmSync(`${path}${suffix}`);
+    } catch {
+      // nothing to clean up
+    }
+  }
+}
+
+section("Public URL resolution");
+
+/**
+ * Student join links and QR codes are generated from this, and a wrong answer fails
+ * silently — the page renders, the QR code scans, and it points at localhost. The
+ * smoke suite cannot catch it because it runs against localhost by definition.
+ */
+{
+  const vars = [
+    "APP_URL",
+    "VERCEL_PROJECT_PRODUCTION_URL",
+    "VERCEL_URL",
+    "RENDER_EXTERNAL_URL",
+    "NEXT_PUBLIC_APP_URL",
+  ] as const;
+  const saved = Object.fromEntries(vars.map((k) => [k, process.env[k]]));
+  const clear = () => vars.forEach((k) => delete process.env[k]);
+
+  clear();
+  check(
+    "falls back to localhost with nothing set",
+    appBaseUrl() === "http://localhost:3000",
+    appBaseUrl(),
+  );
+
+  clear();
+  process.env.VERCEL_URL = "flc-git-main-abc123.vercel.app";
+  check(
+    "a bare Vercel hostname becomes an https URL",
+    appBaseUrl() === "https://flc-git-main-abc123.vercel.app",
+    appBaseUrl(),
+  );
+
+  // The production hostname is stable; VERCEL_URL changes on every deployment, so a
+  // printed QR code generated from it would stop resolving after the next push.
+  process.env.VERCEL_PROJECT_PRODUCTION_URL = "flc.vercel.app";
+  check(
+    "the stable production hostname wins over the per-deployment one",
+    appBaseUrl() === "https://flc.vercel.app",
+    appBaseUrl(),
+  );
+
+  process.env.APP_URL = "https://companion.fuller.edu/";
+  check(
+    "an explicit APP_URL wins over everything, trailing slash trimmed",
+    appBaseUrl() === "https://companion.fuller.edu",
+    appBaseUrl(),
+  );
+
+  clear();
+  for (const [key, value] of Object.entries(saved)) {
+    if (value !== undefined) process.env[key] = value;
+  }
 }
 
 section("Demo access gate");

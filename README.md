@@ -218,42 +218,82 @@ NEXT_PUBLIC_APP_URL=http://192.168.0.10:3000 npm run dev
 
 ## Deploying a shareable demo
 
-The prototype stores data in a SQLite file on disk, so it needs a host that runs a
-normal long-lived server. Serverless platforms give each request a throwaway
-filesystem, and writes would vanish between page loads.
+Deployed on **Vercel**, with the database on **Turso**.
 
-`render.yaml` in the repository root is a Render Blueprint that sets this up.
+The prototype stores everything in SQLite and reads it synchronously, in-process —
+that is what keeps the professor dashboard fast, since it computes readiness live
+across every enrolled student. Serverless platforms give each instance a throwaway
+filesystem, so a plain SQLite file cannot be the source of truth there.
 
-1. Push to GitHub (already done if you cloned this).
-2. Go to <https://dashboard.render.com/blueprints> → **New Blueprint Instance** →
-   select this repository. Render reads `render.yaml` and creates the service.
-3. Render prompts you for `DEMO_ACCESS_PASSWORD`. Type whatever you want to give
-   stakeholders — you choose it, nothing generates it for you. Leaving it blank runs
-   the site with no gate at all.
-4. Wait for the first build, then open the `*.onrender.com` URL it gives you. Share
-   that link and the password together.
+Turso solves that without changing how the code is written. The app opens an
+**embedded replica**: libSQL keeps a local mirror on disk, answers reads from it at
+ordinary SQLite speed, and forwards writes to the primary. Reads never touch the
+network, so the dashboard's per-student queries stay cheap; writes are durable and
+shared across instances.
 
-After that, every push to `main` redeploys automatically.
+### 1. Create the database
 
-### What the free plan means
+Seed it locally first, then upload the file. Seeding writes ~2,200 rows, and doing
+that over the network on a first request would exceed any serverless timeout.
 
-- **It sleeps after ~15 minutes idle.** The next visit takes 30–60 seconds to wake.
-  Warn stakeholders, or open the link yourself a minute beforehand.
-- **There is no persistent disk**, so the database is rebuilt on every deploy and
-  every wake. The seeded course, the twelve students and all their recorded activity
-  regenerate automatically — but anything a stakeholder creates by hand disappears.
+```bash
+npm run db:reset                      # builds a fully seeded .data/prototype.db
 
-To keep hand-created data, switch to a paid instance and attach a disk. `render.yaml`
-carries the exact lines, commented out.
+brew install tursodatabase/tap/turso  # or see https://docs.turso.tech
+turso auth login
+turso db create fuller-learning-companion --from-file .data/prototype.db
+
+turso db show fuller-learning-companion --url    # -> TURSO_DATABASE_URL
+turso db tokens create fuller-learning-companion # -> TURSO_AUTH_TOKEN
+```
+
+Pick a Turso region near the Vercel region in `vercel.json` (`iad1`, Washington DC).
+Every write crosses that gap.
+
+### 2. Deploy
+
+1. Import the repository at <https://vercel.com/new>. It is a standard Next.js app;
+   the defaults are correct and `vercel.json` supplies the rest.
+2. Add three environment variables, for **all** environments:
+
+   | Variable | Value |
+   | --- | --- |
+   | `TURSO_DATABASE_URL` | from `turso db show --url` |
+   | `TURSO_AUTH_TOKEN` | from `turso db tokens create` |
+   | `DEMO_ACCESS_PASSWORD` | whatever you want to read out in a meeting |
+
+3. Deploy, then open the URL. Share it and the password together.
+
+Every push to `main` redeploys automatically. Join links and QR codes need no
+configuration — the app reads Vercel's own hostname at runtime.
+
+### What this setup means
+
+- **No cold-start penalty of the kind Render had.** Nothing sleeps for 15 minutes.
+  A cold instance downloads the replica once, which is a second or so at this size.
+- **Data persists.** Anything a stakeholder creates survives deploys, which was not
+  true on Render's free plan — there the database was wiped on every wake.
+- **Instances converge, they are not instantly consistent.** A replica sees its own
+  writes immediately and other instances' writes within `TURSO_SYNC_INTERVAL_MS`
+  (default 2s). For a demo this is invisible. It is worth knowing before anyone
+  builds a feature that assumes read-your-neighbour's-writes.
+- **Re-seeding is a deliberate act**, not something a restart does. To reset the
+  hosted demo, delete and recreate the database from a fresh local seed.
+
+### Running it anywhere with a real disk
+
+Leave `TURSO_DATABASE_URL` unset and the app opens a plain local file, exactly as it
+does in development. That is all a host with a persistent disk needs — the driver,
+the schema and every query are the same either way.
 
 ### The access gate
 
 Setting `DEMO_ACCESS_PASSWORD` puts the whole site behind one shared password:
 any request without a valid cookie is redirected to `/unlock`.
 
-You choose the password when Render creates the service, and can change it any time
-from the service's **Environment** tab. Changing it signs everyone out, because the
-cookie is derived from it.
+You choose the password when you add the environment variable, and can change it any
+time from the project's **Settings → Environment Variables** (a redeploy applies it).
+Changing it signs everyone out, because the cookie is derived from it.
 
 It is **not authentication** — one password, no identity, no roles, no audit trail.
 It exists because the professor portal has no login and shows student-shaped records,
@@ -262,9 +302,12 @@ Leave the variable unset locally and the gate disappears entirely.
 
 ### Getting the join links right
 
-Student join links and QR codes need to know the site's public address. On Render this
-is automatic — the app falls back to `RENDER_EXTERNAL_URL` at runtime. Anywhere else,
-set `APP_URL`.
+Student join links and QR codes need to know the site's public address. On Vercel this
+is automatic — the app falls back to `VERCEL_PROJECT_PRODUCTION_URL`, and to
+`VERCEL_URL` on preview deployments. Anywhere else, set `APP_URL`.
+
+Set `APP_URL` explicitly once you attach a custom domain, so a printed QR code points
+at the domain rather than the `vercel.app` hostname.
 
 Use `APP_URL`, not `NEXT_PUBLIC_APP_URL`: `NEXT_PUBLIC_*` variables are inlined during
 the build, so they cannot reflect a hostname that only exists once the service does.
@@ -321,7 +364,7 @@ comes from `lib/role/role-context.ts`. Adding real authentication means changing
 three functions there and nothing above them.
 
 Stack: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4,
-better-sqlite3, `qrcode`, Zod.
+libSQL (`libsql`), `qrcode`, Zod.
 
 ---
 
