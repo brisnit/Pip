@@ -200,7 +200,7 @@ file and reopens. If you see stale data anyway, restart the server.
 
 ### The logo shows as a broken image
 
-The logo is served as a plain path (`/brand/fuller-logo.png`), not through Next's
+The mark is served as a plain path (`/brand/mark-primary.png`), not through Next's
 image optimiser, precisely so this cannot happen — optimiser URLs carry a query string
 and get blocked by some privacy extensions. If you still see a broken image, it is a
 stale page: hard-reload with Cmd-Shift-R.
