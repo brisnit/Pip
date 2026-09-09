@@ -1,7 +1,7 @@
-# Fuller Learning Companion
+# Predictive Learning
 
-An interactive teaching, learning, and student-support platform for Fuller
-Theological Seminary. **Early prototype.**
+An adaptive teaching, learning and student-support platform. AI-powered training
+that adapts to every learner, builds confidence, and drives real results. **Early prototype.**
 
 Professors publish course materials and lectures with comprehension checks.
 Students join through a link or QR code, work inside the lecture, and record what
@@ -47,9 +47,9 @@ Read this before showing it to anyone.
 - **No essay grading.** Short-answer and essay responses are stored verbatim for a
   human to read and are never auto-marked.
 
-All demonstration data is fictional and no real Fuller student names are used.
-Branding follows the supplied Fuller Seminary style guide — colours, the logo, and
-Noto Serif / Noto Sans. The assets live in `public/brand/`, the logo is served from
+All demonstration data is fictional and no real student names are used.
+Branding follows the supplied brand board — colours, the mark, and Satoshi. The
+assets live in `public/brand/`, the mark is served from
 this app's own origin, and the fonts are self-hosted at build time, so no request
 goes to a third party at runtime.
 
@@ -427,9 +427,9 @@ that query would fail.
 
 ## Brand
 
-Colours, typography and the logo follow the Fuller Seminary style guide in
-`public/brand/`. Deep teal `#042B32`, cyan `#00ADC7`, tan `#D8D2C4`, tertiary blue
-`#005979` for calls to action, black `#0C1821`. Noto Serif for headings and Noto Sans
+Colours, typography and the mark follow the brand board in `public/brand/New_Style.png`:
+near-black `#0B0D16`, brand blue `#2F5BFF`, slate `#6C7A95`, light blue `#A7C1FF`,
+white. Satoshi throughout
 for body, self-hosted at build time by `next/font`.
 
 Two brand colours needed care, found by measuring rather than by eye: the cyan is

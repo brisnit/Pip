@@ -1,18 +1,43 @@
 /**
  * Verifies every foreground/background pairing the app renders clears WCAG 2.2 AA.
  *
- * The palette is derived from the six colours in the Fuller Seminary style guide, and
- * two of them cannot be used naively: the secondary cyan is 2.69:1 on white, and the
- * tan is 1.51:1. This script is what keeps that from being forgotten — it exits
- * non-zero if any pairing regresses.
+ * The palette is READ FROM src/app/globals.css rather than copied here. It used to be
+ * a second hardcoded copy, which drifted the moment the design system was rebranded —
+ * the script happily reported "all pairings pass" against colours the app no longer
+ * used. Parsing the real tokens means this cannot pass for the wrong palette.
  *
- * Values here mirror the @theme block in src/app/globals.css. Change one, change both.
+ * Two constraints in this system need guarding:
+ *   1. Light blue #A7C1FF is ~1.9:1 on white, so it can never carry text.
+ *   2. The hairline border is deliberately below 3:1; interactive control
+ *      boundaries therefore use a stronger slate, which WCAG 1.4.11 requires.
  *
  *   npm run check:contrast
  */
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const css = readFileSync(resolve(here, "../src/app/globals.css"), "utf8");
+
+/** Every `--color-<name>: <hex>` declared in the @theme block. */
+const P = Object.fromEntries(
+  [...css.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,8})\s*;/g)].map(
+    ([, name, value]) => [name, value],
+  ),
+);
+
+if (Object.keys(P).length === 0) {
+  console.error(
+    "No --color-* tokens found in globals.css. Has the @theme block moved?",
+  );
+  process.exit(1);
+}
+
 const hex = (h) => {
   const v = h.replace("#", "");
-  return [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16));
+  const full = v.length === 3 ? [...v].map((c) => c + c).join("") : v;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
 };
 const lin = (c) => {
   const s = c / 255;
@@ -27,105 +52,60 @@ const ratio = (a, b) => {
   return (x + 0.05) / (y + 0.05);
 };
 
-// ── Brand, straight from the style guide ────────────────────────────────────
+const c = (k) => {
+  if (k.startsWith("#")) return k;
+  const v = P[k];
+  if (!v) {
+    console.error(`Unknown token "${k}" — it is not declared in globals.css.`);
+    process.exit(1);
+  }
+  return v;
+};
+
+// ── The five brand values, for reference ────────────────────────────────────
 const BRAND = {
-  primary: "#042B32",
-  secondary: "#00ADC7",
-  tan: "#D8D2C4",
-  tertiary: "#005979",
-  black: "#0C1821",
-  white: "#ffffff",
+  ink: "#0B0D16",
+  surface: "#FFFFFF",
+  brand: "#2F5BFF",
+  slate: "#6C7A95",
+  "light blue": "#A7C1FF",
 };
 
-// ── Proposed ramps ──────────────────────────────────────────────────────────
-const P = {
-  // brand teal
-  "brand-50": "#eef4f5",
-  "brand-100": "#d4e3e6",
-  "brand-200": "#a6c5cb",
-  "brand-300": "#6d9aa4",
-  "brand-400": "#3c6f7c",
-  "brand-500": "#0b4451",
-  "brand-600": "#042B32",
-  "brand-700": "#032228",
-  "brand-800": "#02181c",
-  "brand-900": "#010f12",
-
-  // tertiary blue — the CTA colour
-  "cta-400": "#0b7fa5",
-  "cta-500": "#006b8c",
-  "cta-600": "#005979",
-  "cta-700": "#004761",
-
-  // secondary cyan — graphics and accents
-  "accent-50": "#e6f8fb",
-  "accent-100": "#c1eff5",
-  "accent-200": "#84dfeb",
-  "accent-300": "#3ec9dc",
-  "accent-400": "#00ADC7",
-  "accent-500": "#008ba1",
-  "accent-600": "#006b7d",
-  "accent-700": "#00505e",
-
-  // tan neutrals / paper
-  "paper-50": "#fbfaf8",
-  "paper-100": "#f6f4f0",
-  "paper-200": "#efece5",
-  "tan-100": "#e7e3d9",
-  "tan-200": "#D8D2C4",
-  "tan-300": "#c2bba8",
-  "tan-400": "#8f877a",
-  "tan-500": "#7d7566",
-
-  // ink
-  "ink-400": "#5a6b74",
-  "ink-500": "#42545e",
-  "ink-600": "#2a3c46",
-  "ink-700": "#182a33",
-  "ink-800": "#0C1821",
-  "ink-900": "#060e14",
-
-  // status
-  "track-50": "#eaf4ef",
-  "track-100": "#d2e8dc",
-  "track-200": "#a3cbb7",
-  "track-500": "#1e6b50",
-  "track-600": "#14513c",
-  "attention-50": "#fdf3e2",
-  "attention-100": "#f8e6c4",
-  "attention-200": "#e9c98a",
-  "attention-500": "#8a5a00",
-  "attention-600": "#6d4700",
-  "concern-50": "#fceeec",
-  "concern-100": "#f7dcd8",
-  "concern-200": "#e6b3aa",
-  "concern-500": "#a3342a",
-  "concern-600": "#82271f",
-  "unknown-50": "#eef1f3",
-  "unknown-100": "#e0e5e8",
-  "unknown-200": "#c3ccd1",
-  "unknown-500": "#4a5c66",
-  "unknown-600": "#394951",
-};
-const c = (k) => P[k] ?? k;
-
-// ── Pairings the app really renders ─────────────────────────────────────────
+/**
+ * Pairings the app really renders.
+ *
+ * `graphic` in a label marks something judged at 3:1 (WCAG 1.4.11 non-text) rather
+ * than 4.5:1 — borders, focus rings, and the chart fills, which are never the only
+ * carrier of meaning because every band also has a glyph, a label and a count.
+ */
 const PAIRS = [
-  ["body text", "ink-800", "paper-100"],
-  ["body text on white", "ink-800", "#ffffff"],
-  ["muted text", "ink-500", "paper-100"],
-  ["muted text on white", "ink-500", "#ffffff"],
-  ["subtle text", "ink-400", "paper-100"],
-  ["subtle on white", "ink-400", "#ffffff"],
+  ["body text on canvas", "ink-900", "paper-100"],
+  ["body text on white", "ink-900", "#ffffff"],
+  ["secondary text on canvas", "ink-500", "paper-100"],
+  ["secondary text on white", "ink-500", "#ffffff"],
+  ["muted text on canvas", "ink-400", "paper-100"],
+  ["muted text on white", "ink-400", "#ffffff"],
+  ["muted text on tint", "ink-400", "paper-200"],
   ["heading", "ink-900", "paper-100"],
-  ["link / brand text", "brand-600", "#ffffff"],
-  ["link on paper", "brand-600", "paper-100"],
-  ["primary CTA label", "#ffffff", "cta-600"],
-  ["CTA hover label", "#ffffff", "cta-700"],
+
+  ["link on white", "brand-700", "#ffffff"],
+  ["link on canvas", "brand-700", "paper-100"],
+  ["eyebrow on tint", "brand-700", "brand-50"],
+  ["eyebrow on gradient card", "brand-700", "paper-300"],
+
+  ["primary CTA label", "#ffffff", "ink-900"],
+  ["primary CTA hover", "#ffffff", "ink-800"],
   ["brand button label", "#ffffff", "brand-600"],
-  ["accent text (dark cyan)", "accent-700", "accent-50"],
-  ["accent badge", "accent-700", "#ffffff"],
-  ["tan divider text", "ink-600", "tan-200"],
+  ["brand button hover", "#ffffff", "brand-700"],
+  ["secondary button label", "ink-900", "paper-200"],
+  ["secondary button hover", "ink-900", "paper-300"],
+  ["active nav pill", "#ffffff", "ink-900"],
+  ["inactive nav label", "ink-500", "paper-100"],
+
+  ["neutral badge", "ink-600", "paper-200"],
+  ["brand badge", "brand-700", "brand-50"],
+  ["solid brand badge", "#ffffff", "brand-600"],
+
   ["on-track pill", "track-600", "track-50"],
   ["on-track text on white", "track-600", "#ffffff"],
   ["attention pill", "attention-600", "attention-50"],
@@ -134,39 +114,56 @@ const PAIRS = [
   ["concern on white", "concern-600", "#ffffff"],
   ["unknown pill", "unknown-600", "unknown-50"],
   ["unknown on white", "unknown-600", "#ffffff"],
-  ["banner text", "paper-200", "ink-800"],
-  ["banner chip", "ink-800", "paper-200"],
-  ["focus ring vs paper", "brand-500", "paper-100"],
-  ["control border vs white", "tan-400", "#ffffff"],
-  ["control border vs paper", "tan-400", "paper-100"],
-  ["link vs paper", "cta-600", "paper-100"],
-  ["link vs white", "cta-600", "#ffffff"],
+  ["legend glyph on white", "track-500", "#ffffff"],
+  ["legend glyph on white (amber)", "attention-500", "#ffffff"],
+  ["legend glyph on white (rose)", "concern-500", "#ffffff"],
+
+  ["graphic: focus ring vs canvas", "brand-600", "paper-100"],
+  ["graphic: focus ring vs white", "brand-600", "#ffffff"],
+  ["graphic: control border vs white", "slate-500", "#ffffff"],
+  ["graphic: control border vs canvas", "slate-500", "paper-100"],
+  ["graphic: track fill vs white", "track-400", "#ffffff"],
+  ["graphic: attention fill vs white", "attention-400", "#ffffff"],
+  ["graphic: concern fill vs white", "concern-400", "#ffffff"],
+  ["graphic: brand fill vs white", "brand-500", "#ffffff"],
+  ["graphic: progress bar vs track", "brand-600", "paper-300"],
 ];
 
-console.log("Pairing                          fg        bg        ratio  AA(4.5) AA-large(3)");
+console.log(
+  "Pairing                             fg        bg        ratio  AA(4.5) 3:1",
+);
 console.log("─".repeat(84));
 let fails = 0;
 for (const [label, fg, bg] of PAIRS) {
   const r = ratio(c(fg), c(bg));
   const aa = r >= 4.5;
   const aaLarge = r >= 3;
-  // Borders and rings only need 3:1 (non-text contrast).
-  const nonText = /border|ring/.test(label);
+  const nonText = label.startsWith("graphic:");
   const ok = nonText ? aaLarge : aa;
   if (!ok) fails += 1;
   console.log(
-    `${label.padEnd(32)} ${c(fg).padEnd(9)} ${c(bg).padEnd(9)} ${r.toFixed(2).padStart(5)}  ${
-      aa ? "  ok  " : " FAIL "
-    }  ${aaLarge ? "ok" : "FAIL"}${ok ? "" : "   <-- needs fixing"}`,
+    `${label.padEnd(35)} ${c(fg).padEnd(9)} ${c(bg).padEnd(9)} ${r
+      .toFixed(2)
+      .padStart(5)}  ${aa ? "  ok  " : " FAIL "}  ${aaLarge ? "ok" : "FAIL"}${
+      ok ? "" : "   <-- needs fixing"
+    }`,
   );
 }
 console.log("─".repeat(84));
-console.log(fails === 0 ? "All pairings pass." : `${fails} pairing(s) need attention.`);
+console.log(
+  fails === 0
+    ? `All ${PAIRS.length} pairings pass (${Object.keys(P).length} tokens read from globals.css).`
+    : `${fails} pairing(s) need attention.`,
+);
 if (fails > 0) process.exitCode = 1;
 
-console.log("\nBrand colours as given (for reference):");
+console.log("\nBrand values as given:");
 for (const [k, v] of Object.entries(BRAND)) {
   console.log(
-    `  ${k.padEnd(10)} ${v}   on white ${ratio(v, "#ffffff").toFixed(2)}   white on it ${ratio("#ffffff", v).toFixed(2)}`,
+    `  ${k.padEnd(12)} ${v}   on white ${ratio(v, "#ffffff")
+      .toFixed(2)
+      .padStart(
+        5,
+      )}   white on it ${ratio("#ffffff", v).toFixed(2).padStart(5)}`,
   );
 }

@@ -168,7 +168,10 @@ export type SessionContext = {
 
 export function resolveSession(sessionId: string): SessionContext | null {
   const row = getDb()
-    .prepare<[string], { id: string; student_id: string; course_id: string; name: string }>(
+    .prepare<
+      [string],
+      { id: string; student_id: string; course_id: string; name: string }
+    >(
       `SELECT ss.id, ss.student_id, ss.course_id, s.name
        FROM student_sessions ss
        JOIN students s ON s.id = ss.student_id

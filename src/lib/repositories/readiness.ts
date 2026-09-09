@@ -34,7 +34,11 @@ function gatherInput(courseId: string, studentId: string): ReadinessInput {
   const checkRows = db
     .prepare<
       [string, string],
-      { objective_id: string | null; concept_name: string | null; is_correct: number | null }
+      {
+        objective_id: string | null;
+        concept_name: string | null;
+        is_correct: number | null;
+      }
     >(
       `SELECT i.objective_id, c.name AS concept_name, r.is_correct
        FROM interaction_responses r
@@ -51,7 +55,11 @@ function gatherInput(courseId: string, studentId: string): ReadinessInput {
   const assessmentRows = db
     .prepare<
       [string, string],
-      { objective_id: string | null; concept_name: string | null; is_correct: number | null }
+      {
+        objective_id: string | null;
+        concept_name: string | null;
+        is_correct: number | null;
+      }
     >(
       `SELECT q.objective_id, c.name AS concept_name, r.is_correct
        FROM assessment_responses r
@@ -84,7 +92,11 @@ function gatherInput(courseId: string, studentId: string): ReadinessInput {
   const markerRows = db
     .prepare<
       [string, string],
-      { objective_id: string | null; concept_name: string | null; marker: Marker }
+      {
+        objective_id: string | null;
+        concept_name: string | null;
+        marker: Marker;
+      }
     >(
       `SELECT
          COALESCE(
@@ -105,7 +117,10 @@ function gatherInput(courseId: string, studentId: string): ReadinessInput {
     .all(studentId, courseId);
 
   const questionRows = db
-    .prepare<[string, string], { kind: QuestionKind; objective_id: string | null }>(
+    .prepare<
+      [string, string],
+      { kind: QuestionKind; objective_id: string | null }
+    >(
       `SELECT kind, objective_id FROM questions
        WHERE student_id = ? AND course_id = ?`,
     )
@@ -118,7 +133,10 @@ function gatherInput(courseId: string, studentId: string): ReadinessInput {
     .get(courseId)!.n;
 
   const lecturesEngaged = db
-    .prepare<[string, string, string, string, string, string, string, string], { n: number }>(
+    .prepare<
+      [string, string, string, string, string, string, string, string],
+      { n: number }
+    >(
       `SELECT COUNT(*) AS n FROM (
          SELECT DISTINCT lecture_id FROM student_notes
            WHERE student_id = ? AND course_id = ? AND lecture_id IS NOT NULL
@@ -329,7 +347,10 @@ export type TrendPoint = {
 
 export function courseTrend(courseId: string, days = 21): TrendPoint[] {
   const rows = getDb()
-    .prepare<[string], { student_id: string; status: ReadinessStatus; day: string }>(
+    .prepare<
+      [string],
+      { student_id: string; status: ReadinessStatus; day: string }
+    >(
       `SELECT student_id, status, DATE(computed_at) AS day
        FROM readiness_snapshots
        WHERE course_id = ?
@@ -339,7 +360,9 @@ export function courseTrend(courseId: string, days = 21): TrendPoint[] {
 
   if (rows.length === 0) return [];
 
-  const days_ = Array.from(new Set(rows.map((r) => r.day))).sort().slice(-days);
+  const days_ = Array.from(new Set(rows.map((r) => r.day)))
+    .sort()
+    .slice(-days);
   const latestByStudent = new Map<string, ReadinessStatus>();
   const points: TrendPoint[] = [];
 

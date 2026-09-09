@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProfessorShell } from "@/components/layout/shells";
 import { HealthWheel, type WheelSegment } from "@/components/viz/health-wheel";
+import { FeatureCard } from "@/components/ui/cards";
 import { ButtonLink, EmptyState } from "@/components/ui/primitives";
 import {
   COHORT_PRESENTATION,
@@ -39,7 +40,9 @@ export default async function ProfessorDashboard() {
           title="Start with a course"
           description="Create a course to generate a student access link and QR code, then add a syllabus and your first lecture."
           action={
-            <ButtonLink href="/professor/courses/new">Create new course</ButtonLink>
+            <ButtonLink href="/professor/courses/new">
+              Create new course
+            </ButtonLink>
           }
         />
       </ProfessorShell>
@@ -86,7 +89,10 @@ export default async function ProfessorDashboard() {
         },
         {
           label: "Average readiness",
-          value: cohort.averageReadiness !== null ? percent(cohort.averageReadiness) : "—",
+          value:
+            cohort.averageReadiness !== null
+              ? percent(cohort.averageReadiness)
+              : "—",
         },
       ],
       empty: "No students are reading as ready yet.",
@@ -116,7 +122,9 @@ export default async function ProfessorDashboard() {
               : "—",
         },
       ],
-      items: cohort.confusingConcepts.slice(0, 5).map((c) => `${c.name} (${c.count})`),
+      items: cohort.confusingConcepts
+        .slice(0, 5)
+        .map((c) => `${c.name} (${c.count})`),
       empty: "Nobody has asked for support or fallen behind.",
     },
     no_data: {
@@ -141,6 +149,20 @@ export default async function ProfessorDashboard() {
     };
   });
 
+  /*
+    The hero leads with the course that most needs a conversation, because that is
+    the actual question a professor opens this page with. Falls back to the first
+    course when nothing is flagged — the card is then a way in, not an alarm.
+  */
+  const focus =
+    overview.courses.find((row) => row.health === "needs_attention") ??
+    overview.courses.find((row) => row.health === "needs_review") ??
+    overview.courses[0];
+
+  const flagged = focus
+    ? focus.counts.needsSupport + focus.counts.developing
+    : 0;
+
   return (
     <ProfessorShell professorName={professor.name}>
       <Welcome
@@ -153,7 +175,36 @@ export default async function ProfessorDashboard() {
         }
       />
 
-      <div className="mt-12 grid gap-6 xl:grid-cols-2">
+      {focus ? (
+        <FeatureCard
+          className="mt-9"
+          eyebrow={
+            focus.health === "healthy"
+              ? "Your teaching"
+              : "Worth a look this week"
+          }
+          title={focus.course.title}
+          description={
+            focus.health === "healthy"
+              ? `${focus.course.code} is holding up well across the class.`
+              : `${flagged} of ${focus.counts.total} students in ${focus.course.code} would gain from a conversation.`
+          }
+          href={`/professor/courses/${focus.course.id}`}
+          actionLabel={`Open ${focus.course.code}`}
+          motif="cluster"
+          seedId="focus"
+          stats={[
+            { label: "Students", value: focus.counts.total },
+            { label: "Ready", value: focus.counts.ready },
+            {
+              label: "Need support",
+              value: focus.counts.needsSupport,
+            },
+          ]}
+        />
+      ) : null}
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Panel
           title="Course health"
           subtitle="Across everything you are teaching"
@@ -204,10 +255,15 @@ function Welcome({
   return (
     <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 pt-4">
       <div className="min-w-0">
-        <h1 className="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+        <p className="text-[1.05rem] text-ink-400">
           {greeting()}, {salutation(name)}
+        </p>
+        <h1 className="mt-1.5 text-[2.75rem] font-medium leading-[0.98] tracking-[-0.04em] sm:text-[3.5rem]">
+          Your teaching
         </h1>
-        {term ? <p className="mt-3 text-lg text-ink-500">{term}</p> : null}
+        {term ? (
+          <p className="mt-3 text-[1.05rem] text-ink-400">{term}</p>
+        ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>
@@ -228,13 +284,18 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rise rounded-2xl border border-tan-100 bg-white p-6 shadow-soft sm:p-8">
-      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+    <section className="rise rounded-[1.5rem] border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+      <div className="mb-7 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-serif text-xl">{title}</h2>
-          <p className="mt-1 text-[0.88rem] text-ink-500">{subtitle}</p>
+          <h2 className="text-[1.35rem] font-medium tracking-[-0.022em]">
+            {title}
+          </h2>
+          <p className="mt-1.5 text-[0.9rem] text-ink-400">{subtitle}</p>
         </div>
-        <Link href={href} className="shrink-0 text-[0.85rem]">
+        <Link
+          href={href}
+          className="inline-flex h-9 shrink-0 items-center rounded-full bg-paper-200 px-4 text-[0.85rem] text-ink-700 no-underline transition-colors hover:bg-paper-300"
+        >
           {hrefLabel} →
         </Link>
       </div>

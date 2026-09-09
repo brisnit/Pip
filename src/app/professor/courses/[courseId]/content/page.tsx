@@ -126,7 +126,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                   <CardBody>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <h3 className="font-serif text-lg leading-snug">
+                        <h3 className="text-lg leading-snug">
                           {lecture.title}
                         </h3>
                         <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] text-ink-500">
@@ -148,7 +148,9 @@ export default async function ContentPage({ params, searchParams }: Props) {
                             <span>· {lecture.module_title}</span>
                           ) : null}
                           {lecture.scheduled_at ? (
-                            <span>· {formatDayMonth(lecture.scheduled_at)}</span>
+                            <span>
+                              · {formatDayMonth(lecture.scheduled_at)}
+                            </span>
                           ) : null}
                           {lecture.duration_minutes ? (
                             <span>· {lecture.duration_minutes} min</span>
@@ -165,7 +167,9 @@ export default async function ContentPage({ params, searchParams }: Props) {
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         <ButtonLink
                           href={`/professor/courses/${courseId}/lectures/${lecture.id}/live`}
-                          variant={lecture.status === "live" ? "primary" : "secondary"}
+                          variant={
+                            lecture.status === "live" ? "primary" : "secondary"
+                          }
                           size="sm"
                         >
                           {lecture.status === "live"
@@ -173,9 +177,20 @@ export default async function ContentPage({ params, searchParams }: Props) {
                             : "Open console"}
                         </ButtonLink>
 
-                        <form action={setLectureStatusAction} className="flex gap-2">
-                          <input type="hidden" name="courseId" value={courseId} />
-                          <input type="hidden" name="lectureId" value={lecture.id} />
+                        <form
+                          action={setLectureStatusAction}
+                          className="flex gap-2"
+                        >
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
+                          <input
+                            type="hidden"
+                            name="lectureId"
+                            value={lecture.id}
+                          />
                           {lecture.status === "draft" ? (
                             <>
                               <input
@@ -189,14 +204,22 @@ export default async function ContentPage({ params, searchParams }: Props) {
                             </>
                           ) : lecture.status === "live" ? (
                             <>
-                              <input type="hidden" name="status" value="ended" />
+                              <input
+                                type="hidden"
+                                name="status"
+                                value="ended"
+                              />
                               <Button type="submit" variant="ghost" size="sm">
                                 End live session
                               </Button>
                             </>
                           ) : (
                             <>
-                              <input type="hidden" name="status" value="draft" />
+                              <input
+                                type="hidden"
+                                name="status"
+                                value="draft"
+                              />
                               <Button type="submit" variant="ghost" size="sm">
                                 Unpublish
                               </Button>
@@ -206,7 +229,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                       </div>
                     </div>
 
-                    <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
+                    <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-slate-200 pt-3 text-[0.82rem] text-ink-500">
                       <div className="flex gap-1.5">
                         <dt>Sections</dt>
                         <dd className="font-medium text-ink-700">
@@ -240,7 +263,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                     </dl>
 
                     {segments.length > 0 ? (
-                      <details className="mt-4 border-t border-tan-100 pt-3">
+                      <details className="mt-4 border-t border-slate-200 pt-3">
                         <summary className="cursor-pointer text-sm font-medium text-brand-700">
                           Outline and interactive moments
                         </summary>
@@ -264,7 +287,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                                         key={moment.id}
                                         className="text-[0.82rem] text-ink-500"
                                       >
-                                        <span className="text-accent-700">
+                                        <span className="text-brand-800">
                                           {INTERACTION_TYPE_LABELS[moment.type]}
                                         </span>
                                         {" — "}
@@ -302,7 +325,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
         ) : (
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {materials.map((material) => (
                   <li key={material.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -336,7 +359,10 @@ export default async function ContentPage({ params, searchParams }: Props) {
                               rel="noopener noreferrer"
                             >
                               {material.title}
-                              <span className="sr-only"> (opens in a new tab)</span>
+                              <span className="sr-only">
+                                {" "}
+                                (opens in a new tab)
+                              </span>
                             </a>
                           ) : (
                             material.title
@@ -370,7 +396,7 @@ export default async function ContentPage({ params, searchParams }: Props) {
                           </p>
                         ) : null}
                         {material.student_instructions ? (
-                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.8rem] text-ink-600">
+                          <p className="mt-1.5 rounded border border-slate-200 bg-paper-100 px-2 py-1 text-[0.8rem] text-ink-600">
                             For students: {material.student_instructions}
                           </p>
                         ) : null}
@@ -381,7 +407,11 @@ export default async function ContentPage({ params, searchParams }: Props) {
                           action={setMaterialVisibilityAction}
                           className="flex items-center gap-2"
                         >
-                          <input type="hidden" name="courseId" value={courseId} />
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
                           <input
                             type="hidden"
                             name="materialId"
@@ -411,7 +441,11 @@ export default async function ContentPage({ params, searchParams }: Props) {
                         </form>
 
                         <form action={deleteMaterialAction}>
-                          <input type="hidden" name="courseId" value={courseId} />
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
                           <input
                             type="hidden"
                             name="materialId"

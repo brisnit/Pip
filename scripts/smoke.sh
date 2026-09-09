@@ -41,7 +41,7 @@ COOKIE=$(grep '^cookie:' <<<"$SESSION_OUT" | awk '{print $2}')
 JONAH=$(grep '^cookie:' <<<"$JONAH_OUT" | awk '{print $2}')
 
 step "1–2. The professor enters the portal"
-check "landing page renders the tagline" "$(has "$(get "$BASE/")" 'Turn teaching into an ongoing conversation')"
+check "landing page renders the tagline" "$(has "$(get "$BASE/")" 'Personalised learning. Real progress.')"
 check "/professor reaches the dashboard" "$(curl -sL -o /dev/null -w "%{url_effective}" "$BASE/professor" | grep -q "/professor/dashboard" && echo 1 || echo 0)"
 # The dashboard is a launchpad, not a worklist: two health wheels and one way
 # forward. The per-course worklists it used to carry are asserted against the
@@ -158,7 +158,10 @@ check "the timeline reflects the student's own markers" "$(has "$LEC" 'confusing
 # course they are in, then one obvious way back into the work.
 HOME=$(sget "$BASE/student/$COURSE_ID")
 check "student home greets them by name" "$(has "$HOME" 'Noor')"
-check "student home shows learning health across their courses" "$(has "$HOME" 'Learning health')"
+# Matched around the apostrophe rather than through it: React renders the curly
+# character itself, not the entity, and encoding an apostrophe into a shell string
+# inside a command substitution is a needless way to lose an afternoon.
+check "student home shows how their learning is going" "$(hasre "$HOME" 'How you.{1,8}re doing')"
 check "readiness is stated as a percentage they can see" "$(hasre "$HOME" '[0-9]+%')"
 check "student home gives one obvious next action" "$(has "$HOME" 'Continue learning')"
 check "student home lists every course they are enrolled in" "$(has "$HOME" 'My courses')"
@@ -278,17 +281,23 @@ check "skip link present" "$(has "$LANDING" 'Skip to main content')"
 check "prototype banner is absent" "$([ "$(has "$LANDING" 'not a secure student-record system')" = 0 ] && echo 1 || echo 0)"
 check "no 'prototype' wording on the landing page" "$([ "$(hasre "$LANDING" '[Pp]rototype')" = 0 ] && echo 1 || echo 0)"
 check "html lang is set" "$(hasre "$LANDING" '<html [^>]*lang="en"')"
-check "Fuller logo is rendered, not a text placeholder" "$(has "$LANDING" 'src="/brand/fuller-logo.png"')"
-check "logo asset is served" "$([ "$(code "$BASE/brand/fuller-logo.png")" = "200" ] && echo 1 || echo 0)"
+check "the mark is rendered, not a text placeholder" "$(has "$LANDING" 'src="/brand/mark-primary.png"')"
+check "mark asset is served" "$([ "$(code "$BASE/brand/mark-primary.png")" = "200" ] && echo 1 || echo 0)"
 # The lockup is on every screen, so it must not depend on the image optimiser:
 # query-string image URLs get blocked by privacy extensions and need sharp on the host.
 check "logo src is a plain path, not an optimiser URL" "$([ "$(curl -s "$BASE/" | grep -c '_next/image')" = "0" ] && echo 1 || echo 0)"
-LOGO_META=$(curl -s -o /dev/null -w "%{content_type} %{size_download}" "$BASE/brand/fuller-logo.png")
-check "logo is served as a non-trivial png" "$(awk '{ exit !($1 == "image/png" && $2 > 5000) }' <<<"$LOGO_META" && echo 1 || echo 0)" "$LOGO_META"
-check "brand teal compiled into css" "$([ "$(grep -rli '042b32' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
-check "brand cyan compiled into css" "$([ "$(grep -rli '00adc7' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
-check "Noto fonts self-hosted in the build" "$([ "$(find "$PROJECT/.next" -name '*.woff2' 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
-check "no stale burgundy palette in css" "$([ "$(grep -rli '6b1f2e' "$PROJECT/.next/static" 2>/dev/null | head -1)" = "" ] && echo 1 || echo 0)"
+LOGO_META=$(curl -s -o /dev/null -w "%{content_type} %{size_download}" "$BASE/brand/mark-primary.png")
+check "mark is served as a non-trivial png" "$(awk '{ exit !($1 == "image/png" && $2 > 5000) }' <<<"$LOGO_META" && echo 1 || echo 0)" "$LOGO_META"
+# The product name is real text beside the mark, not baked into the image — so it
+# scales, wraps and is read aloud.
+check "product name is text, not only an image" "$(has "$LANDING" 'Predictive Learning<')"
+check "brand blue compiled into css" "$([ "$(grep -rli '2f5bff' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+check "near-black ink compiled into css" "$([ "$(grep -rli '0b0d16' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+check "Satoshi self-hosted in the build" "$([ "$(find "$PROJECT/.next" -name '*.woff2' 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
+# The old Fuller palette must not linger in the compiled CSS. It did once: two dead
+# utility classes kept shipping the teal long after nothing used them.
+check "no stale Fuller teal in css" "$([ "$(grep -rli '042b32' "$PROJECT/.next/static" 2>/dev/null | head -1)" = "" ] && echo 1 || echo 0)"
+check "no stale Fuller cyan in css" "$([ "$(grep -rli '00adc7' "$PROJECT/.next/static" 2>/dev/null | head -1)" = "" ] && echo 1 || echo 0)"
 check "reduced-motion support shipped in css" "$([ "$(grep -rl 'prefers-reduced-motion' "$PROJECT/.next/static" 2>/dev/null | head -1)" != "" ] && echo 1 || echo 0)"
 
 printf "\n%s\n" "════════════════════════════════"

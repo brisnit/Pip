@@ -73,7 +73,9 @@ export default async function StudentsPage({ params, searchParams }: Props) {
     const studentRecs = recommendations.filter(
       (rec) => rec.student_id === student.id,
     );
-    const notes = professorNotes.filter((note) => note.student_id === student.id);
+    const notes = professorNotes.filter(
+      (note) => note.student_id === student.id,
+    );
 
     return {
       student,
@@ -147,7 +149,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                   total={aggregate.total}
                 />
                 {aggregate.hardestObjectives.length > 0 ? (
-                  <div className="border-t border-tan-100 pt-5">
+                  <div className="border-t border-slate-200 pt-5">
                     <h3 className="text-sm font-semibold">
                       Objectives to reteach first
                     </h3>
@@ -173,18 +175,20 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                   </div>
                 ) : null}
                 {aggregate.confusingConcepts.length > 0 ? (
-                  <div className="border-t border-tan-100 pt-5">
+                  <div className="border-t border-slate-200 pt-5">
                     <h3 className="text-sm font-semibold">
                       Most common confusion
                     </h3>
                     <ul className="mt-2 flex flex-wrap gap-2">
-                      {aggregate.confusingConcepts.slice(0, 6).map((concept) => (
-                        <li key={concept.name}>
-                          <Badge tone="attention">
-                            {concept.name} · {concept.count}
-                          </Badge>
-                        </li>
-                      ))}
+                      {aggregate.confusingConcepts
+                        .slice(0, 6)
+                        .map((concept) => (
+                          <li key={concept.name}>
+                            <Badge tone="attention">
+                              {concept.name} · {concept.count}
+                            </Badge>
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 ) : null}
@@ -204,7 +208,7 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                     className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                       statusFilter === null
                         ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
-                        : "border-tan-200 bg-white text-ink-600"
+                        : "border-slate-200 bg-white text-ink-600"
                     }`}
                   >
                     All ({roster.length})
@@ -214,11 +218,13 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                   <li key={status}>
                     <Link
                       href={filterHref(status)}
-                      aria-current={statusFilter === status ? "true" : undefined}
+                      aria-current={
+                        statusFilter === status ? "true" : undefined
+                      }
                       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                         statusFilter === status
                           ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
-                          : "border-tan-200 bg-white text-ink-600"
+                          : "border-slate-200 bg-white text-ink-600"
                       }`}
                     >
                       <span aria-hidden="true">
@@ -234,16 +240,22 @@ export default async function StudentsPage({ params, searchParams }: Props) {
 
             <nav aria-label="Sort roster" className="text-[0.82rem]">
               <span className="text-ink-500">Sort: </span>
-              {(Object.keys(SORTS) as (keyof typeof SORTS)[]).map((key, index) => (
-                <span key={key}>
-                  {index > 0 ? <span className="text-ink-300"> · </span> : null}
-                  {sort === key ? (
-                    <span className="font-medium text-ink-800">{SORTS[key]}</span>
-                  ) : (
-                    <Link href={sortHref(key)}>{SORTS[key]}</Link>
-                  )}
-                </span>
-              ))}
+              {(Object.keys(SORTS) as (keyof typeof SORTS)[]).map(
+                (key, index) => (
+                  <span key={key}>
+                    {index > 0 ? (
+                      <span className="text-ink-300"> · </span>
+                    ) : null}
+                    {sort === key ? (
+                      <span className="font-medium text-ink-800">
+                        {SORTS[key]}
+                      </span>
+                    ) : (
+                      <Link href={sortHref(key)}>{SORTS[key]}</Link>
+                    )}
+                  </span>
+                ),
+              )}
             </nav>
           </div>
 
@@ -258,12 +270,12 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left text-sm">
                     <caption className="sr-only">
-                      Student roster with readiness status, participation, topics
-                      needing attention, last activity, questions submitted and
-                      support plan size.
+                      Student roster with readiness status, participation,
+                      topics needing attention, last activity, questions
+                      submitted and support plan size.
                     </caption>
                     <thead>
-                      <tr className="border-b border-tan-200 bg-paper-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
+                      <tr className="border-b border-slate-200 bg-paper-100 text-[0.82rem] text-ink-500">
                         <th scope="col" className="px-4 py-2.5 font-medium">
                           Student
                         </th>
@@ -293,103 +305,114 @@ export default async function StudentsPage({ params, searchParams }: Props) {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-tan-100">
-                      {rows.map(({ student, result, recommendations: recs, openFollowUps }) => {
-                        const participation = result.signals.find(
-                          (s) => s.kind === "participation_breadth",
-                        );
-                        const assessment = result.signals.find(
-                          (s) => s.kind === "practice_assessment",
-                        );
-                        const gaps = result.gaps
-                          .filter((gap) => gap.standing === "needs_review")
-                          .slice(0, 2);
+                    <tbody className="divide-y divide-slate-200">
+                      {rows.map(
+                        ({
+                          student,
+                          result,
+                          recommendations: recs,
+                          openFollowUps,
+                        }) => {
+                          const participation = result.signals.find(
+                            (s) => s.kind === "participation_breadth",
+                          );
+                          const assessment = result.signals.find(
+                            (s) => s.kind === "practice_assessment",
+                          );
+                          const gaps = result.gaps
+                            .filter((gap) => gap.standing === "needs_review")
+                            .slice(0, 2);
 
-                        return (
-                          <tr key={student.id} className="align-top">
-                            <th
-                              scope="row"
-                              className="px-4 py-3 text-left font-medium text-ink-800"
-                            >
-                              <Link
-                                href={`/professor/courses/${courseId}/students/${student.id}`}
+                          return (
+                            <tr key={student.id} className="align-top">
+                              <th
+                                scope="row"
+                                className="px-4 py-3 text-left font-medium text-ink-800"
                               >
-                                {student.name}
-                              </Link>
-                              {result.override ? (
-                                <span className="mt-1 block text-[0.75rem] font-normal text-brand-600">
-                                  Status set manually
+                                <Link
+                                  href={`/professor/courses/${courseId}/students/${student.id}`}
+                                >
+                                  {student.name}
+                                </Link>
+                                {result.override ? (
+                                  <span className="mt-1 block text-[0.75rem] font-normal text-brand-600">
+                                    Status set manually
+                                  </span>
+                                ) : null}
+                              </th>
+                              <td className="px-4 py-3">
+                                <StatusPill status={result.status} size="sm" />
+                              </td>
+                              <td className="px-4 py-3 text-ink-600">
+                                {participation?.value !== null &&
+                                participation?.value !== undefined
+                                  ? percent(participation.value)
+                                  : "—"}
+                                <span className="block text-[0.75rem] text-ink-400">
+                                  of published lectures
                                 </span>
-                              ) : null}
-                            </th>
-                            <td className="px-4 py-3">
-                              <StatusPill status={result.status} size="sm" />
-                            </td>
-                            <td className="px-4 py-3 text-ink-600">
-                              {participation?.value !== null &&
-                              participation?.value !== undefined
-                                ? percent(participation.value)
-                                : "—"}
-                              <span className="block text-[0.75rem] text-ink-400">
-                                of published lectures
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-ink-600">
-                              {assessment?.value !== null &&
-                              assessment?.value !== undefined
-                                ? percent(assessment.value)
-                                : "not attempted"}
-                            </td>
-                            <td className="px-4 py-3 text-ink-600">
-                              {gaps.length === 0 ? (
-                                <span className="text-ink-400">—</span>
-                              ) : (
-                                <ul>
-                                  {gaps.map((gap) => (
-                                    <li
-                                      key={gap.objective.id}
-                                      className="text-[0.82rem]"
-                                    >
-                                      {gap.objective.code}
-                                      {gap.confusingConcepts[0]
-                                        ? ` · ${gap.confusingConcepts[0]}`
-                                        : ""}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 text-[0.82rem] text-ink-500">
-                              {relativeTime(student.last_activity_at)}
-                            </td>
-                            <td className="px-4 py-3 tabular-nums text-ink-600">
-                              {student.questions_submitted}
-                            </td>
-                            <td className="px-4 py-3 text-ink-600">
-                              {recs.length === 0 ? (
-                                <span className="text-ink-400">none</span>
-                              ) : (
-                                <>
-                                  {recs.filter((r) => r.status === "completed").length}
-                                  {" / "}
-                                  {recs.length} done
-                                </>
-                              )}
-                            </td>
-                            <td className="px-4 py-3">
-                              <Link
-                                href={`/professor/courses/${courseId}/students/${student.id}`}
-                                className="text-[0.82rem]"
-                              >
-                                {openFollowUps > 0
-                                  ? `Follow up (${openFollowUps})`
-                                  : "Review"}{" "}
-                                →
-                              </Link>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              </td>
+                              <td className="px-4 py-3 text-ink-600">
+                                {assessment?.value !== null &&
+                                assessment?.value !== undefined
+                                  ? percent(assessment.value)
+                                  : "not attempted"}
+                              </td>
+                              <td className="px-4 py-3 text-ink-600">
+                                {gaps.length === 0 ? (
+                                  <span className="text-ink-400">—</span>
+                                ) : (
+                                  <ul>
+                                    {gaps.map((gap) => (
+                                      <li
+                                        key={gap.objective.id}
+                                        className="text-[0.82rem]"
+                                      >
+                                        {gap.objective.code}
+                                        {gap.confusingConcepts[0]
+                                          ? ` · ${gap.confusingConcepts[0]}`
+                                          : ""}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-[0.82rem] text-ink-500">
+                                {relativeTime(student.last_activity_at)}
+                              </td>
+                              <td className="px-4 py-3 tabular-nums text-ink-600">
+                                {student.questions_submitted}
+                              </td>
+                              <td className="px-4 py-3 text-ink-600">
+                                {recs.length === 0 ? (
+                                  <span className="text-ink-400">none</span>
+                                ) : (
+                                  <>
+                                    {
+                                      recs.filter(
+                                        (r) => r.status === "completed",
+                                      ).length
+                                    }
+                                    {" / "}
+                                    {recs.length} done
+                                  </>
+                                )}
+                              </td>
+                              <td className="px-4 py-3">
+                                <Link
+                                  href={`/professor/courses/${courseId}/students/${student.id}`}
+                                  className="text-[0.82rem]"
+                                >
+                                  {openFollowUps > 0
+                                    ? `Follow up (${openFollowUps})`
+                                    : "Review"}{" "}
+                                  →
+                                </Link>
+                              </td>
+                            </tr>
+                          );
+                        },
+                      )}
                     </tbody>
                   </table>
                 </div>

@@ -17,10 +17,7 @@ type Embed =
 
 const PLACEHOLDER_PATTERN = /DEMO_PLACEHOLDER|example\.(com|org|edu)/i;
 
-export function resolveEmbed(
-  url: string | null,
-  title: string,
-): Embed {
+export function resolveEmbed(url: string | null, title: string): Embed {
   if (!url) return { kind: "none" };
 
   if (PLACEHOLDER_PATTERN.test(url)) {
@@ -35,7 +32,10 @@ export function resolveEmbed(
   try {
     parsed = new URL(url);
   } catch {
-    return { kind: "placeholder", reason: "The recording link is not a valid URL." };
+    return {
+      kind: "placeholder",
+      reason: "The recording link is not a valid URL.",
+    };
   }
 
   const host = parsed.hostname.replace(/^www\./, "");
@@ -99,7 +99,7 @@ export function VideoArea({
   return (
     <div className="space-y-3">
       {primary.kind === "iframe" ? (
-        <div className="overflow-hidden rounded-lg border border-tan-200 bg-ink-900">
+        <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-ink-900">
           <div className="relative aspect-video">
             <iframe
               src={primary.src}
@@ -111,7 +111,7 @@ export function VideoArea({
           </div>
         </div>
       ) : primary.kind === "link" ? (
-        <div className="rounded-lg border border-tan-200 bg-paper-200 p-6 text-center">
+        <div className="rounded-[1.5rem] border border-slate-200 bg-paper-200 p-6 text-center">
           <p className="text-sm text-ink-600">
             This lecture is hosted on {primary.provider}.
           </p>
@@ -138,8 +138,8 @@ export function VideoArea({
         </Notice>
       ) : (
         <Notice tone="info" title="No recording or live link yet">
-          Your professor has not attached a video for this lecture. Everything else
-          on this page works without it.
+          Your professor has not attached a video for this lecture. Everything
+          else on this page works without it.
         </Notice>
       )}
 

@@ -1,10 +1,7 @@
 import "server-only";
 
 import { getDb } from "@/lib/db/client";
-import {
-  summariseLearning,
-  type LearningSummary,
-} from "@/lib/domain/health";
+import { summariseLearning, type LearningSummary } from "@/lib/domain/health";
 import type { ReadinessStatus } from "@/lib/domain/vocabulary";
 import { getUpcomingAssessment } from "./assessments";
 import { getCourse, type CourseSummary } from "./courses";
@@ -18,6 +15,15 @@ export type EnrolledCourse = {
   status: ReadinessStatus;
   readiness: number | null;
   nextUp: { label: string; href: string } | null;
+  /**
+   * Lectures published in this course.
+   *
+   * Surfaced so a card can say "12 lessons" without a second query. It is a count of
+   * what exists, not of what the student has finished — this build records what a
+   * student *did* inside a lecture, not a completion flag, and reporting a
+   * completion figure it cannot compute would be an invention.
+   */
+  lessonCount: number;
 };
 
 /**
@@ -28,13 +34,13 @@ export type EnrolledCourse = {
  * no authentication — a person joining two courses creates two student rows. When SSO
  * lands, this becomes a join on the account id and nothing above it changes.
  */
-export function enrolledCourses(
-  studentId: string,
-): EnrolledCourse[] {
+export function enrolledCourses(studentId: string): EnrolledCourse[] {
   const db = getDb();
 
   const self = db
-    .prepare<[string], { name: string }>("SELECT name FROM students WHERE id = ?")
+    .prepare<[string], { name: string }>(
+      "SELECT name FROM students WHERE id = ?",
+    )
     .get(studentId);
   if (!self) return [];
 
@@ -53,6 +59,7 @@ export function enrolledCourses(
     if (!course) return [];
 
     const readiness = readinessFor(row.course_id, row.student_id);
+    const next = nextActionFor(row.course_id);
 
     return [
       {
@@ -60,33 +67,44 @@ export function enrolledCourses(
         studentId: row.student_id,
         status: readiness.status,
         readiness: readiness.score,
-        nextUp: nextActionFor(row.course_id),
+        nextUp: next.action,
+        lessonCount: next.lessonCount,
       },
     ];
   });
 }
 
-/** The most useful next thing in a course: a live lecture, then the newest one. */
-function nextActionFor(
-  courseId: string,
-): { label: string; href: string } | null {
+/**
+ * The most useful next thing in a course: a live lecture, then the newest one.
+ *
+ * Returns the lecture count alongside it so the caller does not have to run
+ * `listStudentLectures` a second time for a number this function already has.
+ */
+function nextActionFor(courseId: string): {
+  action: { label: string; href: string } | null;
+  lessonCount: number;
+} {
   const lectures = listStudentLectures(courseId);
+
   if (lectures.length === 0) {
     const assessment = getUpcomingAssessment(courseId);
-    return assessment
-      ? {
-          label: assessment.title,
-          href: `/student/${courseId}/assessments`,
-        }
-      : null;
+    return {
+      lessonCount: 0,
+      action: assessment
+        ? { label: assessment.title, href: `/student/${courseId}/assessments` }
+        : null,
+    };
   }
 
   const live = lectures.find((lecture) => lecture.status === "live");
   const lecture = live ?? lectures[lectures.length - 1];
 
   return {
-    label: live ? `${lecture.title} — live now` : lecture.title,
-    href: `/student/${courseId}/lecture/${lecture.id}`,
+    lessonCount: lectures.length,
+    action: {
+      label: live ? `${lecture.title} — live now` : lecture.title,
+      href: `/student/${courseId}/lecture/${lecture.id}`,
+    },
   };
 }
 
@@ -94,7 +112,16 @@ export type StudentOverview = {
   learning: LearningSummary;
   courses: EnrolledCourse[];
   /** The single strongest call to action across every course. */
-  continueWith: { label: string; href: string; why: string } | null;
+  continueWith: {
+    label: string;
+    href: string;
+    why: string;
+    /** The course that action belongs to, for the card that carries it. */
+    course: CourseSummary;
+    lessonCount: number;
+    readiness: number | null;
+    live: boolean;
+  } | null;
 };
 
 export function studentOverview(
@@ -122,6 +149,10 @@ export function studentOverview(
         ? {
             label: chosen.nextUp.label,
             href: chosen.nextUp.href,
+            course: chosen.course,
+            lessonCount: chosen.lessonCount,
+            readiness: chosen.readiness,
+            live: chosen === live,
             why: live
               ? "Your professor is teaching right now."
               : weakest

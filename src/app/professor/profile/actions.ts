@@ -1,7 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { actionFailure, actionSuccess, type ActionState } from "@/lib/forms/action-state";
+import {
+  actionFailure,
+  actionSuccess,
+  type ActionState,
+} from "@/lib/forms/action-state";
 import {
   PROFESSOR_FIELDS,
   updateProfessorProfile,
@@ -16,7 +20,9 @@ export async function saveProfessorProfileAction(
 
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2) {
-    return actionFailure("Enter your name — it appears on every course you teach.");
+    return actionFailure(
+      "Enter your name — it appears on every course you teach.",
+    );
   }
 
   const patch: Record<string, string | null> = { name };
@@ -33,7 +39,9 @@ export async function saveProfessorProfileAction(
       const url = new URL(value);
       if (!["http:", "https:"].includes(url.protocol)) throw new Error();
     } catch {
-      return actionFailure(`${field.label} must be a valid http:// or https:// URL.`);
+      return actionFailure(
+        `${field.label} must be a valid http:// or https:// URL.`,
+      );
     }
   }
 

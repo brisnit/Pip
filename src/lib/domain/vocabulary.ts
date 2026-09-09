@@ -33,49 +33,50 @@ type StatusPresentation = {
   glyphLabel: string;
 };
 
-export const READINESS_PRESENTATION: Record<ReadinessStatus, StatusPresentation> =
-  {
-    on_track: {
-      label: "On track",
-      studentSentence:
-        "Your work so far shows solid understanding of this material.",
-      professorSentence:
-        "Demonstrating adequate understanding and participation.",
-      band: "green",
-      glyph: "●",
-      glyphLabel: "Filled circle: on track",
-    },
-    needs_review: {
-      label: "Needs review",
-      studentSentence:
-        "A few topics look worth revisiting before the next assessment.",
-      professorSentence:
-        "Some gaps, low confidence, or uneven comprehension signals.",
-      band: "yellow",
-      glyph: "◐",
-      glyphLabel: "Half-filled circle: needs review",
-    },
-    support_recommended: {
-      label: "Support recommended",
-      studentSentence:
-        "It would help to work through this material with someone.",
-      professorSentence:
-        "Repeated gaps or an explicit request for help. Worth following up.",
-      band: "red",
-      glyph: "◆",
-      glyphLabel: "Diamond: support recommended",
-    },
-    insufficient_data: {
-      label: "Not enough information yet",
-      studentSentence:
-        "There isn't enough activity yet to say anything useful about your readiness.",
-      professorSentence:
-        "Not enough activity recorded to estimate readiness.",
-      band: "grey",
-      glyph: "○",
-      glyphLabel: "Open circle: not enough information yet",
-    },
-  };
+export const READINESS_PRESENTATION: Record<
+  ReadinessStatus,
+  StatusPresentation
+> = {
+  on_track: {
+    label: "On track",
+    studentSentence:
+      "Your work so far shows solid understanding of this material.",
+    professorSentence:
+      "Demonstrating adequate understanding and participation.",
+    band: "green",
+    glyph: "●",
+    glyphLabel: "Filled circle: on track",
+  },
+  needs_review: {
+    label: "Needs review",
+    studentSentence:
+      "A few topics look worth revisiting before the next assessment.",
+    professorSentence:
+      "Some gaps, low confidence, or uneven comprehension signals.",
+    band: "yellow",
+    glyph: "◐",
+    glyphLabel: "Half-filled circle: needs review",
+  },
+  support_recommended: {
+    label: "Support recommended",
+    studentSentence:
+      "It would help to work through this material with someone.",
+    professorSentence:
+      "Repeated gaps or an explicit request for help. Worth following up.",
+    band: "red",
+    glyph: "◆",
+    glyphLabel: "Diamond: support recommended",
+  },
+  insufficient_data: {
+    label: "Not enough information yet",
+    studentSentence:
+      "There isn't enough activity yet to say anything useful about your readiness.",
+    professorSentence: "Not enough activity recorded to estimate readiness.",
+    band: "grey",
+    glyph: "○",
+    glyphLabel: "Open circle: not enough information yet",
+  },
+};
 
 export const CONFIDENCE_LEVELS = ["low", "moderate", "high"] as const;
 export type EstimateConfidence = (typeof CONFIDENCE_LEVELS)[number];
@@ -544,7 +545,8 @@ export function oneOf<T extends readonly string[]>(
   input: unknown,
   fallback: T[number],
 ): T[number] {
-  return typeof input === "string" && (values as readonly string[]).includes(input)
+  return typeof input === "string" &&
+    (values as readonly string[]).includes(input)
     ? (input as T[number])
     : fallback;
 }

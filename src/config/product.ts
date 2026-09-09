@@ -6,37 +6,42 @@
  */
 
 export const product = {
-  name: "Fuller Learning Companion",
-  shortName: "Learning Companion",
-  tagline: "Turn teaching into an ongoing conversation.",
+  name: "Predictive Learning",
+  shortName: "Predictive Learning",
+  tagline: "Personalised learning. Real progress.",
+  strapline: "Learn · Grow · Achieve",
   description:
-    "An interactive teaching, learning, and student-support platform for Fuller Theological Seminary.",
+    "AI-powered training that adapts to every learner, builds confidence, and drives real results.",
   institution: {
-    name: "Fuller Theological Seminary",
-    shortName: "Fuller",
+    name: "Predictive Learning",
+    shortName: "Predictive Learning",
     /**
-     * The supplied Fuller Seminary lockup, rendered by <BrandLockup>.
+     * The mark, in the three variants the brand sheet defines.
      *
-     * Provided by the project owner and served from our own origin — nothing is
-     * fetched from a third party at runtime. Replacing it means dropping a new file
-     * here and updating the ratio in <BrandLockup>.
+     * <BrandLockup> pairs the mark with the product name as real text rather than
+     * using the full wordmark image: the type is Satoshi either way, and text scales,
+     * translates and reads to a screen reader in a way a picture of a word does not.
+     * The full lockup is kept for places that want the drawn wordmark.
+     *
+     * All four are cropped from the supplied sheet at public/brand/Logo.png and
+     * served from our own origin — nothing is fetched from a third party.
      */
     logo: {
-      /**
-       * A 640×81 copy of the supplied lockup, downscaled from the 1456×184 original
-       * that sits beside it. Displayed at most 34px tall, so 640px is already well
-       * past 2× on a retina screen, and it halves the file size.
-       */
-      src: "/brand/fuller-logo.png",
-      width: 640,
-      height: 81,
-      /** Alt text describes what the image depicts — the wordmark reads "Fuller
-       *  Seminary", not the full legal name. */
-      alt: "Fuller Seminary",
-      /** The untouched asset as supplied, kept as the source of truth. */
-      original: "/brand/Fuller_Logo.png",
+      /** Blue ground, white mark. The default. */
+      src: "/brand/mark-primary.png",
+      width: 192,
+      height: 192,
+      alt: "Predictive Learning",
+      /** Near-black ground, for use on pale surfaces that need more weight. */
+      dark: "/brand/mark-dark.png",
+      /** Pale blue ground, blue mark. For quiet placements. */
+      tonal: "/brand/mark-tonal.png",
+      /** Mark plus drawn wordmark, 720×206. */
+      lockup: "/brand/logo-lockup.png",
+      /** The untouched sheet as supplied, kept as the source of truth. */
+      original: "/brand/Logo.png",
     },
-    styleGuide: "/brand/Style Guide.png",
+    styleGuide: "/brand/New_Style.png",
   },
   prototype: {
     /**

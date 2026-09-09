@@ -137,7 +137,9 @@ export function listArtifacts(
 export function getArtifact(id: string): AiArtifactRow | null {
   return (
     getDb()
-      .prepare<[string], AiArtifactRow>("SELECT * FROM ai_artifacts WHERE id = ?")
+      .prepare<[string], AiArtifactRow>(
+        "SELECT * FROM ai_artifacts WHERE id = ?",
+      )
       .get(id) ?? null
   );
 }

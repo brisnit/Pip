@@ -100,7 +100,10 @@ const lines = (value: FormDataEntryValue | null): string[] =>
 // Courses --------------------------------------------------------------------
 
 const courseSchema = z.object({
-  title: z.string().trim().min(3, "Give the course a title of at least 3 characters."),
+  title: z
+    .string()
+    .trim()
+    .min(3, "Give the course a title of at least 3 characters."),
   code: z
     .string()
     .trim()
@@ -217,7 +220,9 @@ export async function saveSyllabusTextAction(
   });
 
   revalidatePath(`/professor/courses/${courseId}/syllabus`);
-  return ok("Syllabus saved. Run the extraction to draft a course structure from it.");
+  return ok(
+    "Syllabus saved. Run the extraction to draft a course structure from it.",
+  );
 }
 
 export async function extractSyllabusAction(
@@ -231,11 +236,16 @@ export async function extractSyllabusAction(
 
   if (!course) return fail("That course no longer exists.");
   if (!syllabus?.raw_text) {
-    return fail("Add the syllabus text first — there is nothing to extract from.");
+    return fail(
+      "Add the syllabus text first — there is nothing to extract from.",
+    );
   }
 
   const provider = getAIProvider();
-  const result = await provider.extractSyllabus(syllabus.raw_text, course.title);
+  const result = await provider.extractSyllabus(
+    syllabus.raw_text,
+    course.title,
+  );
 
   replaceSyllabusItems(
     syllabus.id,
@@ -494,15 +504,23 @@ export async function createLectureAction(
   });
 
   // Comprehension questions: "Prompt || correct option || wrong || wrong".
-  const comprehensionQuestions = lines(formData.get("questions")).map((line) => {
-    const parts = line.split("||").map((part) => part.trim()).filter(Boolean);
-    const [prompt, ...options] = parts;
-    return {
-      prompt,
-      options: options.map((text, index) => ({ text, isCorrect: index === 0 })),
-      objectiveId: null as string | null,
-    };
-  });
+  const comprehensionQuestions = lines(formData.get("questions")).map(
+    (line) => {
+      const parts = line
+        .split("||")
+        .map((part) => part.trim())
+        .filter(Boolean);
+      const [prompt, ...options] = parts;
+      return {
+        prompt,
+        options: options.map((text, index) => ({
+          text,
+          isCorrect: index === 0,
+        })),
+        objectiveId: null as string | null,
+      };
+    },
+  );
 
   const badQuestion = comprehensionQuestions.find(
     (question) => !question.prompt || question.options.length < 2,
@@ -693,7 +711,10 @@ export async function createAssessmentAction(
   const data = parsed.data;
 
   const questions = lines(formData.get("questions")).map((line) => {
-    const parts = line.split("||").map((part) => part.trim()).filter(Boolean);
+    const parts = line
+      .split("||")
+      .map((part) => part.trim())
+      .filter(Boolean);
     const [prompt, ...options] = parts;
     return {
       type:
@@ -892,7 +913,9 @@ export async function createProfessorNoteAction(
   });
 
   revalidatePath(`/professor/courses/${courseId}/students/${studentId}`);
-  return ok("Note saved. Professor notes are visible to you, not to the student.");
+  return ok(
+    "Note saved. Professor notes are visible to you, not to the student.",
+  );
 }
 
 export async function setFollowUpAction(formData: FormData) {
@@ -945,7 +968,9 @@ export async function assignRecommendationAction(
   const draft = drafts[index];
 
   if (!draft) {
-    return fail("That recommendation is no longer in the current plan. Refresh and try again.");
+    return fail(
+      "That recommendation is no longer in the current plan. Refresh and try again.",
+    );
   }
 
   saveRecommendation({
@@ -958,7 +983,9 @@ export async function assignRecommendationAction(
 
   revalidatePath(`/professor/courses/${courseId}`, "layout");
   revalidatePath(`/student/${courseId}`, "layout");
-  return ok(`Assigned: ${draft.title}. The student sees it on their support plan.`);
+  return ok(
+    `Assigned: ${draft.title}. The student sees it on their support plan.`,
+  );
 }
 
 const customRecommendationSchema = z.object({

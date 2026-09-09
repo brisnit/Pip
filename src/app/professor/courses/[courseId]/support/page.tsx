@@ -77,7 +77,8 @@ export default async function SupportPage({
   );
   const totals = {
     assigned: recommendations.length,
-    completed: recommendations.filter((rec) => rec.status === "completed").length,
+    completed: recommendations.filter((rec) => rec.status === "completed")
+      .length,
     declined: recommendations.filter((rec) => rec.status === "declined").length,
     accepted: recommendations.filter(
       (rec) => rec.status === "accepted" || rec.status === "in_progress",
@@ -92,7 +93,11 @@ export default async function SupportPage({
         description="What has been recommended, what students have done with it, and who is waiting on you."
       />
 
-      <Notice tone="info" title="Requests are recorded, not routed" className="mb-6">
+      <Notice
+        tone="info"
+        title="Requests are recorded, not routed"
+        className="mb-6"
+      >
         Requests appear here for you to act on. No email or SMS is sent and no
         calendar is booked, so follow up through your normal channels.
       </Notice>
@@ -116,7 +121,7 @@ export default async function SupportPage({
             </dl>
 
             {summary.length > 0 ? (
-              <div className="border-t border-tan-100 pt-5">
+              <div className="border-t border-slate-200 pt-5">
                 <h3 className="mb-3 text-sm font-semibold">By pathway</h3>
                 <ul className="space-y-3">
                   {summary.map((row) => (
@@ -176,7 +181,7 @@ export default async function SupportPage({
         ) : (
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {requests.map((request) => (
                   <li key={request.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -226,7 +231,7 @@ export default async function SupportPage({
                           </p>
                         ) : null}
                         {request.message ? (
-                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] leading-relaxed text-ink-600">
+                          <p className="mt-1.5 rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.85rem] leading-relaxed text-ink-600">
                             {request.message}
                           </p>
                         ) : null}
@@ -314,7 +319,7 @@ export default async function SupportPage({
                   action={<StatusPill status={result.status} size="sm" />}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-tan-100">
+                  <ul className="divide-y divide-slate-200">
                     {recs.map((rec) => (
                       <li key={rec.id} className="px-5 py-3">
                         <div className="flex flex-wrap items-center gap-2">
@@ -334,7 +339,9 @@ export default async function SupportPage({
                           </Badge>
                           <span className="text-[0.78rem] text-ink-400">
                             {PRIORITY_LABELS[rec.priority]}
-                            {rec.source === "professor" ? " · assigned by you" : ""}
+                            {rec.source === "professor"
+                              ? " · assigned by you"
+                              : ""}
                           </span>
                         </div>
 
@@ -348,12 +355,14 @@ export default async function SupportPage({
                           <p className="text-[0.8rem] text-ink-400">
                             {rec.objective_code}
                             {rec.lecture_title ? ` · ${rec.lecture_title}` : ""}
-                            {rec.material_title ? ` · ${rec.material_title}` : ""}
+                            {rec.material_title
+                              ? ` · ${rec.material_title}`
+                              : ""}
                           </p>
                         ) : null}
 
                         {rec.student_response ? (
-                          <p className="mt-1.5 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
+                          <p className="mt-1.5 rounded border border-slate-200 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
                             Student: &ldquo;{rec.student_response}&rdquo;
                           </p>
                         ) : null}

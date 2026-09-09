@@ -107,11 +107,11 @@ export default async function FacultyStudentsPage({
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left text-sm">
                 <caption className="sr-only">
-                  Students across all courses, with their readiness status, course
-                  and last recorded activity
+                  Students across all courses, with their readiness status,
+                  course and last recorded activity
                 </caption>
                 <thead>
-                  <tr className="border-b border-tan-200 bg-paper-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
+                  <tr className="border-b border-slate-200 bg-paper-100 text-[0.82rem] text-ink-500">
                     <th scope="col" className="px-4 py-2.5 font-medium">
                       Student
                     </th>
@@ -129,13 +129,16 @@ export default async function FacultyStudentsPage({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-tan-100">
+                <tbody className="divide-y divide-slate-200">
                   {visible.map(({ course, student, result }) => {
                     const gap = result.gaps.find(
                       (g) => g.standing === "needs_review",
                     );
                     return (
-                      <tr key={`${course.id}-${student.id}`} className="align-top">
+                      <tr
+                        key={`${course.id}-${student.id}`}
+                        className="align-top"
+                      >
                         <th
                           scope="row"
                           className="px-4 py-3 text-left font-medium text-ink-800"
@@ -190,8 +193,8 @@ function FilterChip({
       aria-current={active ? "true" : undefined}
       className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline transition-colors ${
         active
-          ? "border-cta-600 bg-cta-600 font-medium text-white"
-          : "border-tan-200 bg-white text-ink-600 hover:border-tan-400"
+          ? "border-ink-900 bg-ink-900 font-medium text-white"
+          : "border-slate-200 bg-white text-ink-600 hover:border-slate-500"
       }`}
     >
       {children}

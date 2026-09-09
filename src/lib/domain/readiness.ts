@@ -102,10 +102,7 @@ export type ReadinessSignal = {
 };
 
 export type ObjectiveStanding =
-  | "understood"
-  | "developing"
-  | "needs_review"
-  | "unknown";
+  "understood" | "developing" | "needs_review" | "unknown";
 
 export const OBJECTIVE_STANDING_LABELS: Record<ObjectiveStanding, string> = {
   understood: "Comfortable",
@@ -200,7 +197,9 @@ function buildSignals(input: ReadinessInput): ReadinessSignal[] {
   const assessedCorrect = assessed.filter((s) => s.isCorrect).length;
 
   const clear = input.markers.filter((m) => m.marker === "clear").length;
-  const confusing = input.markers.filter((m) => m.marker === "confusing").length;
+  const confusing = input.markers.filter(
+    (m) => m.marker === "confusing",
+  ).length;
 
   const confidenceAvg =
     input.confidence.length > 0
@@ -208,7 +207,9 @@ function buildSignals(input: ReadinessInput): ReadinessSignal[] {
         input.confidence.length
       : null;
 
-  const lowConfidenceCount = input.confidence.filter((c) => c.level <= 2).length;
+  const lowConfidenceCount = input.confidence.filter(
+    (c) => c.level <= 2,
+  ).length;
 
   const clarifications = input.questions.filter(
     (q) => q.kind === "request_simpler" || q.kind === "request_example",
@@ -399,15 +400,21 @@ function buildObjectiveEvidence(input: ReadinessInput): ObjectiveEvidence[] {
         ? confidences.reduce((sum, c) => sum + c.level, 0) / confidences.length
         : null;
 
-    const evidence = answered + clearMarkers + confusingMarkers + confidences.length;
+    const evidence =
+      answered + clearMarkers + confusingMarkers + confidences.length;
 
     let standing: ObjectiveStanding = "unknown";
     if (evidence >= 2) {
       const accuracy = answered > 0 ? correct / answered : null;
       const confusionHeavy = confusingMarkers > clearMarkers;
-      const lowConfidence = averageConfidence !== null && averageConfidence <= 2.5;
+      const lowConfidence =
+        averageConfidence !== null && averageConfidence <= 2.5;
 
-      if (accuracy !== null && accuracy >= THRESHOLDS.onTrack && !confusionHeavy) {
+      if (
+        accuracy !== null &&
+        accuracy >= THRESHOLDS.onTrack &&
+        !confusionHeavy
+      ) {
         standing = lowConfidence ? "developing" : "understood";
       } else if (accuracy !== null && accuracy < THRESHOLDS.needsReview) {
         standing = "needs_review";
@@ -462,7 +469,8 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
   const weighted = signals.filter((s) => s.weight > 0 && s.value !== null);
   const weightTotal = weighted.reduce((sum, s) => sum + s.weight, 0);
 
-  const hasDirectEvidence = input.scored.length > 0 || input.confidence.length > 0;
+  const hasDirectEvidence =
+    input.scored.length > 0 || input.confidence.length > 0;
   const enoughEvidence =
     evidenceCount >= THRESHOLDS.minimumEvidence &&
     hasDirectEvidence &&
@@ -486,9 +494,7 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
     }
   }
 
-  const confidence = enoughEvidence
-    ? estimateConfidence(evidenceCount)
-    : "low";
+  const confidence = enoughEvidence ? estimateConfidence(evidenceCount) : "low";
 
   const status = input.override?.status ?? computedStatus;
 

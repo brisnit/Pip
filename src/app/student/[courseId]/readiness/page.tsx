@@ -11,6 +11,7 @@ import {
   Notice,
   SectionHeading,
 } from "@/components/ui/primitives";
+import { ProgressRing } from "@/components/ui/progress";
 import {
   ConfidenceNote,
   ReasonList,
@@ -70,23 +71,52 @@ export default async function StudentReadinessPage({
 
       <Card className="mb-6">
         <CardBody>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <StatusPill status={readiness.status} />
-              <p className="mt-3 max-w-2xl text-[1.05rem] leading-relaxed text-ink-700">
-                {presentation.studentSentence}
-              </p>
+          {/*
+            The figure leads, because "55%" answers the question the page exists to
+            answer and a sentence about a composite reading does not. The sentence
+            still follows it, and the evidence count still qualifies it — this is a
+            change of emphasis, not of claim.
+          */}
+          <div className="flex flex-wrap items-start justify-between gap-x-10 gap-y-6">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-7">
               {readiness.score !== null ? (
-                <p className="mt-2 text-[0.85rem] text-ink-500">
-                  Composite reading {percent(readiness.score)}, from{" "}
-                  {readiness.evidenceCount} recorded data points. Last activity{" "}
-                  {relativeTime(readiness.lastActivityAt)}.
-                </p>
+                <ProgressRing
+                  value={readiness.score}
+                  label="Study readiness"
+                  size={140}
+                  stroke={7}
+                  tone={
+                    readiness.status === "on_track"
+                      ? "track"
+                      : readiness.status === "support_recommended"
+                        ? "concern"
+                        : readiness.status === "needs_review"
+                          ? "attention"
+                          : "unknown"
+                  }
+                />
               ) : null}
+
+              <div className="min-w-0 flex-1">
+                <StatusPill status={readiness.status} />
+                <p className="mt-3 max-w-2xl text-[1.15rem] leading-snug text-ink-800">
+                  {presentation.studentSentence}
+                </p>
+                {readiness.score !== null ? (
+                  <p className="mt-2.5 text-[0.85rem] text-ink-400">
+                    From {readiness.evidenceCount} recorded data points. Last
+                    activity {relativeTime(readiness.lastActivityAt)}.
+                  </p>
+                ) : null}
+              </div>
             </div>
+
             {upcoming ? (
-              <div className="shrink-0 rounded-md border border-tan-200 bg-paper-100 px-4 py-3 text-[0.85rem]">
-                <p className="font-medium text-ink-800">{upcoming.title}</p>
+              <div className="shrink-0 rounded-[1.125rem] bg-paper-200 px-5 py-4 text-[0.85rem]">
+                <p className="text-ink-400">Next assessment</p>
+                <p className="mt-1 font-medium text-ink-900">
+                  {upcoming.title}
+                </p>
                 <p className="mt-0.5 text-ink-500">
                   {formatDateTime(upcoming.scheduled_at)}
                 </p>
@@ -95,7 +125,11 @@ export default async function StudentReadinessPage({
           </div>
 
           {readiness.override ? (
-            <Notice tone="info" title="Your professor set this status" className="mt-5">
+            <Notice
+              tone="info"
+              title="Your professor set this status"
+              className="mt-5"
+            >
               <p>&ldquo;{readiness.override.reason}&rdquo;</p>
               <p className="mt-2 text-[0.85em]">
                 — {readiness.override.setByName},{" "}
@@ -123,11 +157,11 @@ export default async function StudentReadinessPage({
           <CardBody className="p-0">
             {readiness.strengths.length === 0 ? (
               <p className="px-5 py-4 text-sm text-ink-500">
-                Answer a few more comprehension checks and this fills in. An empty
-                list here means missing evidence, not a missing ability.
+                Answer a few more comprehension checks and this fills in. An
+                empty list here means missing evidence, not a missing ability.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {readiness.strengths.map((row) => (
                   <li key={row.objective.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -166,7 +200,7 @@ export default async function StudentReadinessPage({
                 No topic is showing weak evidence right now.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {readiness.gaps.map((row) => (
                   <li key={row.objective.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -207,8 +241,10 @@ export default async function StudentReadinessPage({
         <CardBody className="space-y-6">
           <ReasonList reasons={readiness.reasons} title="In short" />
 
-          <div className="border-t border-tan-100 pt-5">
-            <h3 className="mb-3 text-sm font-semibold">Signals that carry weight</h3>
+          <div className="border-t border-slate-200 pt-5">
+            <h3 className="mb-3 text-sm font-semibold">
+              Signals that carry weight
+            </h3>
             {scoredSignals.length === 0 ? (
               <p className="text-sm text-ink-500">
                 No weighted signal has data yet.
@@ -238,7 +274,7 @@ export default async function StudentReadinessPage({
             )}
           </div>
 
-          <div className="border-t border-tan-100 pt-5">
+          <div className="border-t border-slate-200 pt-5">
             <h3 className="mb-2 text-sm font-semibold">
               Context, not counted against you
             </h3>
@@ -253,17 +289,20 @@ export default async function StudentReadinessPage({
           </div>
 
           {readiness.unassessed.length > 0 ? (
-            <div className="border-t border-tan-100 pt-5">
+            <div className="border-t border-slate-200 pt-5">
               <h3 className="mb-2 text-sm font-semibold">
                 Not enough information yet
               </h3>
               <p className="text-[0.85rem] text-ink-500">
-                These objectives have no recorded evidence either way. They are not
-                counted in your status.
+                These objectives have no recorded evidence either way. They are
+                not counted in your status.
               </p>
               <ul className="mt-2 space-y-1">
                 {readiness.unassessed.map((row) => (
-                  <li key={row.objective.id} className="text-[0.85rem] text-ink-600">
+                  <li
+                    key={row.objective.id}
+                    className="text-[0.85rem] text-ink-600"
+                  >
                     {row.objective.text}
                   </li>
                 ))}
@@ -282,11 +321,11 @@ export default async function StudentReadinessPage({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <caption className="sr-only">
-                Your standing on each learning objective, with the evidence behind
-                it
+                Your standing on each learning objective, with the evidence
+                behind it
               </caption>
               <thead>
-                <tr className="border-b border-tan-200 bg-paper-100 text-[0.78rem] uppercase tracking-wide text-ink-500">
+                <tr className="border-b border-slate-200 bg-paper-100 text-[0.82rem] text-ink-500">
                   <th scope="col" className="px-4 py-2.5 font-medium">
                     Objective
                   </th>
@@ -304,7 +343,7 @@ export default async function StudentReadinessPage({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-tan-100">
+              <tbody className="divide-y divide-slate-200">
                 {readiness.objectives.map((row) => (
                   <tr key={row.objective.id} className="align-top">
                     <th
@@ -328,8 +367,12 @@ export default async function StudentReadinessPage({
                         : "—"}
                     </td>
                     <td className="px-4 py-3 text-[0.82rem] text-ink-600">
-                      {row.clearMarkers > 0 ? `${row.clearMarkers} clear` : null}
-                      {row.clearMarkers > 0 && row.confusingMarkers > 0 ? ", " : null}
+                      {row.clearMarkers > 0
+                        ? `${row.clearMarkers} clear`
+                        : null}
+                      {row.clearMarkers > 0 && row.confusingMarkers > 0
+                        ? ", "
+                        : null}
                       {row.confusingMarkers > 0
                         ? `${row.confusingMarkers} confusing`
                         : null}
@@ -369,7 +412,7 @@ export default async function StudentReadinessPage({
           }
         />
         <CardBody className="p-0">
-          <ul className="divide-y divide-tan-100">
+          <ul className="divide-y divide-slate-200">
             {(assigned.length > 0
               ? assigned.map((rec) => ({
                   key: rec.id,
@@ -396,7 +439,9 @@ export default async function StudentReadinessPage({
                   {item.assigned ? (
                     <Badge tone="accent">On your plan</Badge>
                   ) : (
-                    <span className="text-[0.75rem] text-ink-400">suggested</span>
+                    <span className="text-[0.75rem] text-ink-400">
+                      suggested
+                    </span>
                   )}
                 </div>
                 <p className="mt-1.5 text-sm font-medium text-ink-800">
@@ -406,7 +451,8 @@ export default async function StudentReadinessPage({
                   {item.rationale}
                 </p>
                 <p className="mt-1 text-[0.85rem] text-ink-700">
-                  <span className="font-medium">Next step:</span> {item.nextStep}
+                  <span className="font-medium">Next step:</span>{" "}
+                  {item.nextStep}
                 </p>
               </li>
             ))}
@@ -416,16 +462,16 @@ export default async function StudentReadinessPage({
 
       <Notice tone="caution" title="How to read this" className="mt-8">
         <p>
-          This is computed from your recorded coursework activity. It is not a grade,
-          carries no academic weight, and is not reported to anyone beyond your
-          professor&rsquo;s view of this course.
+          This is computed from your recorded coursework activity. It is not a
+          grade, carries no academic weight, and is not reported to anyone
+          beyond your professor&rsquo;s view of this course.
         </p>
         <p className="mt-2">
-          It can be wrong. It only knows what you have recorded — if you understand
-          something well but have not answered anything about it, it will say so
-          honestly rather than guess. If a status does not match your experience,
-          tell your professor; they can change it, and the explanation appears
-          here.
+          It can be wrong. It only knows what you have recorded — if you
+          understand something well but have not answered anything about it, it
+          will say so honestly rather than guess. If a status does not match
+          your experience, tell your professor; they can change it, and the
+          explanation appears here.
         </p>
         <p className="mt-2">
           <Link href="/about">How readiness is calculated →</Link>

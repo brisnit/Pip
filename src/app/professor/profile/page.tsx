@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { ProfessorShell } from "@/components/layout/shells";
 import { ProfileForm } from "@/components/profile/profile-form";
-import { ProfileHeader, ProfileSection } from "@/components/profile/profile-shell";
+import {
+  ProfileHeader,
+  ProfileSection,
+} from "@/components/profile/profile-shell";
 import { SectionHeading } from "@/components/ui/primitives";
 import { formatDateTime } from "@/lib/format";
 import { completeness, PROFESSOR_FIELDS } from "@/lib/repositories/profiles";
@@ -26,10 +29,21 @@ export default async function ProfessorProfilePage() {
   );
 
   const contactFields = PROFESSOR_FIELDS.filter((f) =>
-    ["title", "department", "email", "office", "phone", "office_hours", "website", "linkedin"].includes(f.key),
+    [
+      "title",
+      "department",
+      "email",
+      "office",
+      "phone",
+      "office_hours",
+      "website",
+      "linkedin",
+    ].includes(f.key),
   );
   const academicFields = PROFESSOR_FIELDS.filter((f) =>
-    ["bio", "credentials", "academic_interests", "research_areas"].includes(f.key),
+    ["bio", "credentials", "academic_interests", "research_areas"].includes(
+      f.key,
+    ),
   );
   const teachingFields = PROFESSOR_FIELDS.filter((f) =>
     ["teaching_philosophy", "calendar_availability"].includes(f.key),
@@ -39,7 +53,10 @@ export default async function ProfessorProfilePage() {
     <ProfessorShell professorName={professor.name}>
       <ProfileHeader
         name={professor.name}
-        subtitle={[professor.title, professor.department].filter(Boolean).join(" · ") || null}
+        subtitle={
+          [professor.title, professor.department].filter(Boolean).join(" · ") ||
+          null
+        }
         photoUrl={professor.photo_url}
         completeness={filled}
       />
@@ -67,16 +84,18 @@ export default async function ProfessorProfilePage() {
           title="Edit profile"
           description="Everything is optional. Your name and title appear to students on every course you teach; the rest is context for colleagues and, in time, for AI assistance you approve."
         />
-        <div className="rounded-2xl border border-tan-100 bg-white p-6 shadow-[0_1px_3px_rgba(4,43,50,0.04)] sm:p-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
           <ProfileForm
             action={saveProfessorProfileAction}
-            fields={PROFESSOR_FIELDS.map(({ key, label, hint, long, type }) => ({
-              key,
-              label,
-              hint,
-              long,
-              type,
-            }))}
+            fields={PROFESSOR_FIELDS.map(
+              ({ key, label, hint, long, type }) => ({
+                key,
+                label,
+                hint,
+                long,
+                type,
+              }),
+            )}
             values={values}
             nameLabel="Full name"
             nameValue={professor.name}

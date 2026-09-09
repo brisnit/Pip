@@ -244,7 +244,10 @@ function open(): Db {
       db.pragma(pragma);
     } catch (error) {
       if (!remote) throw error;
-      console.warn(`[flc] pragma "${pragma}" not applied to the replica:`, error);
+      console.warn(
+        `[flc] pragma "${pragma}" not applied to the replica:`,
+        error,
+      );
     }
   }
 

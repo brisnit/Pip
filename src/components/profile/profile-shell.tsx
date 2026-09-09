@@ -26,12 +26,12 @@ export function ProfileHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="rounded-2xl border border-tan-100 bg-white p-6 shadow-soft sm:p-8">
+    <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[var(--shadow-soft)] sm:p-8">
       <div className="flex flex-wrap items-start gap-6">
         <Avatar name={name} photoUrl={photoUrl} />
 
         <div className="min-w-0 flex-1">
-          <h1 className="font-serif text-3xl leading-tight">{name}</h1>
+          <h1 className="text-3xl leading-tight">{name}</h1>
           {subtitle ? (
             <p className="mt-1.5 text-[0.95rem] text-ink-500">{subtitle}</p>
           ) : null}
@@ -85,7 +85,7 @@ export function Avatar({
   className?: string;
 }) {
   const shared = cn(
-    "shrink-0 overflow-hidden rounded-full border border-tan-200 bg-brand-50",
+    "shrink-0 overflow-hidden rounded-full border border-slate-200 bg-brand-50",
     className,
   );
 
@@ -106,10 +106,7 @@ export function Avatar({
   return (
     <span
       aria-hidden="true"
-      className={cn(
-        shared,
-        "flex items-center justify-center font-serif text-brand-600",
-      )}
+      className={cn(shared, "flex items-center justify-center text-brand-600")}
       style={{ width: size, height: size, fontSize: size * 0.34 }}
     >
       {initials(name)}
@@ -135,15 +132,15 @@ export function ProfileSection<T extends Record<string, unknown>>({
   if (filled.length === 0) return null;
 
   return (
-    <section className="rounded-2xl border border-tan-100 bg-white p-6 shadow-[0_1px_3px_rgba(4,43,50,0.04)] sm:p-8">
-      <h2 className="font-serif text-xl">{title}</h2>
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[var(--shadow-card)] sm:p-8">
+      <h2 className="text-xl">{title}</h2>
       <dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
         {filled.map((field) => (
           <div
             key={field.key}
             className={cn("min-w-0", field.long && "sm:col-span-2")}
           >
-            <dt className="text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
+            <dt className="text-[0.82rem] font-medium text-ink-400">
               {field.label}
             </dt>
             <dd

@@ -1,8 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { actionFailure, actionSuccess, type ActionState } from "@/lib/forms/action-state";
-import { STUDENT_FIELDS, updateStudentProfile } from "@/lib/repositories/profiles";
+import {
+  actionFailure,
+  actionSuccess,
+  type ActionState,
+} from "@/lib/forms/action-state";
+import {
+  STUDENT_FIELDS,
+  updateStudentProfile,
+} from "@/lib/repositories/profiles";
 import { currentStudent } from "@/lib/role/role-context";
 
 export async function saveStudentProfileAction(
@@ -18,7 +25,9 @@ export async function saveStudentProfileAction(
 
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2) {
-    return actionFailure("Enter your name so your professor can identify your work.");
+    return actionFailure(
+      "Enter your name so your professor can identify your work.",
+    );
   }
 
   const patch: Record<string, string | null> = { name };
@@ -38,7 +47,9 @@ export async function saveStudentProfileAction(
       const url = new URL(photo);
       if (!["http:", "https:"].includes(url.protocol)) throw new Error();
     } catch {
-      return actionFailure("Photo URL must be a valid http:// or https:// link.");
+      return actionFailure(
+        "Photo URL must be a valid http:// or https:// link.",
+      );
     }
   }
 

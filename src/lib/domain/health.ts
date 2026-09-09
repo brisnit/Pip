@@ -24,7 +24,11 @@ export type CourseHealth = (typeof COURSE_HEALTH_BANDS)[number];
 
 export const COURSE_HEALTH_PRESENTATION: Record<
   CourseHealth,
-  { label: string; glyph: string; tone: "track" | "attention" | "concern" | "unknown" }
+  {
+    label: string;
+    glyph: string;
+    tone: "track" | "attention" | "concern" | "unknown";
+  }
 > = {
   healthy: { label: "Healthy", glyph: "●", tone: "track" },
   needs_review: { label: "Needs review", glyph: "◐", tone: "attention" },
@@ -73,7 +77,8 @@ export function courseHealth(aggregate: ClassAggregate): CourseHealth {
   // stops carrying information.
   if (
     support / assessed >= COURSE_HEALTH_THRESHOLDS.reviewSupportShare ||
-    (support + review) / assessed >= COURSE_HEALTH_THRESHOLDS.reviewCombinedShare
+    (support + review) / assessed >=
+      COURSE_HEALTH_THRESHOLDS.reviewCombinedShare
   ) {
     return "needs_review";
   }
@@ -102,7 +107,11 @@ export type CohortBand = (typeof COHORT_BANDS)[number];
 
 export const COHORT_PRESENTATION: Record<
   CohortBand,
-  { label: string; glyph: string; tone: "track" | "attention" | "concern" | "unknown" }
+  {
+    label: string;
+    glyph: string;
+    tone: "track" | "attention" | "concern" | "unknown";
+  }
 > = {
   ready: { label: "Ready", glyph: "●", tone: "track" },
   developing: { label: "Developing", glyph: "◐", tone: "attention" },
@@ -235,9 +244,7 @@ export function summariseLearning(result: ReadinessResult): LearningSummary {
       counts.needs_review += 1;
       // Name the specific confusing concept where there is one — it is more use
       // than the objective title.
-      topics.needs_review.push(
-        row.confusingConcepts[0] ?? row.objective.text,
-      );
+      topics.needs_review.push(row.confusingConcepts[0] ?? row.objective.text);
     }
   }
 

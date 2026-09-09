@@ -1,7 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, Card, CardBody, CardHeader, Notice } from "@/components/ui/primitives";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Notice,
+} from "@/components/ui/primitives";
 import { Field, Select, TextArea, TextInput } from "@/components/ui/form";
 import {
   COURSE_FORMATS,
@@ -9,13 +15,14 @@ import {
   COURSE_IMAGE_THEMES,
   COURSE_IMAGE_THEME_LABELS,
 } from "@/lib/domain/vocabulary";
-import {
-  createCourseAction,
-} from "@/app/professor/actions";
+import { createCourseAction } from "@/app/professor/actions";
 import { emptyActionState } from "@/lib/forms/action-state";
 
 export function CourseForm() {
-  const [state, action, pending] = useActionState(createCourseAction, emptyActionState);
+  const [state, action, pending] = useActionState(
+    createCourseAction,
+    emptyActionState,
+  );
 
   return (
     <form action={action} className="space-y-6">
@@ -45,7 +52,12 @@ export function CourseForm() {
 
           <Field id="code" label="Course code" required>
             {(props) => (
-              <TextInput {...props} name="code" placeholder="CH504" maxLength={20} />
+              <TextInput
+                {...props}
+                name="code"
+                placeholder="CH504"
+                maxLength={20}
+              />
             )}
           </Field>
 
@@ -83,7 +95,11 @@ export function CourseForm() {
 
           <Field id="location" label="Location">
             {(props) => (
-              <TextInput {...props} name="location" placeholder="Payton Hall 101" />
+              <TextInput
+                {...props}
+                name="location"
+                placeholder="Payton Hall 101"
+              />
             )}
           </Field>
 
@@ -193,9 +209,9 @@ export function CourseForm() {
       </Card>
 
       <Notice tone="info">
-        Creating the course generates a six-character access code, a student join
-        link, a QR code and a printable access card. You can rotate the code at any
-        time from the course overview.
+        Creating the course generates a six-character access code, a student
+        join link, a QR code and a printable access card. You can rotate the
+        code at any time from the course overview.
       </Notice>
 
       <div className="flex flex-wrap gap-3">

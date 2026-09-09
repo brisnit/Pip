@@ -270,7 +270,15 @@ export function createModule(
   db.prepare(
     `INSERT INTO modules (id, course_id, position, title, description, week_label, created_at)
      VALUES (?,?,?,?,?,?,?)`,
-  ).run(id, courseId, next, title, description ?? null, weekLabel ?? null, nowIso());
+  ).run(
+    id,
+    courseId,
+    next,
+    title,
+    description ?? null,
+    weekLabel ?? null,
+    nowIso(),
+  );
   return id;
 }
 

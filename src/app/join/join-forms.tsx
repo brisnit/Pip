@@ -3,11 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/primitives";
 import { Checkbox, Field, TextInput } from "@/components/ui/form";
-import {
-  enterCourseAction,
-  findCourseAction,
-  type JoinState,
-} from "./actions";
+import { enterCourseAction, findCourseAction, type JoinState } from "./actions";
 
 const initial: JoinState = { error: null };
 

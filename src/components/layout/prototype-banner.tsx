@@ -19,10 +19,8 @@ export function PrototypeBanner({
   if (variant === "compact") {
     return (
       <p className="bg-ink-800 px-4 py-1.5 text-center text-[0.78rem] text-paper-200">
-        <span className="font-semibold uppercase tracking-wide">
-          {product.prototype.label}
-        </span>{" "}
-        · {product.prototype.shortNotice}
+        <span className="font-semibold">{product.prototype.label}</span> ·{" "}
+        {product.prototype.shortNotice}
       </p>
     );
   }
@@ -30,7 +28,7 @@ export function PrototypeBanner({
   return (
     <div className="bg-ink-800 text-paper-200">
       <div className="mx-auto flex max-w-6xl flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2 text-[0.8rem] sm:px-6">
-        <span className="rounded bg-paper-200 px-1.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide text-ink-800">
+        <span className="rounded bg-paper-200 px-1.5 py-0.5 text-[0.68rem] font-bold text-ink-800">
           {product.prototype.label}
         </span>
         <span className="min-w-0">{product.prototype.notice}</span>

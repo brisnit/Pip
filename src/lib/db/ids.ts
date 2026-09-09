@@ -23,5 +23,8 @@ export function newCourseCode(length = 6): string {
 }
 
 export function normalizeCourseCode(input: string): string {
-  return input.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return input
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
 }

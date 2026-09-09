@@ -32,7 +32,11 @@ type CourseSpec = {
   theme: string;
   modules: string[];
   objectives: string[];
-  lectures: { title: string; description: string; segments: [number, string][] }[];
+  lectures: {
+    title: string;
+    description: string;
+    segments: [number, string][];
+  }[];
   /** Comprehension questions: prompt, correct answer, two distractors. */
   questions: [string, string, string, string][];
   /** How many students land in each band, in order: on track, review, support, no data. */
@@ -100,7 +104,7 @@ const COURSES: CourseSpec[] = [
         "The boundaries of the promised land",
       ],
       [
-        "Jeremiah 31's \"new covenant\" is described as differing from Sinai principally in:",
+        'Jeremiah 31\'s "new covenant" is described as differing from Sinai principally in:',
         "Where the law is written",
         "Which people it addresses",
         "How many commandments it contains",
@@ -264,7 +268,8 @@ const COURSES: CourseSpec[] = [
     lectures: [
       {
         title: "Three Ways of Reasoning About What to Do",
-        description: "The frameworks, stated as their proponents would state them.",
+        description:
+          "The frameworks, stated as their proponents would state them.",
         segments: [
           [0, "Rules, ends, and character"],
           [620, "Where each is strongest"],
@@ -290,7 +295,7 @@ const COURSES: CourseSpec[] = [
         "What outcome maximises welfare",
       ],
       [
-        "Treating a biblical text as a \"paradigm\" means:",
+        'Treating a biblical text as a "paradigm" means:',
         "Reading it as a pattern to be reasoned from, not a rule to be applied directly",
         "Treating it as a direct command",
         "Setting it aside as culturally bound",
@@ -321,7 +326,11 @@ const COURSES: CourseSpec[] = [
     location: "Payton Hall 104",
     format: "in_person",
     theme: "parchment",
-    modules: ["Participles", "Moods Beyond the Indicative", "Sustained Reading"],
+    modules: [
+      "Participles",
+      "Moods Beyond the Indicative",
+      "Sustained Reading",
+    ],
     objectives: [
       "Parse and translate participles in their common syntactic roles",
       "Recognise the force of the subjunctive in its major constructions",
@@ -388,7 +397,11 @@ const COURSES: CourseSpec[] = [
     location: "Payton Hall 301",
     format: "seminar",
     theme: "teal",
-    modules: ["Author, Text, Reader", "Historical Distance", "Community and Authority"],
+    modules: [
+      "Author, Text, Reader",
+      "Historical Distance",
+      "Community and Authority",
+    ],
     objectives: [
       "Distinguish authorial, textual and reader-centred accounts of meaning",
       "Describe the hermeneutical circle without caricaturing it",
@@ -425,7 +438,7 @@ const COURSES: CourseSpec[] = [
         "Interpreters agree on the whole in advance",
       ],
       [
-        "\"Prejudice\" in Gadamer's usage means:",
+        '"Prejudice" in Gadamer\'s usage means:',
         "The prior understanding that makes interpretation possible at all",
         "An unjustified bias to be eliminated",
         "A denominational commitment",
@@ -456,7 +469,11 @@ const COURSES: CourseSpec[] = [
     location: "Payton Hall 205",
     format: "practicum",
     theme: "olive",
-    modules: ["Listening and Presence", "Grief and Crisis", "Limits and Referral"],
+    modules: [
+      "Listening and Presence",
+      "Grief and Crisis",
+      "Limits and Referral",
+    ],
     objectives: [
       "Practise reflective listening without moving prematurely to advice",
       "Recognise the markers of a situation requiring referral",
@@ -518,20 +535,95 @@ const COURSES: CourseSpec[] = [
 // Name pools. Fictional, deliberately varied, and combined deterministically so a
 // re-seed produces exactly the same roster.
 const FIRST = [
-  "Adaeze", "Mateo", "Ingrid", "Rashid", "Beatriz", "Kwame", "Sunniva", "Tarek",
-  "Marisol", "Bo", "Annika", "Yusuf", "Delphine", "Hiroshi", "Rosalind", "Ezekiel",
-  "Nadia", "Sung-Min", "Clara", "Ibrahim", "Wren", "Paolo", "Amara", "Lukas",
-  "Freya", "Devraj", "Ingeborg", "Samuel", "Thandiwe", "Oscar", "Leila", "Hugo",
-  "Mireille", "Kofi", "Astrid", "Rafael", "Zainab", "Nils", "Perpetua", "Idris",
-  "Saoirse", "Emeka", "Margit", "Cyrus", "Johanna", "Tomas", "Aisha", "Bartholomew",
-  "Elke", "Ravi", "Constance", "Jae-Won", "Ottilie", "Amos", "Signe", "Nkechi",
+  "Adaeze",
+  "Mateo",
+  "Ingrid",
+  "Rashid",
+  "Beatriz",
+  "Kwame",
+  "Sunniva",
+  "Tarek",
+  "Marisol",
+  "Bo",
+  "Annika",
+  "Yusuf",
+  "Delphine",
+  "Hiroshi",
+  "Rosalind",
+  "Ezekiel",
+  "Nadia",
+  "Sung-Min",
+  "Clara",
+  "Ibrahim",
+  "Wren",
+  "Paolo",
+  "Amara",
+  "Lukas",
+  "Freya",
+  "Devraj",
+  "Ingeborg",
+  "Samuel",
+  "Thandiwe",
+  "Oscar",
+  "Leila",
+  "Hugo",
+  "Mireille",
+  "Kofi",
+  "Astrid",
+  "Rafael",
+  "Zainab",
+  "Nils",
+  "Perpetua",
+  "Idris",
+  "Saoirse",
+  "Emeka",
+  "Margit",
+  "Cyrus",
+  "Johanna",
+  "Tomas",
+  "Aisha",
+  "Bartholomew",
+  "Elke",
+  "Ravi",
+  "Constance",
+  "Jae-Won",
+  "Ottilie",
+  "Amos",
+  "Signe",
+  "Nkechi",
 ];
 
 const LAST = [
-  "Okonkwo", "Alvarez", "Lindholm", "Haddad", "Ferreira", "Mensah", "Dahl", "Nasser",
-  "Iglesias", "Chen", "Virtanen", "Osei", "Rousseau", "Tanaka", "Ashworth", "Mbeki",
-  "Rahman", "Park", "Bianchi", "Sowande", "Calloway", "Moretti", "Adeyemi", "Weiss",
-  "Sørensen", "Bhattacharya", "Kaufmann", "Ngata", "Duarte", "Lindqvist",
+  "Okonkwo",
+  "Alvarez",
+  "Lindholm",
+  "Haddad",
+  "Ferreira",
+  "Mensah",
+  "Dahl",
+  "Nasser",
+  "Iglesias",
+  "Chen",
+  "Virtanen",
+  "Osei",
+  "Rousseau",
+  "Tanaka",
+  "Ashworth",
+  "Mbeki",
+  "Rahman",
+  "Park",
+  "Bianchi",
+  "Sowande",
+  "Calloway",
+  "Moretti",
+  "Adeyemi",
+  "Weiss",
+  "Sørensen",
+  "Bhattacharya",
+  "Kaufmann",
+  "Ngata",
+  "Duarte",
+  "Lindqvist",
 ];
 
 /** Deterministic pseudo-random, so a re-seed is byte-identical. */
@@ -568,7 +660,12 @@ const SHARED_ROSTER = [
 /** How many students at the head of each course come from the shared roster. */
 const SHARED_PER_COURSE = 4;
 
-const BAND_ORDER: Band[] = ["on_track", "needs_review", "needs_support", "no_data"];
+const BAND_ORDER: Band[] = [
+  "on_track",
+  "needs_review",
+  "needs_support",
+  "no_data",
+];
 
 /**
  * How each band answers. Index into the four comprehension questions; `null` means
@@ -601,7 +698,12 @@ const BEHAVIOUR: Record<
     clear: 0,
     confusing: 3,
   },
-  no_data: { answers: [null, null, null, null], confidence: [], clear: 0, confusing: 0 },
+  no_data: {
+    answers: [null, null, null, null],
+    confidence: [],
+    clear: 0,
+    confusing: 0,
+  },
 };
 
 export function seedFacultyLoad(db: Db) {
@@ -667,7 +769,14 @@ export function seedFacultyLoad(db: Db) {
         db.prepare(
           `INSERT INTO modules (id, course_id, position, title, week_label, created_at)
            VALUES (?,?,?,?,?,?)`,
-        ).run(id, courseId, index + 1, title, `Weeks ${index * 3 + 1}–${index * 3 + 3}`, created);
+        ).run(
+          id,
+          courseId,
+          index + 1,
+          title,
+          `Weeks ${index * 3 + 1}–${index * 3 + 3}`,
+          created,
+        );
         return id;
       });
 
@@ -814,7 +923,13 @@ export function seedFacultyLoad(db: Db) {
             `INSERT INTO activity_events
                (id, course_id, student_id, actor_role, type, summary, created_at)
              VALUES (?,?,?,'student','joined_course',?,?)`,
-          ).run(newId("act"), courseId, studentId, `${name} joined the course`, joined);
+          ).run(
+            newId("act"),
+            courseId,
+            studentId,
+            `${name} joined the course`,
+            joined,
+          );
 
           // Comprehension answers.
           behaviour.answers.forEach((correct, index) => {

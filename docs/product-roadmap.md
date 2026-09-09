@@ -131,6 +131,39 @@ that only surfaced by actually doing it, all now handled:
   would otherwise fail every request permanently. The replica is disposable, so it is
   now discarded and re-pulled automatically.
 
+## Visual redesign: Predictive Learning
+
+A full design-system refactor, done through tokens and shared components rather than
+page-by-page styling. Functionality, routes, data model, readiness logic, role
+behaviour and the access gate were untouched throughout — the smoke suite that walks
+the entire vertical slice still passes end to end.
+
+- **New identity.** Five colours (`#0B0D16` / `#FFFFFF` / `#2F5BFF` / `#6C7A95` /
+  `#A7C1FF`), Satoshi self-hosted, the mark from the supplied sheet paired with the
+  product name as real text.
+- **Pills, soft surfaces, minimal chrome.** 24–32px cards, translucent hairline
+  borders, broad low-opacity shadows, and a cool near-white canvas with two very faint
+  radial washes instead of a flat dashboard grey.
+- **The primary button is near-black, not blue**, so saturated blue stays an accent
+  worth noticing.
+- **New shared components**: `IconButton`, `ProgressRing` / `ProgressBar` /
+  `ProgressHeadline`, `FeatureCard`, `LearningCard`, `LessonRow`, `AIInsight`,
+  `ScheduleCard` / `Timeline`, and an abstract SVG artwork system.
+- **Floating mobile navigation**, four items maximum, 52px targets.
+
+Three things worth remembering:
+
+1. **The contrast script kept its own copy of the palette** and so passed against
+   colours the app had stopped using. It now parses `globals.css` directly. It
+   immediately found two real failures: the brand Slate is 4.33:1 on white and cannot
+   carry body text, and four chart fills were under 3:1.
+2. **Chart fills and text tones are different tokens.** The same green that reads as
+   calm in a 14px label reads as a traffic light at 40px, and the first pass made the
+   dashboard look like a different product.
+3. **Nav icons are passed as names, not components.** Navigation is defined in server
+   components and rendered by a client one; a React component is a function, which
+   cannot cross that boundary.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.
@@ -186,7 +219,7 @@ only, and every surface says so.
 
 ### 7.5 LMS integration
 
-If Fuller runs Canvas or similar, most of the course-structure entry in this
+If the institution runs Canvas or similar, most of the course-structure entry in this
 prototype is duplicate work. LTI 1.3 for launch and roster sync would remove it.
 Grade passback should be considered and probably declined — readiness is not a
 grade, and connecting it to a gradebook would make it one.

@@ -50,8 +50,8 @@ export function InteractionCard({
 
   if (informational) {
     return (
-      <aside className="rounded-md border-l-4 border-accent-300 bg-accent-50/50 px-4 py-3">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-wide text-accent-700">
+      <aside className="rounded-[1.125rem] border-l-4 border-brand-300 bg-brand-50/50 px-4 py-3">
+        <p className="text-[0.76rem] font-medium text-brand-800">
           {INTERACTION_TYPE_LABELS[interaction.type]}
         </p>
         <p className="mt-1 text-sm font-medium text-ink-800">
@@ -72,7 +72,9 @@ export function InteractionCard({
   }
 
   return (
-    <Card className={answered ? "border-track-200 bg-track-50/40" : "bg-paper-50"}>
+    <Card
+      className={answered ? "border-track-200 bg-track-50/40" : "bg-paper-50"}
+    >
       <CardBody className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={isScored ? "brand" : "accent"}>
@@ -114,7 +116,8 @@ export function InteractionCard({
             <input type="hidden" name="context" value={interaction.prompt} />
             <fieldset>
               <legend className="text-[0.82rem] text-ink-600">
-                Rate your confidence — this is used to help you, never to mark you.
+                Rate your confidence — this is used to help you, never to mark
+                you.
               </legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[1, 2, 3, 4, 5].map((level) => (
@@ -143,11 +146,7 @@ export function InteractionCard({
           <form action={respondToInteractionAction} className="mt-3 space-y-2">
             <input type="hidden" name="courseId" value={courseId} />
             <input type="hidden" name="lectureId" value={lectureId} />
-            <input
-              type="hidden"
-              name="interactionId"
-              value={interaction.id}
-            />
+            <input type="hidden" name="interactionId" value={interaction.id} />
             <label
               htmlFor={`written-${interaction.id}`}
               className="block text-[0.82rem] text-ink-600"
@@ -164,8 +163,8 @@ export function InteractionCard({
               {answered ? "Update response" : "Save response"}
             </Button>
             <p className="text-[0.78rem] text-ink-400">
-              Written responses are stored for your professor to read. They are not
-              scored.
+              Written responses are stored for your professor to read. They are
+              not scored.
             </p>
           </form>
         ) : interaction.options.length > 0 ? (
@@ -226,7 +225,7 @@ export function InteractionCard({
         ) : null}
 
         {answered && isScored ? (
-          <div className="mt-3 border-t border-tan-100 pt-3">
+          <div className="mt-3 border-t border-slate-200 pt-3">
             <p
               className={
                 response?.is_correct === 1
@@ -244,15 +243,16 @@ export function InteractionCard({
               </p>
             ) : null}
             <p className="mt-1.5 text-[0.78rem] text-ink-400">
-              You can change your answer. Your most recent answer is what counts.
+              You can change your answer. Your most recent answer is what
+              counts.
             </p>
           </div>
         ) : null}
 
         {answered && isPoll ? (
-          <p className="mt-3 border-t border-tan-100 pt-3 text-[0.85rem] text-ink-600">
-            Response recorded. Polls have no right answer — your professor sees the
-            distribution, not who chose what.
+          <p className="mt-3 border-t border-slate-200 pt-3 text-[0.85rem] text-ink-600">
+            Response recorded. Polls have no right answer — your professor sees
+            the distribution, not who chose what.
           </p>
         ) : null}
       </CardBody>

@@ -37,7 +37,7 @@ export async function CourseQr({
         // The QR code is decorative here: the URL and the code are both printed
         // as text below it, so a screen-reader user is never dependent on it.
         aria-hidden="true"
-        className="inline-block rounded-md border border-tan-200 bg-white p-2 [&_svg]:block"
+        className="inline-block rounded-[1.125rem] border border-slate-200 bg-white p-2 [&_svg]:block"
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       <figcaption className="mt-2 text-[0.8rem] text-ink-500">
@@ -64,9 +64,7 @@ export async function CourseAccessPanel({
 
       <div className="min-w-0 space-y-4">
         <div>
-          <p className="text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
-            Course code
-          </p>
+          <p className="text-[0.82rem] font-medium text-ink-400">Course code</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="font-mono text-2xl tracking-[0.2em] text-brand-700">
               {accessCode}
@@ -76,11 +74,11 @@ export async function CourseAccessPanel({
         </div>
 
         <div className="min-w-0">
-          <p className="text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
+          <p className="text-[0.82rem] font-medium text-ink-400">
             Student link
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <code className="min-w-0 break-all rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem]">
+            <code className="min-w-0 break-all rounded border border-slate-200 bg-paper-100 px-2 py-1 text-[0.82rem]">
               {url}
             </code>
             <CopyButton value={url} label="Copy link" />
@@ -88,8 +86,8 @@ export async function CourseAccessPanel({
         </div>
 
         <p className="text-sm text-ink-500">
-          Display the QR code during class, or read the six-character code aloud.
-          Both routes reach the same place.{" "}
+          Display the QR code during class, or read the six-character code
+          aloud. Both routes reach the same place.{" "}
           <a href={`/professor/courses/${courseId}/access-card`}>
             Open the printable access card
           </a>
@@ -122,7 +120,7 @@ export async function PrintableAccessCard({
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-brand-600">
           {product.institution.name}
         </p>
-        <h2 className="mt-3 font-serif text-2xl">
+        <h2 className="mt-3 text-2xl">
           {courseCode} — {courseTitle}
         </h2>
         <p className="mt-1 text-sm text-ink-500">
@@ -134,12 +132,10 @@ export async function PrintableAccessCard({
           <CourseQr accessCode={accessCode} size={260} />
         </div>
 
-        <div className="mt-6 border-t border-tan-100 pt-6">
-          <p className="text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
-            Or go to
-          </p>
+        <div className="mt-6 border-t border-slate-200 pt-6">
+          <p className="text-[0.82rem] font-medium text-ink-400">Or go to</p>
           <p className="mt-1 break-all font-mono text-sm text-ink-800">{url}</p>
-          <p className="mt-4 text-[0.78rem] font-medium uppercase tracking-wide text-ink-400">
+          <p className="mt-4 text-[0.82rem] font-medium text-ink-400">
             Course code
           </p>
           <p className="mt-1 font-mono text-3xl tracking-[0.22em] text-brand-700">

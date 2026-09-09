@@ -131,8 +131,8 @@ export function AssessmentForm({
             Related learning objectives
           </legend>
           <p className="mt-1 text-[0.82rem] text-ink-500">
-            The first objective selected is what auto-scored answers are attributed
-            to in the readiness model.
+            The first objective selected is what auto-scored answers are
+            attributed to in the readiness model.
           </p>
           <div className="mt-2 space-y-2">
             {objectives.map((objective) => (
@@ -191,9 +191,9 @@ export function AssessmentForm({
       <Notice tone="info">
         Question types supported:{" "}
         {QUESTION_TYPES.map((type) => QUESTION_TYPE_LABELS[type]).join(", ")}.
-        Multiple choice and true/false are scored automatically. Nothing else is —
-        essays and reflection papers are read by a person, and the application will
-        not pretend otherwise.
+        Multiple choice and true/false are scored automatically. Nothing else is
+        — essays and reflection papers are read by a person, and the application
+        will not pretend otherwise.
       </Notice>
 
       <div className="flex items-center gap-3">

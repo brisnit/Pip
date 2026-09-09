@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import {
-  ProfessorShell,
-  professorCourseNav,
-} from "@/components/layout/shells";
+import { ProfessorShell, professorCourseNav } from "@/components/layout/shells";
 import { getCourse } from "@/lib/repositories/courses";
 import { requireProfessor } from "@/lib/role/role-context";
 

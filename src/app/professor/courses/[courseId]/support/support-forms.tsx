@@ -3,9 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/primitives";
 import { Field, FormStatus, TextArea } from "@/components/ui/form";
-import {
-  professorRespondAction,
-} from "@/app/professor/actions";
+import { professorRespondAction } from "@/app/professor/actions";
 import { emptyActionState } from "@/lib/forms/action-state";
 
 export function RespondForm({
@@ -23,11 +21,7 @@ export function RespondForm({
   return (
     <form action={action} className="mt-2 space-y-2">
       <input type="hidden" name="courseId" value={courseId} />
-      <input
-        type="hidden"
-        name="recommendationId"
-        value={recommendationId}
-      />
+      <input type="hidden" name="recommendationId" value={recommendationId} />
       <Field
         id={`respond-${recommendationId}`}
         label="Reply to the student"

@@ -2,13 +2,25 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * tan-400 rather than a lighter tan: WCAG 1.4.11 asks for 3:1 on the boundary of an
+ * slate-500 rather than a lighter tan: WCAG 1.4.11 asks for 3:1 on the boundary of an
  * interactive control, and the brand tan only reaches 1.9:1 against white. This is
  * 3.55:1. Decorative dividers elsewhere keep the lighter tans.
  */
+/**
+ * The shared control surface.
+ *
+ * Rounded to the small radius rather than the pill: a pill-shaped text field with a
+ * long value looks like a search box, and these hold sentences. The border is
+ * slate-500 rather than the hairline because WCAG 1.4.11 wants 3:1 on the boundary of
+ * something you can interact with, and the hairline is deliberately below that.
+ *
+ * 44px minimum height, so every field is a comfortable touch target.
+ */
 const CONTROL =
-  "w-full rounded-none border border-tan-400 bg-white px-3 py-2 text-ink-800 " +
-  "placeholder:text-ink-400 disabled:bg-paper-200 disabled:text-ink-400";
+  "w-full min-h-11 rounded-[0.75rem] border border-slate-500 bg-white px-4 py-2.5 text-ink-900 " +
+  "transition-[border-color,box-shadow] duration-200 " +
+  "hover:border-ink-400 focus:border-brand-600 " +
+  "placeholder:text-ink-400 disabled:bg-paper-200 disabled:text-ink-400 disabled:hover:border-slate-500";
 
 /**
  * Labelled field wrapper.
@@ -92,11 +104,18 @@ export function TextInput({ className, ...props }: ComponentProps<"input">) {
 
 export function TextArea({ className, ...props }: ComponentProps<"textarea">) {
   return (
-    <textarea {...props} className={cn(CONTROL, "min-h-24 leading-relaxed", className)} />
+    <textarea
+      {...props}
+      className={cn(CONTROL, "min-h-24 leading-relaxed", className)}
+    />
   );
 }
 
-export function Select({ className, children, ...props }: ComponentProps<"select">) {
+export function Select({
+  className,
+  children,
+  ...props
+}: ComponentProps<"select">) {
   return (
     <select {...props} className={cn(CONTROL, "pr-8", className)}>
       {children}
@@ -110,7 +129,11 @@ export function Checkbox({
   hint,
   className,
   ...props
-}: ComponentProps<"input"> & { id: string; label: ReactNode; hint?: ReactNode }) {
+}: ComponentProps<"input"> & {
+  id: string;
+  label: ReactNode;
+  hint?: ReactNode;
+}) {
   const hintId = hint ? `${id}-hint` : undefined;
   return (
     <div className={cn("flex gap-2.5", className)}>
@@ -119,7 +142,7 @@ export function Checkbox({
         id={id}
         type="checkbox"
         aria-describedby={hintId}
-        className="mt-1 h-4 w-4 shrink-0 rounded-none border-tan-400 accent-cta-600"
+        className="mt-0.5 h-[1.15rem] w-[1.15rem] shrink-0 rounded-[0.3rem] border-slate-500 accent-brand-600"
       />
       <div className="min-w-0">
         <label htmlFor={id} className="text-sm text-ink-700">
@@ -169,7 +192,7 @@ export function RadioGroup({
                 value={option.value}
                 defaultChecked={defaultValue === option.value}
                 required={required}
-                className="mt-1 h-4 w-4 shrink-0 accent-cta-600"
+                className="mt-1 h-4 w-4 shrink-0 accent-brand-600"
               />
               <div className="min-w-0">
                 <label htmlFor={id} className="text-sm text-ink-800">

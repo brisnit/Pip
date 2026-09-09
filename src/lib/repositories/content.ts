@@ -129,7 +129,10 @@ export function createMaterial(input: CreateMaterialInput): string {
   return id;
 }
 
-export function setMaterialVisibility(materialId: string, visibility: Visibility) {
+export function setMaterialVisibility(
+  materialId: string,
+  visibility: Visibility,
+) {
   getDb()
     .prepare("UPDATE course_materials SET visibility = ? WHERE id = ?")
     .run(visibility, materialId);
@@ -204,7 +207,9 @@ export function replaceSyllabusItems(
   const now = nowIso();
 
   db.transaction(() => {
-    db.prepare("DELETE FROM syllabus_items WHERE syllabus_id = ?").run(syllabusId);
+    db.prepare("DELETE FROM syllabus_items WHERE syllabus_id = ?").run(
+      syllabusId,
+    );
 
     const byKind = new Map<string, number>();
     for (const item of items) {
@@ -270,7 +275,12 @@ export function updateSyllabusItem(
 export function publishSyllabus(
   syllabusId: string,
   courseId: string,
-): { objectives: number; modules: number; assessments: number; readings: number } {
+): {
+  objectives: number;
+  modules: number;
+  assessments: number;
+  readings: number;
+} {
   const db = getDb();
   const now = nowIso();
   let objectives = 0;

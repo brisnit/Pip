@@ -53,7 +53,9 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lectureId } = await params;
   const lecture = getLecture(lectureId);
-  return { title: lecture ? `Live console — ${lecture.title}` : "Live console" };
+  return {
+    title: lecture ? `Live console — ${lecture.title}` : "Live console",
+  };
 }
 
 export default async function LiveConsolePage({ params }: Props) {
@@ -132,7 +134,7 @@ export default async function LiveConsolePage({ params }: Props) {
               currentTopic={lecture.current_topic}
             />
             {segments.length > 0 ? (
-              <div className="border-t border-tan-100 pt-4">
+              <div className="border-t border-slate-200 pt-4">
                 <h3 className="text-sm font-semibold">Outline</h3>
                 <ol className="mt-2 space-y-1">
                   {segments.map((segment) => (
@@ -185,7 +187,7 @@ export default async function LiveConsolePage({ params }: Props) {
             description="Publishing makes an interactive moment visible on the student lecture page. Unpublish to hold one back."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {interactions.map((interaction) => (
                 <li
                   key={interaction.id}
@@ -213,7 +215,10 @@ export default async function LiveConsolePage({ params }: Props) {
                       {interaction.prompt}
                     </p>
                   </div>
-                  <form action={setInteractionPublishedAction} className="shrink-0">
+                  <form
+                    action={setInteractionPublishedAction}
+                    className="shrink-0"
+                  >
                     <input type="hidden" name="courseId" value={courseId} />
                     <input type="hidden" name="lectureId" value={lectureId} />
                     <input
@@ -259,9 +264,11 @@ export default async function LiveConsolePage({ params }: Props) {
                         (tally.correct ?? 0) / Math.max(tally.responses, 1),
                       )})`}
                       tone={
-                        (tally.correct ?? 0) / Math.max(tally.responses, 1) >= 0.75
+                        (tally.correct ?? 0) / Math.max(tally.responses, 1) >=
+                        0.75
                           ? "track"
-                          : (tally.correct ?? 0) / Math.max(tally.responses, 1) >=
+                          : (tally.correct ?? 0) /
+                                Math.max(tally.responses, 1) >=
                               0.5
                             ? "attention"
                             : "concern"
@@ -300,13 +307,16 @@ export default async function LiveConsolePage({ params }: Props) {
               )}
 
               {confidenceTallies.length > 0 ? (
-                <div className="border-t border-tan-100 pt-4">
+                <div className="border-t border-slate-200 pt-4">
                   <h4 className="text-sm font-semibold">Confidence ratings</h4>
                   {confidenceTallies.map((tally) => (
-                    <p key={tally.interactionId} className="mt-1 text-[0.85rem] text-ink-600">
+                    <p
+                      key={tally.interactionId}
+                      className="mt-1 text-[0.85rem] text-ink-600"
+                    >
                       {tally.responses} student
-                      {tally.responses === 1 ? "" : "s"} responded to
-                      &ldquo;{tally.prompt}&rdquo;
+                      {tally.responses === 1 ? "" : "s"} responded to &ldquo;
+                      {tally.prompt}&rdquo;
                     </p>
                   ))}
                 </div>
@@ -334,7 +344,9 @@ export default async function LiveConsolePage({ params }: Props) {
                         value={row.confusing}
                         max={Math.max(row.confusing + row.clear, 1)}
                         valueText={`${row.confusing} ${MARKER_LABELS.confusing.toLowerCase()} · ${row.clear} clear`}
-                        tone={row.confusing > row.clear ? "concern" : "attention"}
+                        tone={
+                          row.confusing > row.clear ? "concern" : "attention"
+                        }
                       />
                     </li>
                   ))}
@@ -356,7 +368,7 @@ export default async function LiveConsolePage({ params }: Props) {
               No questions have been submitted on this lecture.
             </p>
           ) : (
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {questions.map((question) => (
                 <li key={question.id} className="px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -385,7 +397,9 @@ export default async function LiveConsolePage({ params }: Props) {
                         ) : null}
                       </div>
 
-                      <p className="mt-2 text-sm text-ink-800">{question.body}</p>
+                      <p className="mt-2 text-sm text-ink-800">
+                        {question.body}
+                      </p>
 
                       <p className="mt-1 text-[0.8rem] text-ink-400">
                         {question.anonymous === 1
@@ -399,14 +413,14 @@ export default async function LiveConsolePage({ params }: Props) {
                       </p>
 
                       {question.transcript_excerpt ? (
-                        <blockquote className="mt-2 border-l-2 border-accent-300 pl-3 text-[0.82rem] italic text-ink-500">
+                        <blockquote className="mt-2 border-l-2 border-brand-300 pl-3 text-[0.82rem] italic text-ink-500">
                           {question.transcript_excerpt}
                         </blockquote>
                       ) : null}
 
                       {question.answer_body ? (
-                        <div className="mt-3 rounded-md border border-track-200 bg-track-50 px-3 py-2">
-                          <p className="text-[0.78rem] font-semibold uppercase tracking-wide text-track-600">
+                        <div className="mt-3 rounded-[1.125rem] border border-track-200 bg-track-50 px-3 py-2">
+                          <p className="text-[0.78rem] font-semibold text-track-600">
                             Your answer
                           </p>
                           <p className="mt-1 text-[0.85rem] text-ink-700">
@@ -422,7 +436,10 @@ export default async function LiveConsolePage({ params }: Props) {
                     </div>
 
                     {question.status === "open" ? (
-                      <form action={setQuestionStatusAction} className="shrink-0">
+                      <form
+                        action={setQuestionStatusAction}
+                        className="shrink-0"
+                      >
                         <input type="hidden" name="courseId" value={courseId} />
                         <input
                           type="hidden"
@@ -450,7 +467,7 @@ export default async function LiveConsolePage({ params }: Props) {
             description="Submitted through their support plan."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {supportRequests.map((request) => (
                 <li key={request.id} className="px-5 py-3">
                   <p className="text-sm font-medium text-ink-800">
@@ -462,9 +479,7 @@ export default async function LiveConsolePage({ params }: Props) {
                     </p>
                   ) : null}
                   <p className="mt-1 text-[0.8rem]">
-                    <Link
-                      href={`/professor/courses/${courseId}/support`}
-                    >
+                    <Link href={`/professor/courses/${courseId}/support`}>
                       Open in support →
                     </Link>
                   </p>

@@ -278,31 +278,84 @@ subset of a student's total notes.
 
 ## Design system
 
-Built from the Fuller Seminary style guide supplied in `public/brand/`. Six colours,
-two typefaces, one button.
+Built from the brand board in `public/brand/New_Style.png`. Five colours, one
+typeface, one button shape.
 
-| Role | Hex |
-| --- | --- |
-| Primary | `#042B32` deep teal |
-| Secondary | `#00ADC7` cyan |
-| Tan | `#D8D2C4` |
-| Tertiary | `#005979` — the Primary CTA colour |
-| Black | `#0C1821` |
-| White | `#ffffff` |
+| Role | Hex | Where it goes |
+| --- | --- | --- |
+| Primary ink | `#0B0D16` | Text, and the primary CTA surface |
+| Surface | `#FFFFFF` | Cards |
+| Brand blue | `#2F5BFF` | Accent — a handful of times per screen |
+| Slate | `#6C7A95` | Secondary text, hairline borders |
+| Light blue | `#A7C1FF` | Tonal fills, gradients, progress tracks |
 
 Tokens are declared once in `@theme` in `src/app/globals.css`, as ramps built around
-those six values: `brand-*` (teal), `cta-*` (tertiary blue), `accent-*` (cyan),
-`paper-*` and `tan-*` (neutrals), `ink-*` (text), plus the four status ramps. No
-component hard-codes a hex value.
+those five values: `brand-*`, `ink-*`, `slate-*`, `paper-*` (the cool near-white
+canvas), plus the four status ramps. No component hard-codes a hex value, and the
+contrast script reads these tokens directly rather than keeping a copy.
 
-**Typography.** Noto Serif for headings, Noto Sans for body — loaded by `next/font`,
-which downloads them at build time and serves them from our own origin. Sixteen
-`.woff2` files ship with the build and no request goes to Google at runtime, which
-keeps the "no request leaves the origin" claim in the privacy notes true.
+**The rule that keeps it calm.** The application is white, pale blue and near-black.
+Saturated `#2F5BFF` is an accent, not a background — it appears a few times on a
+screen and never as the default state of a component. **The primary button is
+near-black, not blue.** If every call to action were blue, blue would stop meaning
+anything.
 
-**Buttons.** The guide gives one button: tertiary blue, white label, square corners.
-That is `variant="primary"`, and `rounded-none` is deliberate. Form controls match.
-Secondary and ghost variants are derived, not specified, so they stay quiet.
+**Typography.** Satoshi, self-hosted by `next/font/local` from `public/fonts`. Four
+weights (300/400/500/700) and no second family — hierarchy comes from scale and
+whitespace rather than from weight or a serif. Headings cap at weight 500; anything
+heavier starts to look like an enterprise dashboard. Nothing is fetched from a third
+party at runtime, which keeps the "no request leaves the origin" claim in the privacy
+notes true.
+
+**Shape.** Radii run 12 / 18 / 24 / 30 / 32px with cards in the 24–32px range;
+buttons and navigation are pills. Borders are a blue-grey at 16% alpha rather than a
+solid grey — a solid line at this radius looks drawn on, a translucent one looks like
+the edge of a material. Shadows are broad and low-opacity, tinted with the ink rather
+than pure black.
+
+**Icons.** One family, Lucide, at 1.75 stroke weight. Nav icons are passed as *names*
+rather than components, because navigation is defined in server components and
+rendered by a client one, and a React component is a function — which cannot cross
+that boundary.
+
+### The card hierarchy
+
+Four levels, in `src/components/ui/cards.tsx`, so a screen can say what matters
+without every surface shouting:
+
+| Component | Use |
+| --- | --- |
+| `FeatureCard` | One per screen at most. Gradient, abstract artwork, the next action. |
+| `LearningCard` | The standard content card — a course, a module, a topic. |
+| `LessonRow` | A compact row in a list. Dense, still comfortable to tap. |
+| `AIInsight` | A quiet surface for what the system has noticed. |
+
+Every one is a link when it has somewhere to go, and the whole surface is the target
+rather than a small "view" affordance in a corner.
+
+### Predictive intelligence, visually
+
+No robots, no glowing brains, no shower of sparkles. `AIInsight` is one small mark and
+a sentence in the product's own voice — "Let's reinforce X", "Your recorded work
+suggests…" — and it renders **only when the model has something to say**. A
+"Recommended for you" heading above an empty recommendation is exactly the hollow
+intelligence the design direction warns against.
+
+It also carries a `provenance` line, because this product distinguishes what a model
+produced from what was assembled by rule, and a restyle must not quietly drop that.
+
+### Abstract artwork
+
+`src/components/viz/abstract.tsx` renders four motifs — orbit, cluster, flow, bloom —
+as flat SVG with radial gradients that read as lit volumes. They are a few hundred
+bytes each, scale to any card, take their colours from the token layer, and never
+arrive late or broken. A 3D render would look better in a still; this looks better in
+a product that has to load.
+
+All of it is `aria-hidden` and `pointer-events-none`: it carries mood, not
+information. It is also smaller and pushed further off-canvas on narrow screens,
+because at full size it sat behind the headline — the one thing a decorative backdrop
+must never do.
 
 ### The visualisation system
 
@@ -319,6 +372,12 @@ written in the legend as a glyph (● ◐ ◆ ○), a label, a count and a share
 carries `role="img"` and an `aria-label` that states the whole distribution in one
 sentence, so a screen reader gets the summary without traversing the legend.
 
+Arcs are painted with the **400-level fill tones**, not the text tones. A chart is a
+large area of colour, and the same green that reads as calm in a 14px label reads as a
+traffic light at 40px — which made the dashboard look like a different product from
+the rest of the system. The legend beside it uses the darker text tones, where
+contrast is what matters.
+
 Arc geometry is `stroke-dasharray` and `stroke-dashoffset` on a circle — no charting
 library, no runtime dependency, and it renders on the server. Segments with a zero
 count are dropped from the ring but kept out of the legend only when they carry no
@@ -334,69 +393,70 @@ testable and what stops a chart from quietly inventing its own definition of
 
 Neither is obvious, and both were found by measuring rather than by eye.
 
-**The secondary cyan cannot carry text.** `#00ADC7` is 2.69:1 against white — it fails
-AA for body text and even the 3:1 large-text threshold. So cyan is used for fills,
-borders and graphics only: the active navigation underline, meter fills, accent rules.
-Anything cyan that has to be *read* uses `accent-600` (#006b7d) or `accent-700`
-(#00505e).
+**Light blue cannot carry text.** `#A7C1FF` is 1.79:1 against white — it fails AA and
+even the 3:1 large-text threshold. It fills shapes, tracks and gradients; anything
+blue that has to be *read* uses `brand-700` or darker.
 
-**The brand tan cannot outline a control.** `#D8D2C4` is 1.51:1 against white, and
-WCAG 1.4.11 wants 3:1 for the boundary of an interactive component. Form controls
-therefore use `tan-400` (#8f877a, 3.55:1) while decorative dividers keep the lighter
-tans, which have no contrast requirement.
+**The brand Slate cannot carry body text either.** `#6C7A95` is 4.33:1 on white, just
+under the 4.5:1 bar, and worse on the tinted grounds this system uses. So `ink-400`
+— the muted-text token — is a darkened version of it, tuned against the *tint*
+(`#f1f5ff`) rather than white: passing only on the lightest ground is how a palette
+quietly fails on half the screens that use it. The original value stays available as
+`slate-500`, where 3:1 is the bar because it draws borders and graphics rather than
+words.
 
 ### Verified contrast
 
-`npm run check:contrast` checks all thirty pairings the app renders and exits
-non-zero on a regression. Values in the script mirror the `@theme` block — change one,
-change both.
+`npm run check:contrast` checks all 43 pairings the app renders and exits non-zero on
+a regression. It **reads the tokens straight out of `globals.css`** rather than
+keeping its own copy — the copy drifted the moment the palette was rebranded, and the
+script cheerfully reported "all pairings pass" against colours the app no longer used.
 
 | Pairing | Ratio |
 | --- | --- |
-| body text `ink-800` on `paper-100` | 16.36 |
-| muted text `ink-500` on `paper-100` | 7.18 |
-| subtle text `ink-400` on `paper-100` | 5.04 |
-| link `cta-600` on `paper-100` | 7.07 |
-| primary CTA: white on `cta-600` | 7.76 |
-| accent text `accent-700` on `accent-50` | 8.31 |
-| on track `track-600` on `track-50` | 8.22 |
-| needs review `attention-600` on `attention-50` | 7.48 |
-| support recommended `concern-600` on `concern-50` | 8.22 |
-| not enough data `unknown-600` on `unknown-50` | 8.24 |
-| prototype banner `paper-200` on `ink-800` | 15.24 |
-| control border `tan-400` on white (needs 3:1) | 3.55 |
+| body text `ink-900` on `paper-100` | 18.41 |
+| muted text `ink-400` on the tint `paper-200` | 4.57 |
+| link `brand-700` on white | 7.41 |
+| primary CTA: white on `ink-900` | 19.38 |
+| brand button: white on `brand-600` | 5.17 |
+| on track `track-600` on `track-50` | 7.23 |
+| control border `slate-500` on white (needs 3:1) | 4.33 |
+| chart fill `track-400` on white (needs 3:1) | 3.10 |
+
+Rows labelled `graphic:` in the script are judged at 3:1 under WCAG 1.4.11 rather than
+4.5:1 — borders, focus rings and chart fills, none of which is the only carrier of
+meaning.
 
 The status ramps stay unmistakably green / amber / red / grey rather than being pulled
-into the teal palette, because their job is to be distinguishable at a glance. They
-were retuned to sit alongside it without losing that.
+into the blue palette. Four shades of one hue is not a distinction anyone can make at
+a glance, and these four bands are the one place colour carries consequence. They were
+retuned — cooler, softer, lower chroma — to sit alongside the blue without losing it,
+and colour is never the only signal: every surface pairs them with a glyph and a label.
 
 ### Brand assets
 
-`public/brand/Fuller_Logo.png` (1456×184) is the supplied lockup, kept as the source
-of truth. `public/brand/fuller-logo.png` is a 640×81 downscale of it — the size
-actually served, since the mark is displayed at most 34px tall, which puts 640px well
-past 2× on a retina screen at half the bytes.
+`public/brand/Logo.png` is the supplied sheet, kept as the source of truth.
+`mark-primary.png`, `mark-dark.png` and `mark-tonal.png` are 192px crops of the three
+icon variants it defines; `logo-lockup.png` is the mark plus the drawn wordmark.
 
-`<BrandLockup>` renders it with an explicit height and a width derived from the ratio,
-so the space is reserved before the image loads and there is no layout shift.
-`product.institution.logo` in `src/config/product.ts` holds both paths, the
-dimensions and the alt text; swapping the asset means editing that one object.
+`<BrandLockup>` pairs the **mark** with the product name as **real text** rather than
+using the wordmark image. The type is Satoshi either way, and text scales with the
+viewport, wraps sensibly, gets read aloud, and never renders as a broken picture. The
+mark carries the identity; the name carries the meaning.
 
-Alt text is "Fuller Seminary" because that is what the wordmark reads — the
-surrounding link resolves to "Fuller Seminary Learning Companion".
+`product.institution.logo` in `src/config/product.ts` holds every path and the alt
+text, so swapping the identity means editing one object.
 
-**`unoptimized` is deliberate.** It makes the src a plain `/brand/fuller-logo.png`
+**`unoptimized` is deliberate.** It makes the src a plain `/brand/mark-primary.png`
 rather than `/_next/image?url=…&w=…`. Three reasons, and the first is the one that
 actually bit: query-string image URLs are a routine casualty of privacy extensions and
-ad blockers, so the logo can appear broken in a browser while the server is serving it
+ad blockers, so the logo can appear broken in a browser while the server serves it
 perfectly. The optimiser also rejects widths outside its configured set, and it wants
-`sharp` present on the host. For a 21KB asset already sized for its slot there is
-nothing left to optimise, so all that machinery is downside. The lockup is on every
-screen — it needs to be the most reliable image in the app, not the cleverest. Two
-smoke assertions hold the line: the src must be a plain path, and no page may contain
-an `_next/image` reference.
-
-`public/brand/Style Guide.png` is kept alongside as the reference.
+`sharp` on the host. For a 33KB square already sized for its slot there is nothing to
+optimise, so the machinery is pure downside. The lockup is on every screen — it has to
+be the most reliable image in the product, not the cleverest. Smoke assertions hold
+the line: the src must be a plain path, and no page may contain an `_next/image`
+reference.
 
 ## Accessibility
 

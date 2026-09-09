@@ -1,17 +1,27 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, Card, CardBody, CardHeader, Notice } from "@/components/ui/primitives";
-import { Checkbox, Field, Select, TextArea, TextInput } from "@/components/ui/form";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Notice,
+} from "@/components/ui/primitives";
+import {
+  Checkbox,
+  Field,
+  Select,
+  TextArea,
+  TextInput,
+} from "@/components/ui/form";
 import {
   DELIVERY_MODES,
   DELIVERY_MODE_LABELS,
   LECTURE_STATUSES,
   LECTURE_STATUS_LABELS,
 } from "@/lib/domain/vocabulary";
-import {
-  createLectureAction,
-} from "@/app/professor/actions";
+import { createLectureAction } from "@/app/professor/actions";
 import { emptyActionState } from "@/lib/forms/action-state";
 
 const SEGMENT_PLACEHOLDER = `0:00 | Where we left off: the penitential system | Recall the pressure point from week 1.
@@ -30,7 +40,10 @@ export function LectureForm({
   modules: { id: string; title: string; position: number }[];
   objectives: { id: string; code: string; text: string }[];
 }) {
-  const [state, action, pending] = useActionState(createLectureAction, emptyActionState);
+  const [state, action, pending] = useActionState(
+    createLectureAction,
+    emptyActionState,
+  );
 
   return (
     <form action={action} className="space-y-6">
@@ -45,7 +58,12 @@ export function LectureForm({
       <Card>
         <CardHeader title="The lecture" />
         <CardBody className="grid gap-5 sm:grid-cols-2">
-          <Field id="lec-title" label="Lecture title" required className="sm:col-span-2">
+          <Field
+            id="lec-title"
+            label="Lecture title"
+            required
+            className="sm:col-span-2"
+          >
             {(props) => (
               <TextInput
                 {...props}
@@ -149,7 +167,12 @@ export function LectureForm({
             className="sm:col-span-2"
           >
             {(props) => (
-              <TextInput {...props} name="liveUrl" type="url" placeholder="https://" />
+              <TextInput
+                {...props}
+                name="liveUrl"
+                type="url"
+                placeholder="https://"
+              />
             )}
           </Field>
         </CardBody>
@@ -303,8 +326,8 @@ export function LectureForm({
           </Field>
           <p className="mt-3 text-[0.82rem] text-ink-500">
             You can add the other interactive moment types — reflection prompts,
-            polls, definitions, exam emphasis, confidence ratings — from the live
-            console once the lecture exists.
+            polls, definitions, exam emphasis, confidence ratings — from the
+            live console once the lecture exists.
           </p>
         </CardBody>
       </Card>

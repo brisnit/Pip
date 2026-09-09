@@ -7,7 +7,10 @@ import { emptyActionState } from "@/lib/forms/action-state";
 import { unlockAction } from "./actions";
 
 export function UnlockForm({ next }: { next: string }) {
-  const [state, action, pending] = useActionState(unlockAction, emptyActionState);
+  const [state, action, pending] = useActionState(
+    unlockAction,
+    emptyActionState,
+  );
 
   return (
     <form action={action} className="space-y-5">

@@ -27,12 +27,16 @@ export default async function StudentCourseLayout({
   if (!student) {
     return (
       <PublicShell>
-        <h1 className="font-serif text-2xl">
+        <h1 className="text-2xl">
           {course.code} — {course.title}
         </h1>
-        <Notice tone="info" title="Enter your name to open this course" className="mt-5">
-          Your work is kept against this browser session, so we need your name to
-          know whose notes and answers these are.
+        <Notice
+          tone="info"
+          title="Enter your name to open this course"
+          className="mt-5"
+        >
+          Your work is kept against this browser session, so we need your name
+          to know whose notes and answers these are.
         </Notice>
         <div className="mt-6 flex flex-wrap gap-3">
           {course.access_code ? (

@@ -58,12 +58,17 @@ export function StatusPill({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        size === "sm" ? "px-2 py-0.5 text-[0.75rem]" : "px-2.5 py-1 text-[0.82rem]",
+        size === "sm"
+          ? "px-2 py-0.5 text-[0.75rem]"
+          : "px-2.5 py-1 text-[0.82rem]",
         classes.chip,
         className,
       )}
     >
-      <span aria-hidden="true" className={cn("text-[0.9em] leading-none", classes.dot)}>
+      <span
+        aria-hidden="true"
+        className={cn("text-[0.9em] leading-none", classes.dot)}
+      >
         {presentation.glyph}
       </span>
       {presentation.label}
@@ -74,7 +79,12 @@ export function StatusPill({
 /** The legend that makes the roster readable without relying on colour. */
 export function StatusLegend({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-md border border-tan-100 bg-paper-50 p-4", className)}>
+    <div
+      className={cn(
+        "rounded-[1.125rem] border border-slate-200 bg-paper-50 p-4",
+        className,
+      )}
+    >
       <h3 className="text-sm font-semibold">Reading these statuses</h3>
       <dl className="mt-3 space-y-2.5">
         {READINESS_STATUSES.map((status) => {
@@ -90,9 +100,9 @@ export function StatusLegend({ className }: { className?: string }) {
           );
         })}
       </dl>
-      <p className="mt-3 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
-        Drawn from recorded coursework activity. These are not grades, and no status
-        is a judgement about a student.
+      <p className="mt-3 border-t border-slate-200 pt-3 text-[0.82rem] text-ink-500">
+        Drawn from recorded coursework activity. These are not grades, and no
+        status is a judgement about a student.
       </p>
     </div>
   );
@@ -107,29 +117,45 @@ export function ConfidenceNote({
 }) {
   const tone = {
     low: "border-unknown-200 bg-unknown-50 text-unknown-600",
-    moderate: "border-tan-200 bg-paper-200 text-ink-600",
-    high: "border-tan-200 bg-paper-200 text-ink-600",
+    moderate: "border-slate-200 bg-paper-200 text-ink-600",
+    high: "border-slate-200 bg-paper-200 text-ink-600",
   }[confidence];
 
   return (
-    <p className={cn("rounded-md border px-3 py-2 text-[0.82rem]", tone, className)}>
+    <p
+      className={cn(
+        "rounded-[1.125rem] border px-3 py-2 text-[0.82rem]",
+        tone,
+        className,
+      )}
+    >
       <span className="font-semibold capitalize">{confidence} confidence.</span>{" "}
-      {CONFIDENCE_COPY[confidence].split("— ")[1] ?? CONFIDENCE_COPY[confidence]}
+      {CONFIDENCE_COPY[confidence].split("— ")[1] ??
+        CONFIDENCE_COPY[confidence]}
     </p>
   );
 }
 
-const STANDING_CLASSES: Record<ObjectiveStanding, { chip: string; glyph: string }> = {
-  understood: { chip: "border-track-200 bg-track-50 text-track-600", glyph: "●" },
+const STANDING_CLASSES: Record<
+  ObjectiveStanding,
+  { chip: string; glyph: string }
+> = {
+  understood: {
+    chip: "border-track-200 bg-track-50 text-track-600",
+    glyph: "●",
+  },
   developing: {
-    chip: "border-tan-200 bg-paper-200 text-ink-600",
+    chip: "border-slate-200 bg-paper-200 text-ink-600",
     glyph: "◑",
   },
   needs_review: {
     chip: "border-attention-200 bg-attention-50 text-attention-600",
     glyph: "◐",
   },
-  unknown: { chip: "border-unknown-200 bg-unknown-50 text-unknown-600", glyph: "○" },
+  unknown: {
+    chip: "border-unknown-200 bg-unknown-50 text-unknown-600",
+    glyph: "○",
+  },
 };
 
 export function StandingPill({
@@ -171,10 +197,12 @@ export function StatusDistribution({
   }
 
   const bands: { status: ReadinessStatus; bar: string }[] = [
-    { status: "on_track", bar: "bg-track-500" },
-    { status: "needs_review", bar: "bg-attention-500" },
-    { status: "support_recommended", bar: "bg-concern-500" },
-    { status: "insufficient_data", bar: "bg-unknown-500" },
+    // Fill tones, matching the wheel and the progress bars: this is a graphic, and
+    // the legend beneath carries the label, count and share as text.
+    { status: "on_track", bar: "bg-track-400" },
+    { status: "needs_review", bar: "bg-attention-400" },
+    { status: "support_recommended", bar: "bg-concern-400" },
+    { status: "insufficient_data", bar: "bg-unknown-400" },
   ];
 
   return (
@@ -201,7 +229,10 @@ export function StatusDistribution({
       </div>
       <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {bands.map(({ status }) => (
-          <li key={status} className="flex items-center justify-between gap-2 text-sm">
+          <li
+            key={status}
+            className="flex items-center justify-between gap-2 text-sm"
+          >
             <StatusPill status={status} size="sm" />
             <span className="tabular-nums text-ink-700">
               {counts[status]}{" "}
@@ -237,7 +268,7 @@ export function ReasonList({
         <ul className="mt-2 space-y-1.5">
           {reasons.map((reason) => (
             <li key={reason} className="flex gap-2 text-sm text-ink-700">
-              <span aria-hidden="true" className="mt-[0.35em] text-accent-600">
+              <span aria-hidden="true" className="mt-[0.35em] text-brand-700">
                 ▸
               </span>
               <span className="min-w-0">{reason}</span>

@@ -63,7 +63,7 @@ transactions. Both are guarded in `npm run verify`.
 
 **Tailwind CSS v4 with a token layer.** Design tokens are declared once in `@theme`
 in `src/app/globals.css` and no component hard-codes a hex value. Initially a
-placeholder palette, since no brand guidance existed; now the six Fuller Seminary
+placeholder palette, since no brand guidance existed; then the Fuller Seminary
 brand colours plus the four readiness status ramps. That the swap was a token-file
 edit and a scripted rename, rather than a hunt through 41 components, is the whole
 argument for the token layer.
@@ -83,7 +83,7 @@ material, assessment, support recommendation), so validation is not a client-sid
 courtesy.
 
 **Fonts self-hosted, not fetched at runtime.** Initially a system stack, because no
-brand guidance existed yet. Now Noto Serif and Noto Sans per the supplied style
+brand guidance existed yet. Now Satoshi, per the supplied brand board — one
 guide, loaded through `next/font`, which downloads them at build time and serves them
 from our own origin — so no request goes to Google while anyone is using the app,
 which matters for a page displaying student-shaped records.

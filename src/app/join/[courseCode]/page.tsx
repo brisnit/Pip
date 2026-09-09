@@ -43,7 +43,7 @@ export default async function JoinCoursePage({
       <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
         Joining a course
       </p>
-      <h1 className="mt-2 font-serif text-3xl">
+      <h1 className="mt-2 text-3xl">
         {course.code} — {course.title}
       </h1>
 
@@ -68,7 +68,7 @@ export default async function JoinCoursePage({
             ]}
           />
           {course.description ? (
-            <p className="mt-5 border-t border-tan-100 pt-5 text-sm leading-relaxed text-ink-600">
+            <p className="mt-5 border-t border-slate-200 pt-5 text-sm leading-relaxed text-ink-600">
               {course.description}
             </p>
           ) : null}
@@ -76,7 +76,11 @@ export default async function JoinCoursePage({
       </Card>
 
       {existing ? (
-        <Notice tone="info" title="You are already in this course" className="mt-6">
+        <Notice
+          tone="info"
+          title="You are already in this course"
+          className="mt-6"
+        >
           <p>
             You are signed in as <strong>{existing.studentName}</strong>.
           </p>
@@ -92,7 +96,7 @@ export default async function JoinCoursePage({
       ) : null}
 
       <section className="mt-8">
-        <h2 className="font-serif text-xl">Your details</h2>
+        <h2 className="text-xl">Your details</h2>
         <Card className="mt-3">
           <CardBody>
             <EnterCourseForm
@@ -104,16 +108,20 @@ export default async function JoinCoursePage({
         </Card>
       </section>
 
-      <Notice tone="privacy" title="What your professor will and will not see" className="mt-8">
+      <Notice
+        tone="privacy"
+        title="What your professor will and will not see"
+        className="mt-8"
+      >
         <p>
-          Your professor sees aggregated comprehension data, questions you choose
-          to submit, notes you explicitly share, your assessment responses, and
-          any support you request.
+          Your professor sees aggregated comprehension data, questions you
+          choose to submit, notes you explicitly share, your assessment
+          responses, and any support you request.
         </p>
         <p className="mt-2">
-          Your private notes stay private. Nothing you write in the notes panel is
-          visible to your professor unless you press the share control on that
-          specific note.
+          Your private notes stay private. Nothing you write in the notes panel
+          is visible to your professor unless you press the share control on
+          that specific note.
         </p>
       </Notice>
 

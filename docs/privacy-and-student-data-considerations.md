@@ -4,7 +4,7 @@
 
 Stated first because everything else is downstream of it.
 
-The Fuller Learning Companion prototype **must not hold real student records**. It
+The Predictive Learning prototype **must not hold real student records**. It
 has no authentication, no access control, no audit logging, no retention policy, no
 encryption at rest, and no institutional agreement. Production use would require
 legal, security, operational and institutional review, and substantial engineering

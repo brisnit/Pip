@@ -82,9 +82,7 @@ export default async function StudentAssessmentPage({ params }: Props) {
       />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Badge tone="brand">
-          {ASSESSMENT_TYPE_LABELS[assessment.type]}
-        </Badge>
+        <Badge tone="brand">{ASSESSMENT_TYPE_LABELS[assessment.type]}</Badge>
         {assessment.is_practice === 1 ? (
           <Badge tone="track">Practice — not graded</Badge>
         ) : null}
@@ -96,7 +94,11 @@ export default async function StudentAssessmentPage({ params }: Props) {
       </div>
 
       {assessment.professor_guidance ? (
-        <Notice tone="info" title={`From ${course.professor_name}`} className="mb-6">
+        <Notice
+          tone="info"
+          title={`From ${course.professor_name}`}
+          className="mb-6"
+        >
           {assessment.professor_guidance}
         </Notice>
       ) : null}
@@ -127,9 +129,11 @@ export default async function StudentAssessmentPage({ params }: Props) {
               />
             ) : null}
             <p className="text-[0.82rem] text-ink-500">
-              You can change any answer. Your most recent answer is what counts, and
-              your responses feed your{" "}
-              <Link href={`/student/${courseId}/readiness`}>readiness view</Link>{" "}
+              You can change any answer. Your most recent answer is what counts,
+              and your responses feed your{" "}
+              <Link href={`/student/${courseId}/readiness`}>
+                readiness view
+              </Link>{" "}
               immediately.
             </p>
           </CardBody>
@@ -145,7 +149,9 @@ export default async function StudentAssessmentPage({ params }: Props) {
           {questions.map((question, index) => {
             const response = byQuestion.get(question.id);
             const answered = Boolean(response);
-            const autoScored = AUTO_SCORED_QUESTION_TYPES.includes(question.type);
+            const autoScored = AUTO_SCORED_QUESTION_TYPES.includes(
+              question.type,
+            );
             const isConfidence =
               question.type === "confidence_rating" ||
               question.type === "self_assessment";
@@ -169,7 +175,9 @@ export default async function StudentAssessmentPage({ params }: Props) {
                       </span>
                     ) : null}
                     {question.ai_generated === 1 ? (
-                      <Badge tone="accent">Drafted with AI, edited by professor</Badge>
+                      <Badge tone="accent">
+                        Drafted with AI, edited by professor
+                      </Badge>
                     ) : null}
                   </div>
 
@@ -195,8 +203,8 @@ export default async function StudentAssessmentPage({ params }: Props) {
                       />
                       <fieldset>
                         <legend className="text-[0.82rem] text-ink-600">
-                          Choose a rating. This is used to help you, never to mark
-                          you.
+                          Choose a rating. This is used to help you, never to
+                          mark you.
                         </legend>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {[1, 2, 3, 4, 5].map((level) => (
@@ -223,12 +231,16 @@ export default async function StudentAssessmentPage({ params }: Props) {
                           ))}
                         </div>
                         <p className="mt-1.5 text-[0.78rem] text-ink-400">
-                          1 = {CONFIDENCE_LABELS[0]} · 5 = {CONFIDENCE_LABELS[4]}
+                          1 = {CONFIDENCE_LABELS[0]} · 5 ={" "}
+                          {CONFIDENCE_LABELS[4]}
                         </p>
                       </fieldset>
                     </form>
                   ) : question.options.length > 0 ? (
-                    <form action={submitAssessmentResponseAction} className="mt-3">
+                    <form
+                      action={submitAssessmentResponseAction}
+                      className="mt-3"
+                    >
                       <input type="hidden" name="courseId" value={courseId} />
                       <input
                         type="hidden"
@@ -286,7 +298,10 @@ export default async function StudentAssessmentPage({ params }: Props) {
                                     </span>
                                   ) : null}
                                   {chosen ? (
-                                    <span className="sr-only"> (your answer)</span>
+                                    <span className="sr-only">
+                                      {" "}
+                                      (your answer)
+                                    </span>
                                   ) : null}
                                 </Button>
                               </li>
@@ -327,14 +342,14 @@ export default async function StudentAssessmentPage({ params }: Props) {
                         {answered ? "Update answer" : "Save answer"}
                       </Button>
                       <p className="text-[0.78rem] text-ink-400">
-                        Written answers are stored for {course.professor_name} to
-                        read. They are never auto-marked.
+                        Written answers are stored for {course.professor_name}{" "}
+                        to read. They are never auto-marked.
                       </p>
                     </form>
                   )}
 
                   {answered && autoScored ? (
-                    <div className="mt-3 border-t border-tan-100 pt-3">
+                    <div className="mt-3 border-t border-slate-200 pt-3">
                       <p
                         className={
                           response?.is_correct === 1
@@ -365,15 +380,16 @@ export default async function StudentAssessmentPage({ params }: Props) {
         <CardBody>
           <ul className="space-y-2 text-sm text-ink-600">
             <li>
-              Multiple-choice and true/false answers are scored automatically and
-              feed your readiness view.
+              Multiple-choice and true/false answers are scored automatically
+              and feed your readiness view.
             </li>
             <li>
               Written answers are stored verbatim for {course.professor_name} to
               read. They are not scored automatically.
             </li>
             <li>
-              Confidence ratings are a signal to help you, never a mark against you.
+              Confidence ratings are a signal to help you, never a mark against
+              you.
             </li>
             <li>
               {assessment.is_practice === 1

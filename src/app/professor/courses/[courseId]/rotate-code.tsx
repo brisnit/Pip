@@ -3,9 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/primitives";
 import { FormStatus } from "@/components/ui/form";
-import {
-  rotateCourseCodeAction,
-} from "@/app/professor/actions";
+import { rotateCourseCodeAction } from "@/app/professor/actions";
 import { emptyActionState } from "@/lib/forms/action-state";
 
 export function RotateCodeForm({ courseId }: { courseId: string }) {
@@ -25,8 +23,8 @@ export function RotateCodeForm({ courseId }: { courseId: string }) {
         tone={state.error ? "error" : "success"}
       />
       <p className="text-[0.8rem] text-ink-500">
-        Retires the current code immediately. Students already in the course keep
-        their access; only new joins are affected.
+        Retires the current code immediately. Students already in the course
+        keep their access; only new joins are affected.
       </p>
     </form>
   );

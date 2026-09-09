@@ -113,11 +113,15 @@ export default async function StudentDetailPage({ params }: Props) {
         action={<StatusPill status={readiness.status} />}
       />
 
-      <Notice tone="privacy" title="What this screen does and does not show" className="mb-6">
-        Aggregated comprehension data, questions this student submitted, notes they
-        explicitly shared, assessment responses and support requests. Their private
-        notes are not shown here and are not retrievable through the professor
-        portal.
+      <Notice
+        tone="privacy"
+        title="What this screen does and does not show"
+        className="mb-6"
+      >
+        Aggregated comprehension data, questions this student submitted, notes
+        they explicitly shared, assessment responses and support requests. Their
+        private notes are not shown here and are not retrievable through the
+        professor portal.
       </Notice>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -134,7 +138,9 @@ export default async function StudentDetailPage({ params }: Props) {
                   <StatusPill status={readiness.override.status} size="sm" /> on{" "}
                   {formatDateTime(readiness.override.createdAt)}.
                 </p>
-                <p className="mt-2">&ldquo;{readiness.override.reason}&rdquo;</p>
+                <p className="mt-2">
+                  &ldquo;{readiness.override.reason}&rdquo;
+                </p>
                 <p className="mt-2 text-[0.85em]">
                   The computed status from the signals alone is{" "}
                   <StatusPill status={readiness.computedStatus} size="sm" />.
@@ -152,7 +158,7 @@ export default async function StudentDetailPage({ params }: Props) {
             <ConfidenceNote confidence={readiness.confidence} />
             <ReasonList reasons={readiness.reasons} />
 
-            <div className="border-t border-tan-100 pt-5">
+            <div className="border-t border-slate-200 pt-5">
               <h3 className="mb-3 text-sm font-semibold">Signals in detail</h3>
               <ul className="space-y-3">
                 {readiness.signals.map((signal) => (
@@ -178,9 +184,7 @@ export default async function StudentDetailPage({ params }: Props) {
                           {signal.label}
                           {signal.weight === 0 ? " (context only)" : ""}
                         </span>
-                        <span className="shrink-0 text-ink-400">
-                          no data
-                        </span>
+                        <span className="shrink-0 text-ink-400">no data</span>
                       </p>
                     )}
                     <p className="mt-1 text-[0.82rem] text-ink-500">
@@ -215,13 +219,14 @@ export default async function StudentDetailPage({ params }: Props) {
                 />
               </dl>
               <DetailList
-                className="mt-5 grid-cols-1 border-t border-tan-100 pt-4 sm:grid-cols-1"
+                className="mt-5 grid-cols-1 border-t border-slate-200 pt-4 sm:grid-cols-1"
                 items={[
                   { label: "Email", value: student.email },
                   { label: "Student ID", value: student.student_id_number },
                   {
                     label: "Record type",
-                    value: student.is_demo === 1 ? <DemoBadge /> : "Prototype entry",
+                    value:
+                      student.is_demo === 1 ? <DemoBadge /> : "Prototype entry",
                   },
                 ]}
               />
@@ -252,7 +257,7 @@ export default async function StudentDetailPage({ params }: Props) {
             description="Standing per objective, with the evidence behind it."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {readiness.objectives.map((row) => (
                 <li key={row.objective.id} className="px-5 py-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -304,7 +309,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   This student has not submitted any questions.
                 </p>
               ) : (
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {questions.map((question) => (
                     <li key={question.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -312,7 +317,9 @@ export default async function StudentDetailPage({ params }: Props) {
                           {QUESTION_KIND_LABELS[question.kind]}
                         </Badge>
                         <Badge
-                          tone={question.status === "open" ? "attention" : "track"}
+                          tone={
+                            question.status === "open" ? "attention" : "track"
+                          }
                         >
                           {QUESTION_STATUS_LABELS[question.status]}
                         </Badge>
@@ -322,7 +329,9 @@ export default async function StudentDetailPage({ params }: Props) {
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-1.5 text-sm text-ink-700">{question.body}</p>
+                      <p className="mt-1.5 text-sm text-ink-700">
+                        {question.body}
+                      </p>
                       {question.segment_heading ? (
                         <p className="mt-1 text-[0.8rem] text-ink-400">
                           On &ldquo;{question.segment_heading}&rdquo; in{" "}
@@ -333,7 +342,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   ))}
                 </ul>
               )}
-              <p className="border-t border-tan-100 px-5 py-3 text-[0.82rem]">
+              <p className="border-t border-slate-200 px-5 py-3 text-[0.82rem]">
                 <Link href={`/professor/courses/${courseId}/insights`}>
                   Answer questions in the comprehension dashboard →
                 </Link>
@@ -354,7 +363,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   private, and this screen cannot read them.
                 </p>
               ) : (
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {sharedNotes.map((note) => (
                     <li key={note.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -401,7 +410,7 @@ export default async function StudentDetailPage({ params }: Props) {
             />
             <CardBody className="space-y-4">
               <AssignAllForm courseId={courseId} studentId={studentId} />
-              <ul className="divide-y divide-tan-100 border-t border-tan-100">
+              <ul className="divide-y divide-slate-200 border-t border-slate-200">
                 {drafts.map((draft, index) => {
                   const already = assignedKeys.has(
                     `${draft.pathway}::${draft.title}`,
@@ -471,7 +480,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   your own below.
                 </p>
               ) : (
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {recommendations.map((rec) => (
                     <li key={rec.id} className="px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -499,7 +508,7 @@ export default async function StudentDetailPage({ params }: Props) {
                         {rec.title}
                       </p>
                       {rec.student_response ? (
-                        <p className="mt-1 rounded border border-tan-100 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
+                        <p className="mt-1 rounded border border-slate-200 bg-paper-100 px-2 py-1 text-[0.82rem] text-ink-600">
                           Student: &ldquo;{rec.student_response}&rdquo;
                         </p>
                       ) : null}
@@ -514,7 +523,7 @@ export default async function StudentDetailPage({ params }: Props) {
               )}
 
               {requests.length > 0 ? (
-                <div className="border-t border-tan-100 px-5 py-4">
+                <div className="border-t border-slate-200 px-5 py-4">
                   <h3 className="text-sm font-semibold">Requests submitted</h3>
                   <ul className="mt-2 space-y-2">
                     {requests.map((request) => (
@@ -574,7 +583,7 @@ export default async function StudentDetailPage({ params }: Props) {
           <CardBody className="space-y-5">
             <ProfessorNoteForm courseId={courseId} studentId={studentId} />
             {notes.length > 0 ? (
-              <ul className="divide-y divide-tan-100 border-t border-tan-100">
+              <ul className="divide-y divide-slate-200 border-t border-slate-200">
                 {notes.map((note) => (
                   <li key={note.id} className="py-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -591,12 +600,20 @@ export default async function StudentDetailPage({ params }: Props) {
                       </div>
                       <form action={setFollowUpAction} className="shrink-0">
                         <input type="hidden" name="courseId" value={courseId} />
-                        <input type="hidden" name="studentId" value={studentId} />
+                        <input
+                          type="hidden"
+                          name="studentId"
+                          value={studentId}
+                        />
                         <input type="hidden" name="noteId" value={note.id} />
                         <input
                           type="hidden"
                           name="status"
-                          value={note.follow_up_status === "open" ? "complete" : "open"}
+                          value={
+                            note.follow_up_status === "open"
+                              ? "complete"
+                              : "open"
+                          }
                         />
                         <Button type="submit" variant="ghost" size="sm">
                           {note.follow_up_status === "open"
@@ -621,7 +638,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   No recorded activity.
                 </p>
               ) : (
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {activity.map((event) => (
                     <li key={event.id} className="px-5 py-2.5">
                       <p className="text-[0.85rem] text-ink-700">
@@ -645,7 +662,7 @@ export default async function StudentDetailPage({ params }: Props) {
                   Nothing marked confusing.
                 </p>
               ) : (
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {confusingMarkers.map((marker) => (
                     <li key={marker.id} className="px-5 py-2.5">
                       <p className="text-[0.85rem] text-ink-700">
@@ -670,7 +687,7 @@ export default async function StudentDetailPage({ params }: Props) {
             <Card>
               <CardHeader title="Status history" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {overrideHistory.map((entry) => (
                     <li key={entry.id} className="px-5 py-2.5">
                       <div className="flex items-center gap-2">

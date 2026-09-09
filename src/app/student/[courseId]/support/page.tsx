@@ -39,7 +39,9 @@ import {
 export const metadata: Metadata = { title: "Support plan" };
 
 /** Which request kind a pathway maps onto, for the inline request form. */
-const PATHWAY_REQUEST_KIND: Partial<Record<SupportPathway, SupportRequestKind>> = {
+const PATHWAY_REQUEST_KIND: Partial<
+  Record<SupportPathway, SupportRequestKind>
+> = {
   teaching_assistant: "teaching_assistant",
   tutoring: "tutoring",
   office_hours: "office_hours",
@@ -102,14 +104,16 @@ export default async function StudentSupportPage({
           <CardBody>
             <Meter
               label="Steps completed"
-              value={assigned.filter((rec) => rec.status === "completed").length}
+              value={
+                assigned.filter((rec) => rec.status === "completed").length
+              }
               max={Math.max(assigned.length, 1)}
               valueText={`${assigned.filter((rec) => rec.status === "completed").length} of ${assigned.length}`}
               tone="track"
             />
             <p className="mt-2 text-[0.82rem] text-ink-500">
-              Your professor can see whether you have engaged with these — not what
-              you wrote in your private notes.
+              Your professor can see whether you have engaged with these — not
+              what you wrote in your private notes.
             </p>
           </CardBody>
         </Card>
@@ -127,7 +131,7 @@ export default async function StudentSupportPage({
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           aria-hidden="true"
-                          className="font-serif text-lg text-accent-600"
+                          className="text-lg text-brand-700"
                         >
                           {index + 1}
                         </span>
@@ -153,9 +157,7 @@ export default async function StudentSupportPage({
                         ) : null}
                       </div>
 
-                      <h3 className="mt-2 font-serif text-lg leading-snug">
-                        {rec.title}
-                      </h3>
+                      <h3 className="mt-2 text-lg leading-snug">{rec.title}</h3>
 
                       <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink-600">
                         <span className="font-medium text-ink-700">
@@ -164,7 +166,7 @@ export default async function StudentSupportPage({
                         {rec.rationale}
                       </p>
 
-                      <p className="mt-2 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.9rem] leading-relaxed text-ink-700">
+                      <p className="mt-2 rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.9rem] leading-relaxed text-ink-700">
                         <span className="font-medium">Next step:</span>{" "}
                         {rec.next_step}
                       </p>
@@ -188,13 +190,14 @@ export default async function StudentSupportPage({
                       {rec.material_title ? (
                         <p className="mt-1 text-[0.85rem]">
                           <Link href={`/student/${courseId}/resources`}>
-                            Find &ldquo;{rec.material_title}&rdquo; in resources →
+                            Find &ldquo;{rec.material_title}&rdquo; in resources
+                            →
                           </Link>
                         </p>
                       ) : null}
 
                       {rec.professor_response ? (
-                        <p className="mt-2 rounded-md border border-track-200 bg-track-50 px-3 py-2 text-[0.85rem] text-ink-700">
+                        <p className="mt-2 rounded-[1.125rem] border border-track-200 bg-track-50 px-3 py-2 text-[0.85rem] text-ink-700">
                           <span className="font-semibold">
                             {course.professor_name}:
                           </span>{" "}
@@ -215,7 +218,7 @@ export default async function StudentSupportPage({
                       />
 
                       {PATHWAY_REQUEST_KIND[rec.pathway] ? (
-                        <details className="mt-3 border-t border-tan-100 pt-3">
+                        <details className="mt-3 border-t border-slate-200 pt-3">
                           <summary className="cursor-pointer text-sm font-medium text-brand-700">
                             Request this
                           </summary>
@@ -225,7 +228,9 @@ export default async function StudentSupportPage({
                               recommendationId={rec.id}
                               defaultKind={PATHWAY_REQUEST_KIND[rec.pathway]}
                               defaultTopics={
-                                rec.objective_text ?? rec.concept_name ?? gapTopics
+                                rec.objective_text ??
+                                rec.concept_name ??
+                                gapTopics
                               }
                               taName={product.support.taName}
                               professorName={course.professor_name}
@@ -249,9 +254,7 @@ export default async function StudentSupportPage({
         <section className="mb-8">
           <SectionHeading
             title={
-              active.length > 0
-                ? "Also suggested for you"
-                : "Suggested for you"
+              active.length > 0 ? "Also suggested for you" : "Suggested for you"
             }
             level={2}
             description="Computed from your recorded activity and your professor's published material. Nothing here has been assigned yet."
@@ -336,7 +339,7 @@ export default async function StudentSupportPage({
           <SectionHeading title="Your requests" level={2} />
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {requests.map((request) => (
                   <li key={request.id} className="px-5 py-4">
                     <div className="flex flex-wrap items-center gap-2">
@@ -378,7 +381,7 @@ export default async function StudentSupportPage({
                         <summary className="cursor-pointer text-[0.85rem] font-medium text-brand-700">
                           Your preparation summary
                         </summary>
-                        <pre className="mt-2 whitespace-pre-wrap rounded border border-tan-100 bg-paper-100 px-3 py-2 font-sans text-[0.85rem] leading-relaxed text-ink-600">
+                        <pre className="mt-2 whitespace-pre-wrap rounded border border-slate-200 bg-paper-100 px-3 py-2 font-sans text-[0.85rem] leading-relaxed text-ink-600">
                           {request.prep_summary}
                         </pre>
                         <p className="mt-1.5 text-[0.78rem] text-ink-400">
@@ -388,8 +391,8 @@ export default async function StudentSupportPage({
                       </details>
                     ) : null}
                     <p className="mt-2 text-[0.78rem] text-ink-400">
-                      Submitted {formatDateTime(request.created_at)}. Recorded for
-                      your professor to see; no calendar invitation is sent.
+                      Submitted {formatDateTime(request.created_at)}. Recorded
+                      for your professor to see; no calendar invitation is sent.
                     </p>
                   </li>
                 ))}
@@ -404,7 +407,7 @@ export default async function StudentSupportPage({
           <SectionHeading title="Done and declined" level={2} />
           <Card>
             <CardBody className="p-0">
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {finished.map((rec) => (
                   <li key={rec.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -462,9 +465,9 @@ export default async function StudentSupportPage({
       </Card>
 
       <Notice tone="info" title="How requests reach people" className="mt-8">
-        Your request is recorded and appears in your professor&rsquo;s support view.
-        Nothing is emailed and no appointment is booked automatically — your
-        professor follows up through their usual channels.
+        Your request is recorded and appears in your professor&rsquo;s support
+        view. Nothing is emailed and no appointment is booked automatically —
+        your professor follows up through their usual channels.
       </Notice>
     </>
   );

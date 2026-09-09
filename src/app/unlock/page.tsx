@@ -31,10 +31,10 @@ export default async function UnlockPage({
       >
         <BrandLockup href={null} />
 
-        <h1 className="mt-8 font-serif text-3xl">{product.name}</h1>
+        <h1 className="mt-8 text-3xl">{product.name}</h1>
         <p className="mt-3 text-ink-600">
-          This site is shared for review and is not open to the public. Enter the
-          access password you were given.
+          This site is shared for review and is not open to the public. Enter
+          the access password you were given.
         </p>
 
         <Card className="mt-6">
@@ -44,12 +44,13 @@ export default async function UnlockPage({
         </Card>
 
         <Notice tone="info" className="mt-6">
-          One password, shared by everyone with the link. It keeps this address from
-          being stumbled upon; it does not identify you or limit what you can see.
+          One password, shared by everyone with the link. It keeps this address
+          from being stumbled upon; it does not identify you or limit what you
+          can see.
         </Notice>
       </main>
 
-      <footer className="border-t border-tan-100 bg-white">
+      <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-lg px-4 py-6 text-[0.82rem] text-ink-500 sm:px-6">
           {product.name} — {product.institution.name}.
         </div>

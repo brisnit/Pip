@@ -24,9 +24,17 @@ import {
   QUESTION_KIND_LABELS,
 } from "@/lib/domain/vocabulary";
 import { attentionRank } from "@/lib/domain/readiness";
-import { formatDate, formatDayMonth, percent, relativeTime } from "@/lib/format";
+import {
+  formatDate,
+  formatDayMonth,
+  percent,
+  relativeTime,
+} from "@/lib/format";
 import { listAssessments } from "@/lib/repositories/assessments";
-import { listQuestions, listRecentActivity } from "@/lib/repositories/engagement";
+import {
+  listQuestions,
+  listRecentActivity,
+} from "@/lib/repositories/engagement";
 import { getSyllabus, listMaterials } from "@/lib/repositories/content";
 import {
   getCourse,
@@ -78,10 +86,14 @@ export default async function CourseOverviewPage({
   // Worst first, so the person most in need of a conversation is at the top.
   // Students without enough evidence are included deliberately: "we do not know"
   // is itself a reason to follow up, and dropping them would hide them.
-  const byStudent = new Map(readiness.map((row) => [row.studentId, row.result]));
+  const byStudent = new Map(
+    readiness.map((row) => [row.studentId, row.result]),
+  );
   const needingAttention = roster
     .map((student) => ({ student, result: byStudent.get(student.id) }))
-    .filter((row) => row.result !== undefined && row.result.status !== "on_track")
+    .filter(
+      (row) => row.result !== undefined && row.result.status !== "on_track",
+    )
     .map((row) => ({ student: row.student, result: row.result! }))
     .sort(
       (a, b) =>
@@ -146,8 +158,8 @@ export default async function CourseOverviewPage({
     <>
       {created ? (
         <Notice tone="info" title="Course created" className="mb-6">
-          Share the code or QR code below with your students, then add a syllabus
-          and your first lecture.
+          Share the code or QR code below with your students, then add a
+          syllabus and your first lecture.
         </Notice>
       ) : null}
 
@@ -206,7 +218,7 @@ export default async function CourseOverviewPage({
                 description="Issue a code so students can join this course."
               />
             )}
-            <div className="border-t border-tan-100 pt-5">
+            <div className="border-t border-slate-200 pt-5">
               <RotateCodeForm courseId={courseId} />
             </div>
           </CardBody>
@@ -268,7 +280,7 @@ export default async function CourseOverviewPage({
             description={`${setupSteps.length - outstanding.length} of ${setupSteps.length} steps complete.`}
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {setupSteps.map((step) => (
                 <li
                   key={step.label}
@@ -278,9 +290,7 @@ export default async function CourseOverviewPage({
                     <span
                       aria-hidden="true"
                       className={
-                        step.done
-                          ? "text-track-500"
-                          : "text-unknown-500"
+                        step.done ? "text-track-500" : "text-unknown-500"
                       }
                     >
                       {step.done ? "✓" : "○"}
@@ -324,9 +334,12 @@ export default async function CourseOverviewPage({
             }
           />
           <CardBody>
-            <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
+            <StatusDistribution
+              counts={aggregate.counts}
+              total={aggregate.total}
+            />
             {aggregate.hardestObjectives.length > 0 ? (
-              <div className="mt-6 border-t border-tan-100 pt-5">
+              <div className="mt-6 border-t border-slate-200 pt-5">
                 <h3 className="text-sm font-semibold">
                   Objectives with the weakest evidence
                 </h3>
@@ -338,8 +351,9 @@ export default async function CourseOverviewPage({
                       </span>{" "}
                       <span className="text-ink-600">{row.objective.text}</span>
                       <span className="block text-[0.8rem] text-ink-400">
-                        {row.studentsNeedingReview} of {row.studentsWithEvidence}{" "}
-                        students with evidence need review
+                        {row.studentsNeedingReview} of{" "}
+                        {row.studentsWithEvidence} students with evidence need
+                        review
                         {row.accuracy !== null
                           ? ` · ${percent(row.accuracy)} of related answers correct`
                           : ""}
@@ -364,7 +378,7 @@ export default async function CourseOverviewPage({
                 syllabus.
               </p>
             ) : (
-              <ol className="divide-y divide-tan-100">
+              <ol className="divide-y divide-slate-200">
                 {modules.map((module) => {
                   const moduleLectures = lectures.filter(
                     (lecture) => lecture.module_id === module.id,
@@ -389,7 +403,10 @@ export default async function CourseOverviewPage({
                       {moduleLectures.length > 0 ? (
                         <ul className="mt-2 space-y-1">
                           {moduleLectures.map((lecture) => (
-                            <li key={lecture.id} className="text-[0.82rem] text-ink-500">
+                            <li
+                              key={lecture.id}
+                              className="text-[0.82rem] text-ink-500"
+                            >
                               <Link
                                 href={`/professor/courses/${courseId}/content?lecture=${lecture.id}`}
                               >
@@ -446,7 +463,7 @@ export default async function CourseOverviewPage({
                 Every student with enough recorded activity is on track.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {needingAttention.slice(0, 6).map(({ student, result }) => (
                   <li key={student.id}>
                     <Link
@@ -494,7 +511,7 @@ export default async function CourseOverviewPage({
                 addressed in class.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {openQuestions.map((question) => (
                   <li key={question.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -534,7 +551,7 @@ export default async function CourseOverviewPage({
                 No scheduled or draft lectures.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {upcomingLectures.map((lecture) => (
                   <li key={lecture.id} className="px-5 py-3">
                     <p className="text-sm font-medium text-ink-800">
@@ -569,7 +586,7 @@ export default async function CourseOverviewPage({
                 No dated assessments yet.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {upcomingAssessments.map((assessment) => (
                   <li key={assessment.id} className="px-5 py-3">
                     <p className="text-sm font-medium text-ink-800">
@@ -597,7 +614,7 @@ export default async function CourseOverviewPage({
                 Nothing recorded in this course yet.
               </p>
             ) : (
-              <ul className="divide-y divide-tan-100">
+              <ul className="divide-y divide-slate-200">
                 {activity.map((event) => (
                   <li key={event.id} className="px-5 py-2.5">
                     <p className="text-[0.85rem] text-ink-700">

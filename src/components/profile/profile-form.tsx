@@ -26,10 +26,7 @@ export function ProfileForm({
   nameLabel,
   nameValue,
 }: {
-  action: (
-    prev: ActionState,
-    formData: FormData,
-  ) => Promise<ActionState>;
+  action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   fields: SerialisableField[];
   values: Record<string, string>;
   nameLabel: string;
@@ -42,9 +39,19 @@ export function ProfileForm({
       {state.error ? <Notice tone="caution">{state.error}</Notice> : null}
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field id="profile-name" label={nameLabel} required className="sm:col-span-2">
+        <Field
+          id="profile-name"
+          label={nameLabel}
+          required
+          className="sm:col-span-2"
+        >
           {(props) => (
-            <TextInput {...props} name="name" defaultValue={nameValue} maxLength={90} />
+            <TextInput
+              {...props}
+              name="name"
+              defaultValue={nameValue}
+              maxLength={90}
+            />
           )}
         </Field>
 

@@ -2,7 +2,13 @@
 
 import { useActionState } from "react";
 import { Button, Notice } from "@/components/ui/primitives";
-import { Field, FormStatus, Select, TextArea, TextInput } from "@/components/ui/form";
+import {
+  Field,
+  FormStatus,
+  Select,
+  TextArea,
+  TextInput,
+} from "@/components/ui/form";
 import {
   SUPPORT_REQUEST_KINDS,
   SUPPORT_REQUEST_KIND_LABELS,
@@ -34,11 +40,7 @@ export function RecommendationResponseForm({
   return (
     <form action={action} className="mt-3 space-y-3">
       <input type="hidden" name="courseId" value={courseId} />
-      <input
-        type="hidden"
-        name="recommendationId"
-        value={recommendationId}
-      />
+      <input type="hidden" name="recommendationId" value={recommendationId} />
 
       <div className="flex flex-wrap gap-2">
         {!done ? (
@@ -148,17 +150,17 @@ export function SupportRequestForm({
     <form action={action} className="space-y-4">
       <input type="hidden" name="courseId" value={courseId} />
       {recommendationId ? (
-        <input
-          type="hidden"
-          name="recommendationId"
-          value={recommendationId}
-        />
+        <input type="hidden" name="recommendationId" value={recommendationId} />
       ) : null}
 
       {state.error ? <Notice tone="caution">{state.error}</Notice> : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field id={`req-kind-${recommendationId ?? "new"}`} label="What would help?" required>
+        <Field
+          id={`req-kind-${recommendationId ?? "new"}`}
+          label="What would help?"
+          required
+        >
           {(props) => (
             <Select
               {...props}

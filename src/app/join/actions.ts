@@ -46,17 +46,27 @@ export async function enterCourseAction(
 
   const course = findCourseByAccessCode(accessCode);
   if (!course) {
-    return { error: "That course link is no longer valid. Ask your professor for a current code." };
+    return {
+      error:
+        "That course link is no longer valid. Ask your professor for a current code.",
+    };
   }
 
   if (name.length < 2) {
-    return { error: "Enter your full name so your professor can identify your work." };
+    return {
+      error: "Enter your full name so your professor can identify your work.",
+    };
   }
   if (name.length > 80) {
-    return { error: "That name is longer than this prototype accepts (80 characters)." };
+    return {
+      error: "That name is longer than this prototype accepts (80 characters).",
+    };
   }
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: "That email address does not look right. Leave it blank if you prefer." };
+    return {
+      error:
+        "That email address does not look right. Leave it blank if you prefer.",
+    };
   }
   if (!consented) {
     return {

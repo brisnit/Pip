@@ -158,11 +158,14 @@ export function listInteractions(
 ): InteractionWithOptions[] {
   const db = getDb();
   const rows = db
-    .prepare<[string], InteractionRow & {
-      concept_name: string | null;
-      objective_text: string | null;
-      segment_heading: string | null;
-    }>(
+    .prepare<
+      [string],
+      InteractionRow & {
+        concept_name: string | null;
+        objective_text: string | null;
+        segment_heading: string | null;
+      }
+    >(
       `SELECT i.*, c.name AS concept_name, o.text AS objective_text,
               s.heading AS segment_heading
        FROM interactions i
@@ -232,7 +235,9 @@ export type CreateLectureInput = {
 };
 
 /** Detects the video provider from a URL so the player can pick an embed strategy. */
-export function detectVideoProvider(url: string | null | undefined): string | null {
+export function detectVideoProvider(
+  url: string | null | undefined,
+): string | null {
   if (!url) return null;
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
@@ -315,7 +320,14 @@ export function createLecture(input: CreateLectureInput): string {
         `INSERT INTO scripture_references
            (id, course_id, lecture_id, reference, note, created_at)
          VALUES (?,?,?,?,?,?)`,
-      ).run(newId("scr"), input.courseId, lectureId, ref.reference, ref.note ?? null, now);
+      ).run(
+        newId("scr"),
+        input.courseId,
+        lectureId,
+        ref.reference,
+        ref.note ?? null,
+        now,
+      );
     }
 
     for (const concept of input.concepts ?? []) {
@@ -329,7 +341,13 @@ export function createLecture(input: CreateLectureInput): string {
         db.prepare(
           `INSERT INTO concepts (id, course_id, name, definition, created_at)
            VALUES (?,?,?,?,?)`,
-        ).run(conceptId, input.courseId, concept.name, concept.definition ?? null, now);
+        ).run(
+          conceptId,
+          input.courseId,
+          concept.name,
+          concept.definition ?? null,
+          now,
+        );
       }
       db.prepare(
         `INSERT OR IGNORE INTO lecture_concepts (lecture_id, concept_id) VALUES (?,?)`,
@@ -395,9 +413,11 @@ export function setLectureStatus(
     ).run(now, now, lectureId);
     return;
   }
-  db.prepare(
-    "UPDATE lectures SET status = ?, updated_at = ? WHERE id = ?",
-  ).run(status, now, lectureId);
+  db.prepare("UPDATE lectures SET status = ?, updated_at = ? WHERE id = ?").run(
+    status,
+    now,
+    lectureId,
+  );
 }
 
 export function setCurrentTopic(lectureId: string, topic: string) {
@@ -408,7 +428,10 @@ export function setCurrentTopic(lectureId: string, topic: string) {
     .run(topic, nowIso(), lectureId);
 }
 
-export function setInteractionPublished(interactionId: string, published: boolean) {
+export function setInteractionPublished(
+  interactionId: string,
+  published: boolean,
+) {
   getDb()
     .prepare(
       "UPDATE interactions SET published = ?, published_at = ? WHERE id = ?",
@@ -487,9 +510,9 @@ export type RecordInteractionResponse = {
   confidence?: number | null;
 };
 
-export function recordInteractionResponse(
-  input: RecordInteractionResponse,
-): { isCorrect: boolean | null } {
+export function recordInteractionResponse(input: RecordInteractionResponse): {
+  isCorrect: boolean | null;
+} {
   const db = getDb();
   let isCorrect: boolean | null = null;
 

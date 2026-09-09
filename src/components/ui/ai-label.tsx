@@ -19,7 +19,7 @@ export function AIProvenance({
   return (
     <div
       className={cn(
-        "rounded-md border border-accent-200 bg-accent-50 px-3 py-2 text-[0.82rem] text-accent-700",
+        "rounded-[1.125rem] border border-brand-200 bg-brand-50 px-3 py-2 text-[0.82rem] text-brand-800",
         className,
       )}
     >
@@ -34,8 +34,8 @@ export function AIProvenance({
       <p className="mt-1">{provenance.sourceNote}</p>
       {provenance.isSimulated ? (
         <p className="mt-1">
-          Built by restructuring material already in this course. No language model
-          produced any of it.
+          Built by restructuring material already in this course. No language
+          model produced any of it.
         </p>
       ) : null}
     </div>
@@ -47,7 +47,7 @@ export function AIGeneratedTag({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded border border-accent-200 bg-accent-50 px-1.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide text-accent-700",
+        "inline-flex items-center gap-1 rounded border border-brand-200 bg-brand-50 px-1.5 py-0.5 text-[0.68rem] font-medium text-brand-800",
         className,
       )}
     >
@@ -73,15 +73,17 @@ export function NeedsReviewFrame({
   return (
     <div
       className={cn(
-        "rounded-lg border-2 border-dashed p-4",
-        approved ? "border-track-200 bg-track-50" : "border-accent-200 bg-accent-50/40",
+        "rounded-[1.5rem] border-2 border-dashed p-4",
+        approved
+          ? "border-track-200 bg-track-50"
+          : "border-brand-200 bg-brand-50/40",
         className,
       )}
     >
       <p
         className={cn(
-          "mb-3 text-[0.78rem] font-semibold uppercase tracking-wide",
-          approved ? "text-track-600" : "text-accent-700",
+          "mb-3 text-[0.78rem] font-semibold",
+          approved ? "text-track-600" : "text-brand-800",
         )}
       >
         {approved

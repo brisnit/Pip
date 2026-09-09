@@ -66,20 +66,29 @@ export type WheelSegment = {
   };
 };
 
+/**
+ * Arcs use the 400-level FILL tones, not the text tones.
+ *
+ * A chart is a large area of colour, and the same green that reads as calm in a 14px
+ * label reads as a traffic light at 40px — which would make this page look like a
+ * different product from the rest of the system. The legend beside it uses the darker
+ * text tones, where contrast is what matters.
+ */
 const ARC_COLOUR: Record<WheelTone, string> = {
-  track: "var(--color-track-500)",
-  attention: "var(--color-attention-500)",
-  concern: "var(--color-concern-500)",
-  unknown: "var(--color-unknown-200)",
-  brand: "var(--color-accent-400)",
+  track: "var(--color-track-400)",
+  attention: "var(--color-attention-400)",
+  concern: "var(--color-concern-400)",
+  unknown: "var(--color-unknown-400)",
+  brand: "var(--color-brand-500)",
 };
 
+/** Legend glyphs sit next to text at small size, so they take the readable tones. */
 const DOT_CLASS: Record<WheelTone, string> = {
   track: "text-track-500",
   attention: "text-attention-500",
   concern: "text-concern-500",
   unknown: "text-unknown-500",
-  brand: "text-accent-600",
+  brand: "text-brand-600",
 };
 
 const RADIUS = 78;
@@ -116,9 +125,7 @@ export function HealthWheel({
   // everything before it. Expressed as a scan rather than a mutating loop, which
   // keeps the render free of reassignment.
   const arcs = present.map((segment, index) => {
-    const before = present
-      .slice(0, index)
-      .reduce((sum, s) => sum + s.value, 0);
+    const before = present.slice(0, index).reduce((sum, s) => sum + s.value, 0);
     const share = segment.value / total;
     const length = Math.max(share * CIRCUMFERENCE - GAP, 1);
     return {
@@ -131,9 +138,7 @@ export function HealthWheel({
 
   const activeSegment = segments.find((s) => s.key === active) ?? null;
 
-  const summary = segments
-    .map((s) => `${s.label}: ${s.value}`)
-    .join(". ");
+  const summary = segments.map((s) => `${s.label}: ${s.value}`).join(". ");
 
   const dimension = size === "lg" ? "h-64 w-64" : "h-52 w-52";
 
@@ -208,7 +213,7 @@ export function HealthWheel({
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
             <span
               className={cn(
-                "font-serif leading-none text-ink-900",
+                "leading-none text-ink-900",
                 size === "lg" ? "text-4xl" : "text-3xl",
               )}
             >
@@ -305,8 +310,8 @@ export function HealthWheel({
       */}
       <div id={panelId} className="min-w-0 empty:hidden">
         {activeSegment?.detail ? (
-          <div className="pointer-events-none mt-6 rounded-xl border border-tan-100 bg-paper-50 p-4">
-            <p className="flex items-center gap-2 text-[0.78rem] font-semibold uppercase tracking-wide text-ink-500">
+          <div className="pointer-events-none mt-6 rounded-xl border border-slate-200 bg-paper-50 p-4">
+            <p className="flex items-center gap-2 text-[0.78rem] font-semibold text-ink-500">
               <span
                 aria-hidden="true"
                 className={DOT_CLASS[activeSegment.tone]}
@@ -329,7 +334,9 @@ export function HealthWheel({
                         key={stat.label}
                         className="flex items-baseline justify-between gap-3"
                       >
-                        <dt className="text-[0.8rem] text-ink-500">{stat.label}</dt>
+                        <dt className="text-[0.8rem] text-ink-500">
+                          {stat.label}
+                        </dt>
                         <dd className="text-[0.85rem] font-medium text-ink-800">
                           {stat.value}
                         </dd>
@@ -341,7 +348,10 @@ export function HealthWheel({
                 {activeSegment.detail.items?.length ? (
                   <ul className="mt-3 space-y-1">
                     {activeSegment.detail.items.slice(0, 6).map((item) => (
-                      <li key={item} className="truncate text-[0.85rem] text-ink-700">
+                      <li
+                        key={item}
+                        className="truncate text-[0.85rem] text-ink-700"
+                      >
                         {item}
                       </li>
                     ))}
@@ -356,7 +366,7 @@ export function HealthWheel({
             )}
 
             {activeSegment.href ? (
-              <p className="mt-3 border-t border-tan-100 pt-2 text-[0.78rem] text-ink-400">
+              <p className="mt-3 border-t border-slate-200 pt-2 text-[0.78rem] text-ink-400">
                 Select to open
               </p>
             ) : null}

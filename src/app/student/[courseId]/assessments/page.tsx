@@ -12,6 +12,7 @@ import {
   Notice,
   SectionHeading,
 } from "@/components/ui/primitives";
+import { ScheduleCard, Timeline } from "@/components/ui/schedule";
 import { StatusPill } from "@/components/ui/status";
 import {
   ASSESSMENT_TYPE_LABELS,
@@ -49,6 +50,11 @@ export default async function StudentAssessmentsPage({
   const practice = assessments.filter((a) => a.is_practice === 1);
   const graded = assessments.filter((a) => a.is_practice === 0);
 
+  /* Dated, still ahead, soonest first. */
+  const upcoming = assessments
+    .filter((a) => a.scheduled_at && isFuture(a.scheduled_at))
+    .sort((a, b) => a.scheduled_at!.localeCompare(b.scheduled_at!));
+
   return (
     <>
       <SectionHeading
@@ -57,6 +63,46 @@ export default async function StudentAssessmentsPage({
         description="What is coming, and the practice sets that tell you where you stand before it arrives."
         action={<StatusPill status={readiness.status} />}
       />
+
+      {/*
+        What is coming, on a time rail. Only dated, still-future items appear — a
+        schedule showing things that have already happened is a list, not a schedule.
+      */}
+      {upcoming.length > 0 ? (
+        <section className="mb-10">
+          <h2 className="mb-4 text-[1.35rem] font-medium tracking-[-0.022em]">
+            What&rsquo;s coming
+          </h2>
+          <Timeline>
+            {upcoming.map((assessment, index) => {
+              const when = new Date(assessment.scheduled_at!);
+              return (
+                <ScheduleCard
+                  key={assessment.id}
+                  time={when.getDate()}
+                  meridiem={when.toLocaleDateString("en-GB", {
+                    month: "short",
+                  })}
+                  /* The nearest thing gets the emphasis, and only that one. */
+                  tone={index === 0 ? "now" : "tonal"}
+                  title={assessment.title}
+                  description={formatDateTime(assessment.scheduled_at)}
+                  badge={
+                    <Badge
+                      tone={index === 0 ? "accent" : "neutral"}
+                      className={
+                        index === 0 ? "bg-white/15 text-white" : undefined
+                      }
+                    >
+                      {ASSESSMENT_TYPE_LABELS[assessment.type]}
+                    </Badge>
+                  }
+                />
+              );
+            })}
+          </Timeline>
+        </section>
+      ) : null}
 
       {assessments.length === 0 ? (
         <EmptyState
@@ -84,7 +130,7 @@ export default async function StudentAssessmentsPage({
                               {ASSESSMENT_TYPE_LABELS[assessment.type]}
                             </Badge>
                           </div>
-                          <h3 className="mt-1.5 font-serif text-lg leading-snug">
+                          <h3 className="mt-1.5 text-lg leading-snug">
                             <Link
                               href={`/student/${courseId}/assessments/${assessment.id}`}
                               className="no-underline hover:underline"
@@ -98,7 +144,7 @@ export default async function StudentAssessmentsPage({
                             </p>
                           ) : null}
                           {assessment.professor_guidance ? (
-                            <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                            <p className="mt-2 max-w-2xl rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                               <span className="font-medium">
                                 From {course.professor_name}:
                               </span>{" "}
@@ -123,7 +169,7 @@ export default async function StudentAssessmentsPage({
                       </div>
 
                       {assessment.progress.total > 0 ? (
-                        <div className="mt-4 space-y-3 border-t border-tan-100 pt-3">
+                        <div className="mt-4 space-y-3 border-t border-slate-200 pt-3">
                           <Meter
                             label="Questions answered"
                             value={assessment.progress.answered}
@@ -184,7 +230,7 @@ export default async function StudentAssessmentsPage({
                                 <Badge tone="attention">Upcoming</Badge>
                               ) : null}
                             </div>
-                            <h3 className="mt-1.5 font-serif text-lg leading-snug">
+                            <h3 className="mt-1.5 text-lg leading-snug">
                               {assessment.title}
                             </h3>
                             <p className="mt-1 text-[0.85rem] text-ink-500">
@@ -201,7 +247,7 @@ export default async function StudentAssessmentsPage({
                               </p>
                             ) : null}
                             {assessment.professor_guidance ? (
-                              <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                              <p className="mt-2 max-w-2xl rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                                 <span className="font-medium">
                                   From {course.professor_name}:
                                 </span>{" "}
@@ -220,7 +266,7 @@ export default async function StudentAssessmentsPage({
                         </div>
 
                         {humanGraded ? (
-                          <p className="mt-3 border-t border-tan-100 pt-3 text-[0.82rem] text-ink-500">
+                          <p className="mt-3 border-t border-slate-200 pt-3 text-[0.82rem] text-ink-500">
                             Written work is read by your professor. No automated
                             score is produced or implied.
                           </p>
@@ -268,8 +314,8 @@ export default async function StudentAssessmentsPage({
 
       <Notice tone="info" className="mt-8">
         Practice results and confidence ratings feed your readiness view. Your
-        professor sees class totals for practice sets, and your individual responses
-        for graded work.
+        professor sees class totals for practice sets, and your individual
+        responses for graded work.
       </Notice>
     </>
   );

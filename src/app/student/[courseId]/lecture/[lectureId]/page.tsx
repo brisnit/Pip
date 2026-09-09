@@ -160,7 +160,11 @@ export default async function StudentLecturePage({ params }: Props) {
       </div>
 
       {lecture.status === "live" && lecture.current_topic ? (
-        <Notice tone="caution" title="Your professor is currently on" className="mb-6">
+        <Notice
+          tone="caution"
+          title="Your professor is currently on"
+          className="mb-6"
+        >
           {lecture.current_topic}
         </Notice>
       ) : null}
@@ -182,7 +186,7 @@ export default async function StudentLecturePage({ params }: Props) {
 
           {unanchoredInteractions.length > 0 ? (
             <section aria-labelledby="general-moments">
-              <h2 id="general-moments" className="mb-3 font-serif text-lg">
+              <h2 id="general-moments" className="mb-3 text-lg">
                 From your professor
               </h2>
               <div className="space-y-3">
@@ -200,18 +204,19 @@ export default async function StudentLecturePage({ params }: Props) {
           ) : null}
 
           <section aria-labelledby="outline-heading">
-            <h2 id="outline-heading" className="mb-1 font-serif text-xl">
+            <h2 id="outline-heading" className="mb-1 text-xl">
               Lecture outline
             </h2>
             <p className="mb-4 text-sm text-ink-500">
-              Every control below attaches itself to the section you are in — the
-              timestamp, the transcript excerpt and the objective travel with it.
+              Every control below attaches itself to the section you are in —
+              the timestamp, the transcript excerpt and the objective travel
+              with it.
             </p>
 
             {segments.length === 0 ? (
               <Notice tone="info">
-                This lecture has no outline yet. You can still take notes and ask
-                questions from the panel on the right.
+                This lecture has no outline yet. You can still take notes and
+                ask questions from the panel on the right.
               </Notice>
             ) : (
               <ol className="space-y-5">
@@ -241,7 +246,7 @@ export default async function StudentLecturePage({ params }: Props) {
                       <Card>
                         <CardBody>
                           <div className="flex flex-wrap items-baseline justify-between gap-3">
-                            <h3 className="min-w-0 font-serif text-lg leading-snug">
+                            <h3 className="min-w-0 text-lg leading-snug">
                               <span className="mr-2 font-sans text-[0.78rem] font-medium text-ink-400">
                                 {index + 1}
                               </span>
@@ -259,14 +264,14 @@ export default async function StudentLecturePage({ params }: Props) {
                           ) : null}
 
                           {segment.transcript_excerpt ? (
-                            <blockquote className="mt-3 border-l-2 border-accent-300 pl-3 text-[0.85rem] italic text-ink-500">
+                            <blockquote className="mt-3 border-l-2 border-brand-300 pl-3 text-[0.85rem] italic text-ink-500">
                               {segment.transcript_excerpt}
                             </blockquote>
                           ) : null}
 
-                          <div className="mt-4 border-t border-tan-100 pt-3">
+                          <div className="mt-4 border-t border-slate-200 pt-3">
                             <p
-                              className="mb-2 text-[0.78rem] font-medium uppercase tracking-wide text-ink-400"
+                              className="mb-2 text-[0.82rem] font-medium text-ink-400"
                               id={`marks-${segment.id}`}
                             >
                               How is this landing?
@@ -346,7 +351,8 @@ export default async function StudentLecturePage({ params }: Props) {
                                       {active ? (
                                         <span className="sr-only">
                                           {" "}
-                                          — currently marked, press again to remove
+                                          — currently marked, press again to
+                                          remove
                                         </span>
                                       ) : null}
                                     </Button>
@@ -370,7 +376,7 @@ export default async function StudentLecturePage({ params }: Props) {
                                     type="submit"
                                     variant="secondary"
                                     size="sm"
-                                    className="border-accent-500 bg-accent-50 text-accent-700"
+                                    className="border-brand-600 bg-brand-50 text-brand-800"
                                     aria-pressed
                                   >
                                     <span aria-hidden="true">⚑</span> Bookmarked
@@ -426,7 +432,7 @@ export default async function StudentLecturePage({ params }: Props) {
                           </div>
 
                           {segmentInteractions.length > 0 ? (
-                            <div className="mt-4 space-y-3 border-t border-tan-100 pt-4">
+                            <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
                               {segmentInteractions.map((interaction) => (
                                 <InteractionCard
                                   key={interaction.id}
@@ -441,7 +447,7 @@ export default async function StudentLecturePage({ params }: Props) {
                             </div>
                           ) : null}
 
-                          <div className="mt-4 space-y-2 border-t border-tan-100 pt-4">
+                          <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
                             <details>
                               <summary className="cursor-pointer text-sm font-medium text-brand-700">
                                 Take a note here
@@ -465,11 +471,11 @@ export default async function StudentLecturePage({ params }: Props) {
                           </div>
 
                           {segmentNotes.length > 0 ? (
-                            <ul className="mt-4 space-y-2 border-t border-tan-100 pt-3">
+                            <ul className="mt-4 space-y-2 border-t border-slate-200 pt-3">
                               {segmentNotes.map((note) => (
                                 <li
                                   key={note.id}
-                                  className="rounded border border-tan-100 bg-paper-100 px-3 py-2"
+                                  className="rounded border border-slate-200 bg-paper-100 px-3 py-2"
                                 >
                                   <div className="flex flex-wrap items-center gap-2">
                                     <Badge>{NOTE_KIND_LABELS[note.kind]}</Badge>
@@ -550,7 +556,7 @@ export default async function StudentLecturePage({ params }: Props) {
                     section above.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-tan-100">
+                  <ul className="divide-y divide-slate-200">
                     {questions.map((question) => {
                       const mine = question.student_id === student.studentId;
                       const voted = votedIds.has(question.id);
@@ -598,8 +604,8 @@ export default async function StudentLecturePage({ params }: Props) {
                               </p>
 
                               {question.answer_body ? (
-                                <div className="mt-2 rounded-md border border-track-200 bg-track-50 px-3 py-2">
-                                  <p className="text-[0.72rem] font-semibold uppercase tracking-wide text-track-600">
+                                <div className="mt-2 rounded-[1.125rem] border border-track-200 bg-track-50 px-3 py-2">
+                                  <p className="text-[0.76rem] font-medium text-track-600">
                                     {course.professor_name} answered
                                   </p>
                                   <p className="mt-1 text-[0.88rem] leading-relaxed text-ink-700">
@@ -610,7 +616,10 @@ export default async function StudentLecturePage({ params }: Props) {
                             </div>
 
                             {mine ? null : (
-                              <form action={voteQuestionAction} className="shrink-0">
+                              <form
+                                action={voteQuestionAction}
+                                className="shrink-0"
+                              >
                                 <input
                                   type="hidden"
                                   name="courseId"
@@ -658,10 +667,11 @@ export default async function StudentLecturePage({ params }: Props) {
             <Card>
               <CardHeader title="Timeline" level={3} />
               <CardBody className="p-0">
-                <ol className="divide-y divide-tan-100">
+                <ol className="divide-y divide-slate-200">
                   {segments.map((segment) => {
                     const set = markersBySegment.get(segment.id);
-                    const noteCount = (notesBySegment.get(segment.id) ?? []).length;
+                    const noteCount = (notesBySegment.get(segment.id) ?? [])
+                      .length;
                     return (
                       <li key={segment.id}>
                         <a
@@ -692,7 +702,7 @@ export default async function StudentLecturePage({ params }: Props) {
                                 </span>
                               ) : null}
                               {set?.has("exam_likely") ? (
-                                <span className="text-accent-700">✎ exam</span>
+                                <span className="text-brand-800">✎ exam</span>
                               ) : null}
                               {noteCount > 0 ? (
                                 <span className="text-ink-500">
@@ -744,7 +754,7 @@ export default async function StudentLecturePage({ params }: Props) {
                         </dd>
                       ) : null}
                       {concept.perspective ? (
-                        <dd className="mt-1 rounded border border-accent-200 bg-accent-50 px-2 py-1.5 text-[0.78rem] leading-relaxed text-accent-700">
+                        <dd className="mt-1 rounded border border-brand-200 bg-brand-50 px-2 py-1.5 text-[0.78rem] leading-relaxed text-brand-800">
                           <span className="font-semibold">
                             Traditions differ here.
                           </span>{" "}
@@ -815,7 +825,7 @@ export default async function StudentLecturePage({ params }: Props) {
             <Card>
               <CardHeader title="Your bookmarks" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {bookmarks.map((bookmark) => (
                     <li key={bookmark.id} className="px-4 py-2">
                       <a

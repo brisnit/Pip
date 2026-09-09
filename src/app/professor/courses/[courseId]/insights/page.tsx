@@ -22,13 +22,19 @@ import {
 } from "@/lib/domain/vocabulary";
 import { formatClock } from "@/lib/domain/support";
 import { formatDate, percent, relativeTime } from "@/lib/format";
-import { assessmentResults, listAssessments } from "@/lib/repositories/assessments";
+import {
+  assessmentResults,
+  listAssessments,
+} from "@/lib/repositories/assessments";
 import { getCourse } from "@/lib/repositories/courses";
 import {
   listQuestions,
   listSegmentConfusion,
 } from "@/lib/repositories/engagement";
-import { listStudentLectures, tallyInteractions } from "@/lib/repositories/lectures";
+import {
+  listStudentLectures,
+  tallyInteractions,
+} from "@/lib/repositories/lectures";
 import {
   classAggregate,
   courseTrend,
@@ -101,13 +107,14 @@ export default async function InsightsPage({
             description={`${roster.length} students`}
           />
           <CardBody className="space-y-6">
-            <StatusDistribution counts={aggregate.counts} total={aggregate.total} />
+            <StatusDistribution
+              counts={aggregate.counts}
+              total={aggregate.total}
+            />
 
             {trend.length > 1 ? (
-              <div className="border-t border-tan-100 pt-5">
-                <h3 className="text-sm font-semibold">
-                  Status over time
-                </h3>
+              <div className="border-t border-slate-200 pt-5">
+                <h3 className="text-sm font-semibold">Status over time</h3>
                 <p className="mt-1 text-[0.82rem] text-ink-500">
                   Recorded readiness snapshots only — each column is a day on
                   which at least one student&rsquo;s status was recomputed. No
@@ -116,10 +123,11 @@ export default async function InsightsPage({
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full border-collapse text-left text-[0.82rem]">
                     <caption className="sr-only">
-                      Number of students in each readiness band, per recorded day
+                      Number of students in each readiness band, per recorded
+                      day
                     </caption>
                     <thead>
-                      <tr className="border-b border-tan-200 text-ink-500">
+                      <tr className="border-b border-slate-200 text-ink-500">
                         <th scope="col" className="py-1.5 pr-4 font-medium">
                           Date
                         </th>
@@ -137,10 +145,13 @@ export default async function InsightsPage({
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-tan-100">
+                    <tbody className="divide-y divide-slate-200">
                       {trend.map((point) => (
                         <tr key={point.date}>
-                          <th scope="row" className="py-1.5 pr-4 text-left font-normal text-ink-600">
+                          <th
+                            scope="row"
+                            className="py-1.5 pr-4 text-left font-normal text-ink-600"
+                          >
                             {formatDate(point.date)}
                           </th>
                           <td className="py-1.5 pr-4 tabular-nums text-track-600">
@@ -162,7 +173,7 @@ export default async function InsightsPage({
                 </div>
               </div>
             ) : (
-              <div className="border-t border-tan-100 pt-5">
+              <div className="border-t border-slate-200 pt-5">
                 <h3 className="text-sm font-semibold">Status over time</h3>
                 <p className="mt-1 text-sm text-ink-500">
                   Not enough recorded history for a trend yet. Snapshots are
@@ -203,10 +214,7 @@ export default async function InsightsPage({
                   value={openQuestions.length}
                   tone={openQuestions.length > 0 ? "attention" : "neutral"}
                 />
-                <Stat
-                  label="Confusing moments"
-                  value={confusion.length}
-                />
+                <Stat label="Confusing moments" value={confusion.length} />
                 <Stat
                   label="Without enough data"
                   value={aggregate.studentsWithoutEnoughData}
@@ -265,7 +273,8 @@ export default async function InsightsPage({
               </p>
             ) : (
               weakestChecks.slice(0, 5).map((tally) => {
-                const accuracy = (tally.correct ?? 0) / Math.max(tally.responses, 1);
+                const accuracy =
+                  (tally.correct ?? 0) / Math.max(tally.responses, 1);
                 return (
                   <div key={tally.interactionId}>
                     <Meter
@@ -340,7 +349,9 @@ export default async function InsightsPage({
                         valueText={`${row.confusing} confusing · ${row.clear} clear · ${row.distinct_students} student${
                           row.distinct_students === 1 ? "" : "s"
                         }`}
-                        tone={row.confusing > row.clear ? "concern" : "attention"}
+                        tone={
+                          row.confusing > row.clear ? "concern" : "attention"
+                        }
                       />
                       <p className="mt-1 text-[0.78rem] text-ink-400">
                         {row.lecture_title}
@@ -384,7 +395,8 @@ export default async function InsightsPage({
                               max={Math.max(question.responses, 1)}
                               valueText={`${question.correct} of ${question.responses} correct`}
                               tone={
-                                question.correct / Math.max(question.responses, 1) >=
+                                question.correct /
+                                  Math.max(question.responses, 1) >=
                                 0.75
                                   ? "track"
                                   : question.correct /
@@ -430,7 +442,7 @@ export default async function InsightsPage({
                     Nothing outstanding.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-tan-100">
+                  <ul className="divide-y divide-slate-200">
                     {openQuestions.map((question) => (
                       <li key={question.id} className="px-5 py-4">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -468,7 +480,7 @@ export default async function InsightsPage({
                               {relativeTime(question.created_at)}
                             </p>
                             {question.transcript_excerpt ? (
-                              <blockquote className="mt-2 border-l-2 border-accent-300 pl-3 text-[0.82rem] italic text-ink-500">
+                              <blockquote className="mt-2 border-l-2 border-brand-300 pl-3 text-[0.82rem] italic text-ink-500">
                                 {question.transcript_excerpt}
                               </blockquote>
                             ) : null}
@@ -515,7 +527,7 @@ export default async function InsightsPage({
                   description={`${answeredQuestions.length} answered`}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-tan-100">
+                  <ul className="divide-y divide-slate-200">
                     {answeredQuestions.map((question) => (
                       <li key={question.id} className="px-5 py-3">
                         <div className="flex flex-wrap items-center gap-2">
@@ -553,7 +565,8 @@ export default async function InsightsPage({
           <Link
             href={`/professor/courses/${courseId}/students?status=insufficient_data`}
           >
-            {READINESS_PRESENTATION.insufficient_data.label.toLowerCase()} filter
+            {READINESS_PRESENTATION.insufficient_data.label.toLowerCase()}{" "}
+            filter
           </Link>{" "}
           on the roster shows who.
         </Notice>
@@ -566,7 +579,7 @@ export default async function InsightsPage({
             description="Jump to a student's detail view to see the evidence behind their status."
           />
           <CardBody className="p-0">
-            <ul className="divide-y divide-tan-100">
+            <ul className="divide-y divide-slate-200">
               {roster.map((student) => {
                 const result = readiness.find(
                   (r) => r.studentId === student.id,

@@ -41,7 +41,10 @@ type Props = {
   searchParams: Promise<{ kind?: string; lecture?: string; module?: string }>;
 };
 
-export default async function StudentNotesPage({ params, searchParams }: Props) {
+export default async function StudentNotesPage({
+  params,
+  searchParams,
+}: Props) {
   const { courseId } = await params;
   const query = await searchParams;
 
@@ -89,7 +92,9 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
     count: allNotes.filter((note) => note.kind === kind).length,
   })).filter((row) => row.count > 0);
 
-  function href(next: Partial<{ kind: string; lecture: string; module: string }>) {
+  function href(
+    next: Partial<{ kind: string; lecture: string; module: string }>,
+  ) {
     const search = new URLSearchParams();
     const merged = { ...query, ...next };
     for (const [key, value] of Object.entries(merged)) {
@@ -127,7 +132,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                 className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                   !kindFilter && !query.lecture && !query.module
                     ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
-                    : "border-tan-200 bg-white text-ink-600"
+                    : "border-slate-200 bg-white text-ink-600"
                 }`}
               >
                 All ({allNotes.length})
@@ -140,7 +145,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                   className={`inline-flex rounded-full border px-3 py-1 text-[0.82rem] no-underline ${
                     kindFilter === row.kind
                       ? "border-brand-600 bg-brand-600 font-medium text-paper-50"
-                      : "border-tan-200 bg-white text-ink-600"
+                      : "border-slate-200 bg-white text-ink-600"
                   }`}
                 >
                   {NOTE_KIND_LABELS[row.kind]} ({row.count})
@@ -152,7 +157,9 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
           {notes.length === 0 ? (
             <EmptyState
               title={
-                allNotes.length === 0 ? "No notes yet" : "No notes match this filter"
+                allNotes.length === 0
+                  ? "No notes yet"
+                  : "No notes match this filter"
               }
               description={
                 allNotes.length === 0
@@ -222,7 +229,11 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
 
                       <div className="flex shrink-0 flex-col gap-1.5">
                         <form action={setNoteSharedAction}>
-                          <input type="hidden" name="courseId" value={courseId} />
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
                           <input type="hidden" name="noteId" value={note.id} />
                           <input
                             type="hidden"
@@ -236,7 +247,11 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                           </Button>
                         </form>
                         <form action={deleteNoteAction}>
-                          <input type="hidden" name="courseId" value={courseId} />
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
                           <input type="hidden" name="noteId" value={note.id} />
                           <Button type="submit" variant="ghost" size="sm">
                             Delete
@@ -246,7 +261,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     </div>
 
                     {note.lecture_id && note.segment_id ? (
-                      <p className="mt-2 border-t border-tan-100 pt-2 text-[0.8rem]">
+                      <p className="mt-2 border-t border-slate-200 pt-2 text-[0.8rem]">
                         <Link
                           href={`/student/${courseId}/lecture/${note.lecture_id}#segment-${note.segment_id}`}
                         >
@@ -286,7 +301,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             />
             <CardBody className="space-y-5">
               <StudyGuideForm courseId={courseId} />
-              <div className="border-t border-tan-100 pt-4">
+              <div className="border-t border-slate-200 pt-4">
                 <FlashcardForm
                   courseId={courseId}
                   lectures={lectures.map((lecture) => ({
@@ -337,12 +352,15 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
               <CardBody className="space-y-3">
                 {openQuestions.length > 0 ? (
                   <div>
-                    <h4 className="text-[0.8rem] font-semibold uppercase tracking-wide text-ink-400">
+                    <h4 className="text-[0.8rem] font-semibold text-ink-400">
                       Submitted, awaiting a response
                     </h4>
                     <ul className="mt-1.5 space-y-1.5">
                       {openQuestions.map((question) => (
-                        <li key={question.id} className="text-[0.85rem] text-ink-700">
+                        <li
+                          key={question.id}
+                          className="text-[0.85rem] text-ink-700"
+                        >
                           {question.body}
                           {question.lecture_id ? (
                             <Link
@@ -358,20 +376,23 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                   </div>
                 ) : null}
                 {questionNotes.length > 0 ? (
-                  <div className="border-t border-tan-100 pt-3">
-                    <h4 className="text-[0.8rem] font-semibold uppercase tracking-wide text-ink-400">
+                  <div className="border-t border-slate-200 pt-3">
+                    <h4 className="text-[0.8rem] font-semibold text-ink-400">
                       In your own notes, not yet asked
                     </h4>
                     <ul className="mt-1.5 space-y-1.5">
                       {questionNotes.map((note) => (
-                        <li key={note.id} className="text-[0.85rem] text-ink-700">
+                        <li
+                          key={note.id}
+                          className="text-[0.85rem] text-ink-700"
+                        >
                           {note.title ?? note.body.slice(0, 90)}
                         </li>
                       ))}
                     </ul>
                     <p className="mt-2 text-[0.8rem] text-ink-500">
-                      These stay private. Submit one as a question from the lecture
-                      page if you want an answer.
+                      These stay private. Submit one as a question from the
+                      lecture page if you want an answer.
                     </p>
                   </div>
                 ) : null}
@@ -383,7 +404,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             <Card>
               <CardHeader title="Bookmarks" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {bookmarks.map((bookmark) => (
                     <li key={bookmark.id} className="px-4 py-2">
                       <Link
@@ -410,7 +431,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
             <Card>
               <CardHeader title="Group by module" level={3} />
               <CardBody className="p-0">
-                <ul className="divide-y divide-tan-100">
+                <ul className="divide-y divide-slate-200">
                   {modules.map((module) => {
                     const count = allNotes.filter(
                       (note) => note.module_title === module.title,
@@ -481,13 +502,16 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     ))}
                   </ul>
                   {guide.reviewQuestions.length > 0 ? (
-                    <div className="border-t border-tan-100 pt-4">
+                    <div className="border-t border-slate-200 pt-4">
                       <h3 className="text-[0.92rem] font-semibold">
                         Questions to test yourself
                       </h3>
                       <ol className="mt-2 space-y-1.5">
                         {guide.reviewQuestions.map((question, index) => (
-                          <li key={index} className="text-[0.88rem] text-ink-600">
+                          <li
+                            key={index}
+                            className="text-[0.88rem] text-ink-600"
+                          >
                             {question}
                           </li>
                         ))}
@@ -522,7 +546,7 @@ export default async function StudentNotesPage({ params, searchParams }: Props) 
                     {cards.map((card, index) => (
                       <li
                         key={index}
-                        className="rounded-md border border-tan-100 bg-paper-50 p-3"
+                        className="rounded-[1.125rem] border border-slate-200 bg-paper-50 p-3"
                       >
                         <details>
                           <summary className="cursor-pointer text-[0.9rem] font-medium text-ink-800">

@@ -69,9 +69,20 @@ export function seedDemonstrationData(db: Db) {
       "CH504",
       "A graduate survey of sixteenth-century reform movements, read with attention to their theological arguments, their institutional settings, and their legacies for contemporary ministry. We work primarily from primary sources in translation, and we take each tradition's own account of itself seriously before assessing it.",
       `${
-        ["Winter", "Winter", "Spring", "Spring", "Spring", "Summer", "Summer", "Summer", "Fall", "Fall", "Fall", "Winter"][
-          DEMO_START.getUTCMonth()
-        ]
+        [
+          "Winter",
+          "Winter",
+          "Spring",
+          "Spring",
+          "Spring",
+          "Summer",
+          "Summer",
+          "Summer",
+          "Fall",
+          "Fall",
+          "Fall",
+          "Winter",
+        ][DEMO_START.getUTCMonth()]
       } ${DEMO_START.getUTCFullYear()}`,
       "Tuesday, Thursday",
       "9:00–11:20 a.m.",
@@ -201,7 +212,7 @@ export function seedDemonstrationData(db: Db) {
       ],
       [
         "Simul iustus et peccator",
-        "\"At the same time righteous and a sinner.\" Luther's formula for the justified Christian, who is wholly righteous in Christ and still wholly a sinner in themselves.",
+        '"At the same time righteous and a sinner." Luther\'s formula for the justified Christian, who is wholly righteous in Christ and still wholly a sinner in themselves.',
         null,
       ],
       [
@@ -264,7 +275,13 @@ export function seedDemonstrationData(db: Db) {
       at(-39),
     );
 
-    const syllabusItems: [string, string, string | null, string | null, number][] = [
+    const syllabusItems: [
+      string,
+      string,
+      string | null,
+      string | null,
+      number,
+    ][] = [
       [
         "description",
         "A graduate survey of sixteenth-century reform movements read from primary sources.",
@@ -272,8 +289,20 @@ export function seedDemonstrationData(db: Db) {
         null,
         1,
       ],
-      ["weekly_topic", "Late medieval piety and the penitential system", null, "Week 1", 1],
-      ["weekly_topic", "Indulgences and the 1517 controversy", null, "Week 2", 2],
+      [
+        "weekly_topic",
+        "Late medieval piety and the penitential system",
+        null,
+        "Week 1",
+        1,
+      ],
+      [
+        "weekly_topic",
+        "Indulgences and the 1517 controversy",
+        null,
+        "Week 2",
+        2,
+      ],
       ["weekly_topic", "Luther on justification", null, "Week 3", 3],
       ["weekly_topic", "The theology of the cross", null, "Week 4", 4],
       ["weekly_topic", "Zwingli and the Swiss reform", null, "Week 5", 5],
@@ -282,7 +311,7 @@ export function seedDemonstrationData(db: Db) {
       ["weekly_topic", "Trent and Catholic reform", null, "Week 8", 8],
       [
         "reading",
-        "Luther, \"The Freedom of a Christian\" (1520), complete",
+        'Luther, "The Freedom of a Christian" (1520), complete',
         "Read alongside the 1535 Galatians preface.",
         "Week 3",
         1,
@@ -301,13 +330,7 @@ export function seedDemonstrationData(db: Db) {
         "Week 6",
         3,
       ],
-      [
-        "reading",
-        "Schleitheim Articles (1527), complete",
-        null,
-        "Week 7",
-        4,
-      ],
+      ["reading", "Schleitheim Articles (1527), complete", null, "Week 7", 4],
       [
         "reading",
         "Council of Trent, Decree on Justification (1547), chapters 7–8 and canons 9–12",
@@ -330,8 +353,20 @@ export function seedDemonstrationData(db: Db) {
         2,
       ],
       ["exam", "Midterm Examination", "Covers modules 1–2.", "July 9", 1],
-      ["exam", "Final Examination", "Cumulative, weighted toward modules 3–6.", "August 13", 2],
-      ["grading_category", "Participation and comprehension activity — 15%", null, null, 1],
+      [
+        "exam",
+        "Final Examination",
+        "Cumulative, weighted toward modules 3–6.",
+        "August 13",
+        2,
+      ],
+      [
+        "grading_category",
+        "Participation and comprehension activity — 15%",
+        null,
+        null,
+        1,
+      ],
       ["grading_category", "Primary source analysis — 20%", null, null, 2],
       ["grading_category", "Midterm — 25%", null, null, 3],
       ["grading_category", "Final essay and examination — 40%", null, null, 4],
@@ -391,7 +426,7 @@ export function seedDemonstrationData(db: Db) {
           "Read the whole syllabus in week 1. The weekly topics below are generated from it.",
       },
       {
-        title: "Luther, \"The Freedom of a Christian\" (1520)",
+        title: 'Luther, "The Freedom of a Christian" (1520)',
         description:
           "Complete treatise in translation. The central text for module 2.",
         contentType: "reading_assignment",
@@ -419,7 +454,11 @@ export function seedDemonstrationData(db: Db) {
         contentType: "lecture_notes",
         moduleIndex: 1,
         objectives: [2],
-        concepts: ["Justification", "Imputed righteousness", "Simul iustus et peccator"],
+        concepts: [
+          "Justification",
+          "Imputed righteousness",
+          "Simul iustus et peccator",
+        ],
       },
       {
         title: "Teaching notes — where students usually get stuck",
@@ -458,7 +497,8 @@ export function seedDemonstrationData(db: Db) {
         objectives: [1, 8],
       },
       {
-        title: "Trent, Decree on Justification (1547) — chapters 7–8, canons 9–12",
+        title:
+          "Trent, Decree on Justification (1547) — chapters 7–8, canons 9–12",
         description:
           "Read as a considered theological position in its own right. We will compare it with Luther directly.",
         contentType: "reading_assignment",
@@ -503,7 +543,7 @@ export function seedDemonstrationData(db: Db) {
         objectives: [2, 7],
       },
       {
-        title: "Oberman, \"Facientibus quod in se est\" — journal article",
+        title: 'Oberman, "Facientibus quod in se est" — journal article',
         description:
           "On the late medieval axiom Luther was reacting against. Dense but worth the effort.",
         contentType: "journal_article",
@@ -603,7 +643,7 @@ export function seedDemonstrationData(db: Db) {
         segments: [
           [
             0,
-            "Why \"late medieval decline\" is the wrong frame",
+            'Why "late medieval decline" is the wrong frame',
             "The fifteenth century was not a religious vacuum waiting to be filled. Lay piety was expanding, not contracting: confraternities, endowed masses, pilgrimage, vernacular devotional literature. Any account of 1517 that begins from decline has to explain why reform arguments landed in a church whose people were, by most measures, more religiously active than their grandparents.",
           ],
           [
@@ -614,7 +654,7 @@ export function seedDemonstrationData(db: Db) {
           [
             1_140,
             "Facere quod in se est",
-            "\"Do what lies within you.\" The axiom that God does not deny grace to the one who does their utmost. Held widely, meant charitably, and — for a certain kind of scrupulous conscience — devastating, because it makes the sufficiency of one's own effort the hinge.",
+            '"Do what lies within you." The axiom that God does not deny grace to the one who does their utmost. Held widely, meant charitably, and — for a certain kind of scrupulous conscience — devastating, because it makes the sufficiency of one\'s own effort the hinge.',
           ],
           [
             1_860,
@@ -622,7 +662,12 @@ export function seedDemonstrationData(db: Db) {
             "Conciliarism, observant movements within the orders, Wycliffe and Hus, Christian humanism and the new philology. Reform was a live and respectable word long before 1517. What changed was not the appetite for reform but the argument about what needed reforming.",
           ],
         ],
-        scripture: [["Matthew 3:2", "On the meaning of metanoeite — Luther's first thesis turns on it."]],
+        scripture: [
+          [
+            "Matthew 3:2",
+            "On the meaning of metanoeite — Luther's first thesis turns on it.",
+          ],
+        ],
       },
       {
         title: "Indulgences, the 95 Theses, and the Making of a Controversy",
@@ -711,14 +756,20 @@ export function seedDemonstrationData(db: Db) {
           [
             2_850,
             "Reading Galatians 2 with Luther",
-            "Open the 1535 commentary on Galatians 2:15–21 alongside the text. Notice what Luther does with the first person: \"I through the law died to the law.\" His reading is polemical and it is also careful. Both things are true, and separating them is the skill this course is trying to build.",
+            'Open the 1535 commentary on Galatians 2:15–21 alongside the text. Notice what Luther does with the first person: "I through the law died to the law." His reading is polemical and it is also careful. Both things are true, and separating them is the skill this course is trying to build.',
           ],
         ],
         scripture: [
-          ["Romans 1:16–17", "The iustitia Dei passage. Luther returns to it constantly."],
+          [
+            "Romans 1:16–17",
+            "The iustitia Dei passage. Luther returns to it constantly.",
+          ],
           ["Romans 3:21–28", "The forensic vocabulary of reckoning."],
           ["Galatians 2:15–21", "Read with the 1535 commentary alongside."],
-          ["Habakkuk 2:4", "As cited in Romans 1:17 — worth reading in its own context."],
+          [
+            "Habakkuk 2:4",
+            "As cited in Romans 1:17 — worth reading in its own context.",
+          ],
         ],
       },
       {
@@ -836,7 +887,10 @@ export function seedDemonstrationData(db: Db) {
           next ? next[0] : spec.duration * 60,
           heading,
           body,
-          body.split(/(?<=\.)\s+/).slice(0, 2).join(" "),
+          body
+            .split(/(?<=\.)\s+/)
+            .slice(0, 2)
+            .join(" "),
           at(spec.scheduledDay - 2),
         );
         return id;
@@ -882,7 +936,7 @@ export function seedDemonstrationData(db: Db) {
       "Recorded lecture — Luther and the Doctrine of Justification",
       "Lecture notes — Luther and justification",
       "Slide deck — Justification in Luther",
-      "Luther, \"The Freedom of a Christian\" (1520)",
+      'Luther, "The Freedom of a Christian" (1520)',
       "Galatians 2:15–21 — reading guide",
       "Heidelberg Disputation (1518), theses 19–24",
     ]) {
@@ -891,10 +945,14 @@ export function seedDemonstrationData(db: Db) {
       db.prepare(
         `INSERT OR IGNORE INTO lecture_resources (lecture_id, material_id, relation)
          VALUES (?,?,?)`,
-      ).run(lecture3, materialId, title.includes("Recorded") ? "recording" : "supplemental");
+      ).run(
+        lecture3,
+        materialId,
+        title.includes("Recorded") ? "recording" : "supplemental",
+      );
     }
     const oberman = materialIds.get(
-      "Oberman, \"Facientibus quod in se est\" — journal article",
+      'Oberman, "Facientibus quod in se est" — journal article',
     );
     if (oberman) {
       db.prepare(
@@ -927,7 +985,7 @@ export function seedDemonstrationData(db: Db) {
         objective: 1,
         concept: "Penitential system",
         explanation:
-          "\"Do what lies within you.\" The axiom locates the hinge in the penitent's own utmost effort, which is precisely why it troubled a scrupulous conscience.",
+          '"Do what lies within you." The axiom locates the hinge in the penitent\'s own utmost effort, which is precisely why it troubled a scrupulous conscience.',
         options: [
           ["Their utmost — whatever lies within their own power", true],
           ["A specified number of penitential works set by a confessor", false],
@@ -943,7 +1001,7 @@ export function seedDemonstrationData(db: Db) {
         segmentIndex: 0,
         objective: 1,
         explanation:
-          "False. Confraternities, endowed masses, pilgrimage and vernacular devotional writing all expanded. \"Decline\" is the wrong frame, and it makes 1517 harder rather than easier to explain.",
+          'False. Confraternities, endowed masses, pilgrimage and vernacular devotional writing all expanded. "Decline" is the wrong frame, and it makes 1517 harder rather than easier to explain.',
         options: [
           ["True", false],
           ["False", true],
@@ -953,8 +1011,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 0,
         type: "important_concept",
         prompt: "The pressure point was assurance, not structure",
-        body:
-          "Hold on to this. The reformers' objection is not primarily that penance was administratively corrupt but that it left the conscience without a floor.",
+        body: "Hold on to this. The reformers' objection is not primarily that penance was administratively corrupt but that it left the conscience without a floor.",
         segmentIndex: 1,
         objective: 1,
       },
@@ -977,8 +1034,7 @@ export function seedDemonstrationData(db: Db) {
       {
         lectureIndex: 1,
         type: "comprehension_question",
-        prompt:
-          "True or false: the 95 Theses explicitly deny papal authority.",
+        prompt: "True or false: the 95 Theses explicitly deny papal authority.",
         segmentIndex: 0,
         objective: 7,
         explanation:
@@ -992,8 +1048,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 1,
         type: "exam_emphasis",
         prompt: "Know what the theses do and do not argue",
-        body:
-          "The midterm will ask you to distinguish the content of the theses from their later reception. Read the document itself.",
+        body: "The midterm will ask you to distinguish the content of the theses from their later reception. Read the document itself.",
         segmentIndex: 0,
         objective: 7,
       },
@@ -1013,10 +1068,7 @@ export function seedDemonstrationData(db: Db) {
             "Imputed to the believer from outside, remaining Christ's own righteousness",
             true,
           ],
-          [
-            "Infused as a habit that gradually perfects the will",
-            false,
-          ],
+          ["Infused as a habit that gradually perfects the will", false],
           [
             "A potential the believer actualises through acts of penance",
             false,
@@ -1032,7 +1084,7 @@ export function seedDemonstrationData(db: Db) {
         objective: 2,
         concept: "Simul iustus et peccator",
         explanation:
-          "\"At the same time righteous and a sinner\" — wholly both, simultaneously. Not partly each, and not a stage on the way to becoming righteous.",
+          '"At the same time righteous and a sinner" — wholly both, simultaneously. Not partly each, and not a stage on the way to becoming righteous.',
         options: [
           ["At the same time righteous and a sinner", true],
           ["Righteous in part and sinful in part", false],
@@ -1064,8 +1116,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "definition",
         prompt: "Imputed vs. infused",
-        body:
-          "Imputed: reckoned to your account, remaining Christ's. Infused: given as a habit, genuinely present in you. Both traditions know what the other means.",
+        body: "Imputed: reckoned to your account, remaining Christ's. Infused: given as a habit, genuinely present in you. Both traditions know what the other means.",
         segmentIndex: 4,
         objective: 2,
         concept: "Imputed righteousness",
@@ -1074,8 +1125,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "theological_perspective",
         prompt: "Trent is not a caricature of Luther",
-        body:
-          "When we reach module 5, read the Decree on Justification as a considered position with its own arguments. Nothing in this lecture requires you to conclude that it is wrong — only to see clearly what is at issue.",
+        body: "When we reach module 5, read the Decree on Justification as a considered position with its own arguments. Nothing in this lecture requires you to conclude that it is wrong — only to see clearly what is at issue.",
         segmentIndex: 4,
         objective: 5,
       },
@@ -1083,8 +1133,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "scripture_reference",
         prompt: "Romans 1:16–17",
-        body:
-          "The iustitia Dei passage. Read it before Thursday and note whether \"righteousness of God\" reads more naturally as something demanded or something given.",
+        body: 'The iustitia Dei passage. Read it before Thursday and note whether "righteousness of God" reads more naturally as something demanded or something given.',
         segmentIndex: 1,
         objective: 2,
       },
@@ -1108,8 +1157,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "exam_emphasis",
         prompt: "This distinction is on the midterm",
-        body:
-          "You will be asked to state the imputation/infusion distinction and to say what is theologically at stake in it. Both halves matter.",
+        body: "You will be asked to state the imputation/infusion distinction and to say what is theologically at stake in it. Both halves matter.",
         segmentIndex: 4,
         objective: 2,
       },
@@ -1139,8 +1187,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "recommended_reading",
         prompt: "The Freedom of a Christian, second half",
-        body:
-          "If you only read the first half you will come away with exactly the misreading section 6 is warning against.",
+        body: "If you only read the first half you will come away with exactly the misreading section 6 is warning against.",
         segmentIndex: 5,
         objective: 2,
       },
@@ -1148,7 +1195,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 2,
         type: "application_question",
         prompt:
-          "How would you preach Galatians 2:20 to a congregation that hears \"I no longer live\" as self-erasure rather than freedom?",
+          'How would you preach Galatians 2:20 to a congregation that hears "I no longer live" as self-erasure rather than freedom?',
         segmentIndex: 6,
         objective: 6,
       },
@@ -1160,7 +1207,8 @@ export function seedDemonstrationData(db: Db) {
           "At Marburg in 1529, how many of the fourteen articles were agreed?",
         segmentIndex: 1,
         objective: 3,
-        explanation: "Thirteen. The disagreement was over the presence of Christ in the supper.",
+        explanation:
+          "Thirteen. The disagreement was over the presence of Christ in the supper.",
         options: [
           ["Thirteen", true],
           ["Seven", false],
@@ -1172,8 +1220,7 @@ export function seedDemonstrationData(db: Db) {
         lectureIndex: 3,
         type: "historical_context",
         prompt: "The Zurich disputations and the city council",
-        body:
-          "Reformed polity begins in the working relationship between preacher and magistrate. Keep the civic setting in view.",
+        body: "Reformed polity begins in the working relationship between preacher and magistrate. Keep the civic setting in view.",
         segmentIndex: 0,
         objective: 3,
       },
@@ -1188,7 +1235,8 @@ export function seedDemonstrationData(db: Db) {
       const lectureId = lectureIds[spec.lectureIndex];
       const segment = segmentIds[spec.lectureIndex][spec.segmentIndex] ?? null;
       const startSeconds =
-        lectureSpecs[spec.lectureIndex].segments[spec.segmentIndex]?.[0] ?? null;
+        lectureSpecs[spec.lectureIndex].segments[spec.segmentIndex]?.[0] ??
+        null;
 
       db.prepare(
         `INSERT INTO interactions (
@@ -1219,7 +1267,13 @@ export function seedDemonstrationData(db: Db) {
           `INSERT INTO interaction_options
              (id, interaction_id, position, text, is_correct)
            VALUES (?,?,?,?,?)`,
-        ).run(newId("opt"), interactionId, optionIndex + 1, text, isCorrect ? 1 : 0);
+        ).run(
+          newId("opt"),
+          interactionId,
+          optionIndex + 1,
+          text,
+          isCorrect ? 1 : 0,
+        );
       });
 
       // Only checks on published lectures count as "available" activity.
@@ -1289,7 +1343,7 @@ export function seedDemonstrationData(db: Db) {
       {
         type: "multiple_choice",
         prompt:
-          "Which best states what Luther means by faith in \"justification by faith alone\"?",
+          'Which best states what Luther means by faith in "justification by faith alone"?',
         explanation:
           "Trust in a promise. Reading faith as a meritorious act of the will reintroduces exactly what the formula is refusing.",
         objective: 2,
@@ -1332,7 +1386,8 @@ export function seedDemonstrationData(db: Db) {
         type: "true_false",
         prompt:
           "The 95 Theses were written in Latin as propositions for academic disputation.",
-        explanation: "True. Their popular circulation came through later translation.",
+        explanation:
+          "True. Their popular circulation came through later translation.",
         objective: 8,
         options: [
           ["True", true],
@@ -1344,7 +1399,7 @@ export function seedDemonstrationData(db: Db) {
         prompt:
           "Which reform impulse was already well established before 1517?",
         explanation:
-          "All of these were live. \"Reform\" was a respectable word long before Luther used it.",
+          'All of these were live. "Reform" was a respectable word long before Luther used it.',
         objective: 1,
         options: [
           ["Observant movements within the religious orders", true],
@@ -1393,7 +1448,13 @@ export function seedDemonstrationData(db: Db) {
           `INSERT INTO assessment_question_options
              (id, question_id, position, text, is_correct)
            VALUES (?,?,?,?,?)`,
-        ).run(newId("aqo"), questionId, optionIndex + 1, text, isCorrect ? 1 : 0);
+        ).run(
+          newId("aqo"),
+          questionId,
+          optionIndex + 1,
+          text,
+          isCorrect ? 1 : 0,
+        );
       });
     });
 
@@ -1461,7 +1522,12 @@ export function seedDemonstrationData(db: Db) {
       confidence: [number, number][];
       /** [lecture index, segment index, marker] */
       markers: [number, number, Marker][];
-      questions: { lecture: number; segment: number; kind: QuestionKind; body: string }[];
+      questions: {
+        lecture: number;
+        segment: number;
+        kind: QuestionKind;
+        body: string;
+      }[];
       notes: {
         lecture: number | null;
         segment: number | null;
@@ -2101,7 +2167,8 @@ export function seedDemonstrationData(db: Db) {
       // Questions.
       profile.questions.forEach((question, index) => {
         const lectureId = lectureIds[question.lecture];
-        const segmentId = segmentIds[question.lecture][question.segment] ?? null;
+        const segmentId =
+          segmentIds[question.lecture][question.segment] ?? null;
         const spec = lectureSpecs[question.lecture];
         const questionId = newId("qst");
 
@@ -2140,7 +2207,8 @@ export function seedDemonstrationData(db: Db) {
 
       // Notes.
       profile.notes.forEach((note, index) => {
-        const lectureId = note.lecture === null ? null : lectureIds[note.lecture];
+        const lectureId =
+          note.lecture === null ? null : lectureIds[note.lecture];
         const segmentId =
           note.lecture === null || note.segment === null
             ? null
@@ -2158,7 +2226,9 @@ export function seedDemonstrationData(db: Db) {
           courseId,
           lectureId,
           segmentId,
-          note.lecture === null ? null : LO(lectureSpecs[note.lecture].objectives[0]),
+          note.lecture === null
+            ? null
+            : LO(lectureSpecs[note.lecture].objectives[0]),
           note.kind,
           note.title,
           note.body,
@@ -2342,7 +2412,7 @@ export function seedDemonstrationData(db: Db) {
       newId("act"),
       courseId,
       lecture3,
-      "Published \"Martin Luther and the Doctrine of Justification\"",
+      'Published "Martin Luther and the Doctrine of Justification"',
       at(-19, 15),
     );
 
@@ -2354,7 +2424,7 @@ export function seedDemonstrationData(db: Db) {
       newId("act"),
       courseId,
       lecture4,
-      "Scheduled \"Zwingli, Calvin and the Reformed Turn\" as a live session",
+      'Scheduled "Zwingli, Calvin and the Reformed Turn" as a live session',
       at(-5, 11),
     );
   });

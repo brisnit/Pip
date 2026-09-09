@@ -133,7 +133,10 @@ export class PrototypeAIProvider implements AIProvider {
 
     for (const concept of input.concepts) {
       if (questions.length >= count) break;
-      const objective = input.objectives[questions.length % Math.max(1, input.objectives.length)];
+      const objective =
+        input.objectives[
+          questions.length % Math.max(1, input.objectives.length)
+        ];
       questions.push({
         prompt: `In this course, which statement best describes ${concept.name}?`,
         type: "multiple_choice",
@@ -267,16 +270,20 @@ export class PrototypeAIProvider implements AIProvider {
           ),
           ...input.concepts
             .slice(0, 4)
-            .map((concept) => `How would you define ${concept.name} to a classmate?`),
+            .map(
+              (concept) =>
+                `How would you define ${concept.name} to a classmate?`,
+            ),
           ...input.studentNoteExcerpts
             .slice(0, 3)
-            .map((excerpt) => `You noted: "${truncate(excerpt, 120)}" — is that resolved now?`),
+            .map(
+              (excerpt) =>
+                `You noted: "${truncate(excerpt, 120)}" — is that resolved now?`,
+            ),
         ],
       },
       `Regrouped from professor-published objectives, key terms and lecture sections${
-        input.studentNoteExcerpts.length > 0
-          ? ", plus your own notes"
-          : ""
+        input.studentNoteExcerpts.length > 0 ? ", plus your own notes" : ""
       }. No model was called.`,
     );
   }
@@ -299,8 +306,14 @@ export class PrototypeAIProvider implements AIProvider {
         pattern: /^(learning )?(objectives|outcomes|goals)/i,
         kind: "objective",
       },
-      { pattern: /^(weekly )?(schedule|topics|calendar|outline)/i, kind: "weekly_topic" },
-      { pattern: /^(required )?(readings|texts|bibliography)/i, kind: "reading" },
+      {
+        pattern: /^(weekly )?(schedule|topics|calendar|outline)/i,
+        kind: "weekly_topic",
+      },
+      {
+        pattern: /^(required )?(readings|texts|bibliography)/i,
+        kind: "reading",
+      },
       { pattern: /^assignments?/i, kind: "assignment" },
       { pattern: /^(exams?|assessments?)/i, kind: "exam" },
       { pattern: /^(important )?dates/i, kind: "important_date" },
@@ -311,16 +324,17 @@ export class PrototypeAIProvider implements AIProvider {
       const isHeading =
         /^[A-Z][A-Za-z \-/&]{2,40}:?$/.test(line) || /:$/.test(line);
       if (isHeading) {
-        const match = headingMap.find((h) => h.pattern.test(line.replace(/:$/, "")));
+        const match = headingMap.find((h) =>
+          h.pattern.test(line.replace(/:$/, "")),
+        );
         if (match) {
           currentKind = match.kind;
           continue;
         }
       }
 
-      const weekMatch = /^(week\s*\d+|unit\s*\d+|module\s*\d+)[\s.:—-]*(.*)$/i.exec(
-        line,
-      );
+      const weekMatch =
+        /^(week\s*\d+|unit\s*\d+|module\s*\d+)[\s.:—-]*(.*)$/i.exec(line);
       if (weekMatch && weekMatch[2]) {
         items.push({
           kind: "weekly_topic",
@@ -428,7 +442,8 @@ export class PrototypeAIProvider implements AIProvider {
         forStudent: [
           "Bring your notes for the sections you marked confusing.",
           ...input.topics.map(
-            (topic) => `Write one sentence on what specifically is unclear about ${topic}.`,
+            (topic) =>
+              `Write one sentence on what specifically is unclear about ${topic}.`,
           ),
           "Note any reading you have already tried, so you don't repeat it.",
         ],

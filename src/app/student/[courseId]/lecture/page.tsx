@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  Badge,
-  Card,
-  CardBody,
-  EmptyState,
-  SectionHeading,
-} from "@/components/ui/primitives";
-import {
-  DELIVERY_MODE_LABELS,
-  LECTURE_STATUS_LABELS,
-} from "@/lib/domain/vocabulary";
+import { Play, Radio } from "lucide-react";
+import { LessonRow } from "@/components/ui/cards";
+import { ProgressBar } from "@/components/ui/progress";
+import { Badge, EmptyState, SectionHeading } from "@/components/ui/primitives";
+import { DELIVERY_MODE_LABELS } from "@/lib/domain/vocabulary";
 import { formatDayMonth, pluralize } from "@/lib/format";
 import { getCourse, listModules } from "@/lib/repositories/courses";
 import { listMarkers, listNotes } from "@/lib/repositories/engagement";
@@ -49,9 +42,11 @@ export default async function StudentLectureListPage({
       answeredCount: answered.filter((response) =>
         checks.some((check) => check.id === response.interaction_id),
       ).length,
-      noteCount: allNotes.filter((note) => note.lecture_id === lecture.id).length,
+      noteCount: allNotes.filter((note) => note.lecture_id === lecture.id)
+        .length,
       confusingCount: allMarkers.filter(
-        (marker) => marker.lecture_id === lecture.id && marker.marker === "confusing",
+        (marker) =>
+          marker.lecture_id === lecture.id && marker.marker === "confusing",
       ).length,
     };
   });
@@ -83,101 +78,113 @@ export default async function StudentLectureListPage({
           description="Your professor has not published a lecture for this course. This page fills in as soon as one appears."
         />
       ) : (
-        <div className="space-y-8">
-          {grouped.map((group) => (
-            <section key={group.title}>
-              <h2 className="mb-3 font-serif text-lg">
-                {group.title}
-                {group.weekLabel ? (
-                  <span className="ml-2 text-[0.8rem] font-normal text-ink-400">
-                    {group.weekLabel}
-                  </span>
-                ) : null}
-              </h2>
-              <ul className="space-y-3">
-                {group.lectures.map((lecture) => (
-                  <Card as="li" key={lecture.id}>
-                    <CardBody>
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            {lecture.status === "live" ? (
-                              <Badge tone="concern">Live now</Badge>
-                            ) : (
-                              <Badge>{LECTURE_STATUS_LABELS[lecture.status]}</Badge>
-                            )}
-                            <span className="text-[0.8rem] text-ink-500">
-                              {DELIVERY_MODE_LABELS[lecture.delivery_mode]}
-                            </span>
-                            {lecture.scheduled_at ? (
-                              <span className="text-[0.8rem] text-ink-500">
-                                · {formatDayMonth(lecture.scheduled_at)}
-                              </span>
-                            ) : null}
-                          </div>
+        <div className="space-y-6">
+          {grouped.map((group, groupIndex) => {
+            /*
+              Progress across the module, from the checks actually answered. Only
+              shown where there are checks to answer — a 0% bar on a module with no
+              questions would read as failure rather than as absence.
+            */
+            const checks = group.lectures.reduce((n, l) => n + l.checkCount, 0);
+            const answered = group.lectures.reduce(
+              (n, l) => n + l.answeredCount,
+              0,
+            );
 
-                          <h3 className="mt-1.5 font-serif text-lg leading-snug">
-                            <Link
-                              href={`/student/${courseId}/lecture/${lecture.id}`}
-                              className="no-underline hover:underline"
-                            >
-                              {lecture.title}
-                            </Link>
-                          </h3>
+            return (
+              <section
+                key={group.title}
+                className="rounded-[1.5rem] border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4 px-1">
+                  <div className="min-w-0">
+                    <p className="text-[0.8rem] text-ink-400">
+                      Module {groupIndex + 1}
+                      {group.weekLabel ? ` · ${group.weekLabel}` : ""}
+                    </p>
+                    <h2 className="mt-1 text-[1.3rem] font-medium tracking-[-0.022em]">
+                      {group.title}
+                    </h2>
+                  </div>
 
-                          {lecture.description ? (
-                            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-600">
-                              {lecture.description}
-                            </p>
-                          ) : null}
-                        </div>
-
-                        <dl className="shrink-0 space-y-0.5 text-right text-[0.8rem] text-ink-500">
-                          {lecture.checkCount > 0 ? (
-                            <div>
-                              <dt className="inline">Checks </dt>
-                              <dd className="inline font-medium text-ink-700">
-                                {lecture.answeredCount} / {lecture.checkCount}
-                              </dd>
-                            </div>
-                          ) : null}
-                          {lecture.noteCount > 0 ? (
-                            <div>
-                              <dt className="inline">Your notes </dt>
-                              <dd className="inline font-medium text-ink-700">
-                                {lecture.noteCount}
-                              </dd>
-                            </div>
-                          ) : null}
-                          {lecture.confusingCount > 0 ? (
-                            <div>
-                              <dt className="inline">Marked confusing </dt>
-                              <dd className="inline font-medium text-attention-600">
-                                {lecture.confusingCount}
-                              </dd>
-                            </div>
-                          ) : null}
-                          <div>
-                            <dt className="inline">Sections </dt>
-                            <dd className="inline font-medium text-ink-700">
-                              {lecture.segment_count}
-                            </dd>
-                          </div>
-                        </dl>
+                  {checks > 0 ? (
+                    <div className="w-40 shrink-0">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-[0.8rem] text-ink-400">
+                          Checks
+                        </span>
+                        <span className="text-[0.9rem] font-medium tabular-nums text-ink-900">
+                          {answered}/{checks}
+                        </span>
                       </div>
+                      <ProgressBar
+                        className="mt-1.5"
+                        value={answered / checks}
+                        label={`${group.title}: comprehension checks answered`}
+                        tone="brand"
+                      />
+                    </div>
+                  ) : null}
+                </div>
 
-                      <p className="mt-3 text-[0.82rem] text-ink-400">
-                        {pluralize(lecture.interaction_count, "interactive moment")}
-                        {lecture.question_count > 0
-                          ? ` · ${pluralize(lecture.question_count, "class question")}`
-                          : ""}
-                      </p>
-                    </CardBody>
-                  </Card>
-                ))}
-              </ul>
-            </section>
-          ))}
+                <ul className="mt-4 space-y-0.5">
+                  {group.lectures.map((lecture, index) => (
+                    <li key={lecture.id}>
+                      <LessonRow
+                        index={index + 1}
+                        href={`/student/${courseId}/lecture/${lecture.id}`}
+                        active={lecture.status === "live"}
+                        leading={
+                          lecture.status === "live" ? (
+                            <Radio size={17} strokeWidth={1.75} />
+                          ) : (
+                            <Play
+                              size={16}
+                              strokeWidth={2}
+                              fill="currentColor"
+                            />
+                          )
+                        }
+                        title={
+                          <>
+                            {lecture.title}
+                            {lecture.status === "live" ? (
+                              <Badge
+                                tone="accent"
+                                className="ml-2 align-middle"
+                              >
+                                Live now
+                              </Badge>
+                            ) : null}
+                          </>
+                        }
+                        description={
+                          <>
+                            {DELIVERY_MODE_LABELS[lecture.delivery_mode]}
+                            {lecture.scheduled_at
+                              ? ` · ${formatDayMonth(lecture.scheduled_at)}`
+                              : ""}
+                            {` · ${pluralize(lecture.segment_count, "section")}`}
+                            {lecture.noteCount > 0
+                              ? ` · ${pluralize(lecture.noteCount, "note")}`
+                              : ""}
+                            {lecture.confusingCount > 0
+                              ? ` · ${lecture.confusingCount} marked confusing`
+                              : ""}
+                          </>
+                        }
+                        trailing={
+                          lecture.checkCount > 0
+                            ? `${lecture.answeredCount}/${lecture.checkCount}`
+                            : undefined
+                        }
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
     </>

@@ -16,7 +16,11 @@ import {
   SUPPORT_STATUSES,
 } from "@/lib/domain/vocabulary";
 import { submitAssessmentResponse } from "@/lib/repositories/assessments";
-import { getCourse, listConcepts, listObjectives } from "@/lib/repositories/courses";
+import {
+  getCourse,
+  listConcepts,
+  listObjectives,
+} from "@/lib/repositories/courses";
 import { listMaterials } from "@/lib/repositories/content";
 import {
   createBookmark,
@@ -242,7 +246,9 @@ export async function askQuestionAction(
   const parsedKind = z.enum(QUESTION_KINDS).safeParse(formData.get("kind"));
 
   if (body.length < 5) {
-    return fail("Write your question before submitting — at least a few words.");
+    return fail(
+      "Write your question before submitting — at least a few words.",
+    );
   }
   if (!parsedKind.success) return fail("Choose what kind of question this is.");
 
@@ -308,7 +314,8 @@ export async function respondToInteractionAction(formData: FormData) {
     interactionId,
     studentId: student.studentId,
     optionId: (formData.get("optionId") as string) || null,
-    textResponse: ((formData.get("textResponse") as string) || "").trim() || null,
+    textResponse:
+      ((formData.get("textResponse") as string) || "").trim() || null,
     confidence:
       confidence !== null && Number.isFinite(confidence) ? confidence : null,
   });
@@ -366,7 +373,8 @@ export async function submitAssessmentResponseAction(formData: FormData) {
     questionId,
     studentId: student.studentId,
     optionId: (formData.get("optionId") as string) || null,
-    textResponse: ((formData.get("textResponse") as string) || "").trim() || null,
+    textResponse:
+      ((formData.get("textResponse") as string) || "").trim() || null,
     confidence:
       confidence !== null && Number.isFinite(confidence) ? confidence : null,
   });
@@ -438,7 +446,8 @@ export async function createSupportRequestAction(
   if (!student) return fail(NOT_IN_COURSE);
 
   const parsed = z.enum(SUPPORT_REQUEST_KINDS).safeParse(formData.get("kind"));
-  if (!parsed.success) return fail("Choose the kind of support you would like.");
+  if (!parsed.success)
+    return fail("Choose the kind of support you would like.");
 
   const topics = String(formData.get("topics") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
@@ -453,7 +462,10 @@ export async function createSupportRequestAction(
   const readiness = readinessFor(courseId, student.studentId);
   const brief = await getAIProvider().prepareOfficeHours({
     studentName: student.studentName,
-    topics: topics.split(/[;,]/).map((t) => t.trim()).filter(Boolean),
+    topics: topics
+      .split(/[;,]/)
+      .map((t) => t.trim())
+      .filter(Boolean),
     reasons: readiness.reasons,
   });
 
@@ -516,8 +528,7 @@ export async function generateMyStudyGuideAction(
   const notes = listNotes(student.studentId, courseId);
   const readiness = readinessFor(courseId, student.studentId);
 
-  const focus =
-    readiness.gaps[0]?.objective.text ?? `${course.code} review`;
+  const focus = readiness.gaps[0]?.objective.text ?? `${course.code} review`;
 
   const result = await getAIProvider().generateStudyGuide({
     courseTitle: course.title,

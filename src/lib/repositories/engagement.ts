@@ -202,7 +202,11 @@ export function createNote(input: CreateNoteInput): string {
   return id;
 }
 
-export function setNoteShared(noteId: string, studentId: string, shared: boolean) {
+export function setNoteShared(
+  noteId: string,
+  studentId: string,
+  shared: boolean,
+) {
   getDb()
     .prepare(
       `UPDATE student_notes SET shared_with_professor = ?, updated_at = ?
@@ -300,7 +304,9 @@ export function setMarker(input: {
     .get(input.studentId, input.segmentId ?? null, input.marker);
 
   if (existing) {
-    db.prepare("DELETE FROM comprehension_markers WHERE id = ?").run(existing.id);
+    db.prepare("DELETE FROM comprehension_markers WHERE id = ?").run(
+      existing.id,
+    );
     return { created: false };
   }
 
@@ -545,7 +551,10 @@ export function createQuestion(input: {
   return id;
 }
 
-export function toggleQuestionVote(questionId: string, studentId: string): boolean {
+export function toggleQuestionVote(
+  questionId: string,
+  studentId: string,
+): boolean {
   const db = getDb();
   const existing = db
     .prepare<[string, string], { question_id: string }>(

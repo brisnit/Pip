@@ -100,7 +100,7 @@ export default async function StudentResourcesPage({
         <div className="space-y-8">
           {grouped.map((group) => (
             <section key={group.title}>
-              <h2 className="font-serif text-lg">
+              <h2 className="text-lg">
                 {group.title}
                 {group.weekLabel ? (
                   <span className="ml-2 text-[0.8rem] font-normal text-ink-400">
@@ -159,7 +159,7 @@ export default async function StudentResourcesPage({
                       ) : null}
 
                       {material.student_instructions ? (
-                        <p className="mt-2 rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-700">
+                        <p className="mt-2 rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-700">
                           <span className="font-medium">
                             From {course.professor_name}:
                           </span>{" "}
@@ -173,8 +173,9 @@ export default async function StudentResourcesPage({
                           {formatFileSize(material.file_size)
                             ? ` (${formatFileSize(material.file_size)})`
                             : ""}{" "}
-                          — filenames are recorded but files are not stored here, so
-                          there is nothing to download. Ask your professor for it.
+                          — filenames are recorded but files are not stored
+                          here, so there is nothing to download. Ask your
+                          professor for it.
                         </p>
                       ) : null}
 
@@ -209,7 +210,7 @@ export default async function StudentResourcesPage({
                     level={3}
                   />
                   <CardBody className="p-0">
-                    <ul className="divide-y divide-tan-100">
+                    <ul className="divide-y divide-slate-200">
                       {items.map((item) => (
                         <li key={item.id} className="px-5 py-2.5">
                           <div className="flex flex-wrap items-baseline gap-2">
@@ -282,14 +283,16 @@ export default async function StudentResourcesPage({
             <dl className="space-y-4">
               {concepts.map((concept) => (
                 <div key={concept.id}>
-                  <dt className="text-[0.95rem] font-semibold">{concept.name}</dt>
+                  <dt className="text-[0.95rem] font-semibold">
+                    {concept.name}
+                  </dt>
                   {concept.definition ? (
                     <dd className="mt-0.5 text-[0.88rem] leading-relaxed text-ink-600">
                       {concept.definition}
                     </dd>
                   ) : null}
                   {concept.perspective ? (
-                    <dd className="mt-1.5 rounded-md border border-accent-200 bg-accent-50 px-3 py-2 text-[0.82rem] leading-relaxed text-accent-700">
+                    <dd className="mt-1.5 rounded-[1.125rem] border border-brand-200 bg-brand-50 px-3 py-2 text-[0.82rem] leading-relaxed text-brand-800">
                       <span className="font-semibold">
                         Traditions differ here.
                       </span>{" "}
@@ -304,8 +307,8 @@ export default async function StudentResourcesPage({
       ) : null}
 
       <Notice tone="info" className="mt-8">
-        Materials your professor marked as teaching notes are not shown here. This
-        page lists only what has been made visible to students.
+        Materials your professor marked as teaching notes are not shown here.
+        This page lists only what has been made visible to students.
       </Notice>
     </>
   );

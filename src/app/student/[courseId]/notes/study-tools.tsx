@@ -19,9 +19,9 @@ export function StudyGuideForm({ courseId }: { courseId: string }) {
     <form action={action} className="space-y-3">
       <input type="hidden" name="courseId" value={courseId} />
       <p className="text-sm text-ink-600">
-        Builds a study guide from your course&rsquo;s objectives and key terms, plus
-        the questions and exam-review notes you have written. It regroups material
-        you already have — it does not invent content.
+        Builds a study guide from your course&rsquo;s objectives and key terms,
+        plus the questions and exam-review notes you have written. It regroups
+        material you already have — it does not invent content.
       </p>
       <div className="flex items-center gap-3">
         <Button type="submit" variant="secondary" size="sm" disabled={pending}>

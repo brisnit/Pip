@@ -18,10 +18,7 @@ import {
 } from "@/lib/domain/vocabulary";
 import { formatDateTime, percent } from "@/lib/format";
 import { listArtifacts, parseArtifact } from "@/lib/ai";
-import type {
-  GeneratedQuestion,
-  StudyGuidePayload,
-} from "@/lib/ai/types";
+import type { GeneratedQuestion, StudyGuidePayload } from "@/lib/ai/types";
 import {
   assessmentResults,
   listAssessmentQuestions,
@@ -59,7 +56,11 @@ export default async function AssessmentsPage({
     kind: "question_drafts",
     limit: 3,
   });
-  const studyGuides = listArtifacts({ courseId, kind: "study_guide", limit: 3 });
+  const studyGuides = listArtifacts({
+    courseId,
+    kind: "study_guide",
+    limit: 3,
+  });
 
   return (
     <>
@@ -88,7 +89,7 @@ export default async function AssessmentsPage({
                 <CardBody>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h2 className="font-serif text-lg leading-snug">
+                      <h2 className="text-lg leading-snug">
                         {assessment.title}
                       </h2>
                       <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] text-ink-500">
@@ -114,7 +115,7 @@ export default async function AssessmentsPage({
                         </p>
                       ) : null}
                       {assessment.professor_guidance ? (
-                        <p className="mt-2 max-w-2xl rounded border border-tan-100 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
+                        <p className="mt-2 max-w-2xl rounded border border-slate-200 bg-paper-100 px-3 py-2 text-[0.85rem] text-ink-600">
                           <span className="font-medium">Your guidance:</span>{" "}
                           {assessment.professor_guidance}
                         </p>
@@ -139,15 +140,15 @@ export default async function AssessmentsPage({
 
                   {humanGraded ? (
                     <Notice tone="info" className="mt-4">
-                      This assessment type is read by a person. Responses are stored
-                      verbatim and never scored automatically — no automated
-                      judgement about theological writing is presented as
-                      authoritative.
+                      This assessment type is read by a person. Responses are
+                      stored verbatim and never scored automatically — no
+                      automated judgement about theological writing is presented
+                      as authoritative.
                     </Notice>
                   ) : null}
 
                   {assessment.questions.length > 0 ? (
-                    <details className="mt-4 border-t border-tan-100 pt-3">
+                    <details className="mt-4 border-t border-slate-200 pt-3">
                       <summary className="cursor-pointer text-sm font-medium text-brand-700">
                         Questions and results
                       </summary>
@@ -207,7 +208,9 @@ export default async function AssessmentsPage({
                                   auto-marked.
                                 </p>
                               )}
-                              {result && result.autoScored && result.responses > 0 ? (
+                              {result &&
+                              result.autoScored &&
+                              result.responses > 0 ? (
                                 <div className="mt-2">
                                   <Meter
                                     label="Class accuracy"
@@ -245,8 +248,8 @@ export default async function AssessmentsPage({
                   {scorable.length > 0 || written.length > 0 ? (
                     <p className="mt-3 text-[0.8rem] text-ink-400">
                       {scorable.length} auto-scored question
-                      {scorable.length === 1 ? "" : "s"}, {written.length} read by
-                      you.
+                      {scorable.length === 1 ? "" : "s"}, {written.length} read
+                      by you.
                     </p>
                   ) : null}
                 </CardBody>
@@ -273,11 +276,11 @@ export default async function AssessmentsPage({
               />
             ) : (
               <p className="text-sm text-ink-500">
-                Publish a lecture first — question drafting works from your section
-                headings and key terms.
+                Publish a lecture first — question drafting works from your
+                section headings and key terms.
               </p>
             )}
-            <div className="border-t border-tan-100 pt-5">
+            <div className="border-t border-slate-200 pt-5">
               <GenerateStudyGuideForm
                 courseId={courseId}
                 assessments={assessments.map((assessment) => ({

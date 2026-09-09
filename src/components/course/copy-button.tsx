@@ -9,13 +9,7 @@ import { Button } from "@/components/ui/primitives";
  * Falls back to a visible message when the Clipboard API is unavailable (older
  * browsers, or a non-secure origin) rather than silently doing nothing.
  */
-export function CopyButton({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) {
+export function CopyButton({ value, label }: { value: string; label: string }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
 
   async function copy() {

@@ -46,10 +46,8 @@ export function LivePoller({
   }, [on, intervalSeconds, router]);
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-md border border-tan-200 bg-paper-100 px-3 py-2 text-[0.82rem]">
-      <span className="text-ink-600">
-        Updates every {intervalSeconds}s.
-      </span>
+    <div className="flex flex-wrap items-center gap-3 rounded-[1.125rem] border border-slate-200 bg-paper-100 px-3 py-2 text-[0.82rem]">
+      <span className="text-ink-600">Updates every {intervalSeconds}s.</span>
       <Button
         type="button"
         variant="secondary"
@@ -143,7 +141,11 @@ export function AnswerQuestionForm({
     <form action={action} className="mt-3 space-y-2">
       <input type="hidden" name="courseId" value={courseId} />
       <input type="hidden" name="questionId" value={questionId} />
-      <Field id={`answer-${questionId}`} label="Your answer" error={state.error}>
+      <Field
+        id={`answer-${questionId}`}
+        label="Your answer"
+        error={state.error}
+      >
         {(props) => <TextArea {...props} name="body" rows={3} />}
       </Field>
       <div className="flex items-center gap-3">
@@ -160,9 +162,9 @@ export function AnswerQuestionForm({
 export function LiveDisclaimer() {
   return (
     <Notice tone="info" title="What a live session does">
-      Starting a session opens the console and lets you publish moments to students
-      as you go. Video is delivered by whichever provider you already use — the
-      lecture links out to it.
+      Starting a session opens the console and lets you publish moments to
+      students as you go. Video is delivered by whichever provider you already
+      use — the lecture links out to it.
     </Notice>
   );
 }

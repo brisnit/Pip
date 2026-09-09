@@ -38,15 +38,18 @@ export function buildCatalog(courseId: string): SupportCatalog {
     .get(courseId);
 
   const segments = db
-    .prepare<[string], {
-      objectiveId: string | null;
-      conceptId: string | null;
-      lectureId: string;
-      lectureTitle: string;
-      segmentId: string;
-      heading: string;
-      atSeconds: number;
-    }>(
+    .prepare<
+      [string],
+      {
+        objectiveId: string | null;
+        conceptId: string | null;
+        lectureId: string;
+        lectureTitle: string;
+        segmentId: string;
+        heading: string;
+        atSeconds: number;
+      }
+    >(
       `SELECT
          COALESCE(
            (SELECT i.objective_id FROM interactions i
@@ -69,13 +72,16 @@ export function buildCatalog(courseId: string): SupportCatalog {
     .all(courseId);
 
   const materials = db
-    .prepare<[string], {
-      objectiveId: string | null;
-      conceptId: string | null;
-      materialId: string;
-      title: string;
-      contentType: keyof typeof CONTENT_TYPE_LABELS;
-    }>(
+    .prepare<
+      [string],
+      {
+        objectiveId: string | null;
+        conceptId: string | null;
+        materialId: string;
+        title: string;
+        contentType: keyof typeof CONTENT_TYPE_LABELS;
+      }
+    >(
       `SELECT
          (SELECT mo.objective_id FROM material_objectives mo
             WHERE mo.material_id = m.id LIMIT 1) AS objectiveId,
@@ -99,7 +105,10 @@ export function buildCatalog(courseId: string): SupportCatalog {
     .get(courseId);
 
   const upcoming = db
-    .prepare<[string], { id: string; title: string; scheduledAt: string | null }>(
+    .prepare<
+      [string],
+      { id: string; title: string; scheduledAt: string | null }
+    >(
       `SELECT id, title, scheduled_at AS scheduledAt FROM assessments
        WHERE course_id = ? AND is_practice = 0 AND published = 1
          AND scheduled_at IS NOT NULL
@@ -120,7 +129,10 @@ export function buildCatalog(courseId: string): SupportCatalog {
     practiceAssessment: practice ?? null,
     upcomingAssessment: upcoming ?? null,
     studyGuides: materials
-      .filter((m) => m.contentType === "study_guide" || m.contentType === "review_sheet")
+      .filter(
+        (m) =>
+          m.contentType === "study_guide" || m.contentType === "review_sheet",
+      )
       .map((m) => ({ materialId: m.materialId, title: m.title })),
     taName: product.support.taName,
     professorName: course?.professor_name ?? "your professor",
@@ -186,7 +198,9 @@ export function listRecommendations(
     .all(...params);
 }
 
-export function getRecommendation(id: string): RecommendationWithContext | null {
+export function getRecommendation(
+  id: string,
+): RecommendationWithContext | null {
   return (
     getDb()
       .prepare<[string], RecommendationWithContext>(
@@ -469,7 +483,10 @@ export function listProfessorNotes(
     params.push(studentId);
   }
   return getDb()
-    .prepare<string[], ProfessorNoteRow & { student_name: string; professor_name: string }>(
+    .prepare<
+      string[],
+      ProfessorNoteRow & { student_name: string; professor_name: string }
+    >(
       `SELECT n.*, s.name AS student_name, p.name AS professor_name
        FROM professor_notes n
        JOIN students s ON s.id = n.student_id
@@ -493,7 +510,14 @@ export function createProfessorNote(input: {
          (id, professor_id, course_id, student_id, body, follow_up_status, created_at)
        VALUES (?,?,?,?,?,'open',?)`,
     )
-    .run(id, input.professorId, input.courseId, input.studentId, input.body, nowIso());
+    .run(
+      id,
+      input.professorId,
+      input.courseId,
+      input.studentId,
+      input.body,
+      nowIso(),
+    );
   return id;
 }
 

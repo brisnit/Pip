@@ -103,7 +103,7 @@ export default async function SyllabusPage({
                 </p>
               )}
               {syllabus?.extraction_note ? (
-                <p className="rounded-md border border-tan-100 bg-paper-100 px-3 py-2 text-[0.82rem] text-ink-600">
+                <p className="rounded-[1.125rem] border border-slate-200 bg-paper-100 px-3 py-2 text-[0.82rem] text-ink-600">
                   {syllabus.extraction_note}
                 </p>
               ) : null}
@@ -156,12 +156,14 @@ export default async function SyllabusPage({
             {grouped.map((group) => (
               <Card key={group.kind}>
                 <CardHeader
-                  title={SYLLABUS_ITEM_KIND_LABELS[group.kind as SyllabusItemKind]}
+                  title={
+                    SYLLABUS_ITEM_KIND_LABELS[group.kind as SyllabusItemKind]
+                  }
                   description={`${group.items.length} item(s)`}
                   level={3}
                 />
                 <CardBody className="p-0">
-                  <ul className="divide-y divide-tan-100">
+                  <ul className="divide-y divide-slate-200">
                     {group.items.map((item) => (
                       <li
                         key={item.id}
@@ -175,7 +177,9 @@ export default async function SyllabusPage({
                             {item.date_label ? (
                               <Badge tone="accent">{item.date_label}</Badge>
                             ) : null}
-                            {item.ai_generated === 1 ? <AIGeneratedTag /> : null}
+                            {item.ai_generated === 1 ? (
+                              <AIGeneratedTag />
+                            ) : null}
                             {item.approved === 1 ? (
                               <Badge tone="track">
                                 <span aria-hidden="true">✓</span> Approved
@@ -191,9 +195,16 @@ export default async function SyllabusPage({
                             </p>
                           ) : null}
                         </div>
-                        <form action={toggleSyllabusItemAction} className="shrink-0">
+                        <form
+                          action={toggleSyllabusItemAction}
+                          className="shrink-0"
+                        >
                           <input type="hidden" name="itemId" value={item.id} />
-                          <input type="hidden" name="courseId" value={courseId} />
+                          <input
+                            type="hidden"
+                            name="courseId"
+                            value={courseId}
+                          />
                           <input
                             type="hidden"
                             name="approved"
@@ -201,10 +212,14 @@ export default async function SyllabusPage({
                           />
                           <Button
                             type="submit"
-                            variant={item.approved === 1 ? "ghost" : "secondary"}
+                            variant={
+                              item.approved === 1 ? "ghost" : "secondary"
+                            }
                             size="sm"
                           >
-                            {item.approved === 1 ? "Withdraw approval" : "Approve"}
+                            {item.approved === 1
+                              ? "Withdraw approval"
+                              : "Approve"}
                           </Button>
                         </form>
                       </li>

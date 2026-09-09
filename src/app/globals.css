@@ -1,132 +1,207 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   Fuller Learning Companion — design system
+   Predictive Learning — design system
 
-   Built from the Fuller Seminary style guide in public/brand assets/:
+   Built from the brand board in public/brand/New_Style.png:
 
-     Primary   #042B32   deep teal
-     Secondary #00ADC7   cyan
-     Tan       #D8D2C4
-     Tertiary  #005979   the Primary CTA colour
-     Black     #0C1821
-     White     #ffffff
+     Primary   #0B0D16   near black — text, and the primary CTA surface
+     Surface   #FFFFFF
+     Brand     #2F5BFF   saturated blue, used deliberately and sparingly
+     Slate     #6C7A95   secondary text, hairline borders
+     Light     #A7C1FF   tonal fills, gradients, progress tracks
 
-   Typography: Noto Serif (primary, headings) and Noto Sans (secondary, body),
-   both loaded and self-hosted by next/font in src/app/layout.tsx.
+   Typography: Satoshi, self-hosted by next/font/local in src/app/layout.tsx.
+   One typeface across the whole product; hierarchy comes from scale and
+   whitespace rather than from weight or a second family.
 
-   Two constraints shaped the ramps built around those six colours:
+   The shape of the system:
 
-   1. The secondary cyan is only 2.69:1 against white, so it can never carry
-      text. It is used for fills, borders and graphics; anything cyan that has
-      to be *read* uses accent-600 or accent-700.
-   2. WCAG 1.4.11 wants 3:1 for the boundary of an interactive control, which
-      the brand tan cannot give against white. Form controls therefore use
-      tan-400 (3.55:1) while decorative dividers keep the lighter tans.
+     surfaces   white and pale blue, 20–32px radii, hairline blue-grey borders,
+                broad low-opacity shadows — never a hard Material elevation
+     accents    #2F5BFF appears a handful of times per screen, never as the
+                default state of a component
+     controls   pill-shaped; the primary CTA is near-black, not blue
 
-   Every pairing the app renders is verified — see docs/product-architecture.md
-   → Design system for the table.
+   Two contrast constraints shaped the ramps:
+
+   1. Light blue #A7C1FF is 1.9:1 on white, so it never carries text. It fills
+      shapes, tracks and gradients; anything blue that must be *read* uses
+      brand-700 or darker.
+   2. WCAG 1.4.11 wants 3:1 for an interactive control's boundary, which the
+      hairline border cannot give. Form controls therefore use a stronger
+      slate border while decorative dividers keep the hairline.
+
+   Every pairing the app renders is verified — `npm run check:contrast`.
    ========================================================================== */
 
 @theme {
-  /* Brand teal, from Primary #042B32 --------------------------------------- */
-  --color-brand-50: #eef4f5;
-  --color-brand-100: #d4e3e6;
-  --color-brand-200: #a6c5cb;
-  --color-brand-300: #6d9aa4;
-  --color-brand-400: #3c6f7c;
-  --color-brand-500: #0b4451;
-  --color-brand-600: #042b32;
-  --color-brand-700: #032228;
-  --color-brand-800: #02181c;
-  --color-brand-900: #010f12;
+  /*
+     Predictive Learning — the design system.
+     Five brand values, everything else derived from them.
 
-  /* Tertiary blue #005979 — primary calls to action ----------------------- */
-  --color-cta-300: #4aa3c2;
-  --color-cta-400: #0b7fa5;
-  --color-cta-500: #006b8c;
-  --color-cta-600: #005979;
-  --color-cta-700: #004761;
+       #0B0D16  Primary ink / near black
+       #FFFFFF  Surface
+       #2F5BFF  Brand blue
+       #6C7A95  Slate
+       #A7C1FF  Light blue
 
-  /* Secondary cyan #00ADC7 — fills and accents, never small text ---------- */
-  --color-accent-50: #e6f8fb;
-  --color-accent-100: #c1eff5;
-  --color-accent-200: #84dfeb;
-  --color-accent-300: #3ec9dc;
-  --color-accent-400: #00adc7;
-  --color-accent-500: #008ba1;
-  --color-accent-600: #006b7d;
-  --color-accent-700: #00505e;
+     The rule that keeps this calm: the app is white, pale blue and near-black.
+     Saturated #2F5BFF is an accent, not a background — it appears on a screen a
+     handful of times, never as the default state of a component.
+  */
 
-  /* Paper — near-white grounds with a hint of the tan ---------------------- */
-  --color-paper-50: #fbfaf8;
-  --color-paper-100: #f6f4f0;
-  --color-paper-200: #efece5;
-  --color-paper-300: #e7e3d9;
+  /* Brand blue #2F5BFF ----------------------------------------------------- */
+  --color-brand-50: #f2f6ff;
+  --color-brand-100: #e3ebff;
+  --color-brand-200: #cbdaff;
+  --color-brand-300: #a7c1ff;
+  --color-brand-400: #7d9dff;
+  --color-brand-500: #5479ff;
+  --color-brand-600: #2f5bff;
+  --color-brand-700: #1f43d6;
+  --color-brand-800: #1834a5;
+  --color-brand-900: #142a80;
 
-  /* Tan #D8D2C4 ----------------------------------------------------------- */
-  --color-tan-100: #e7e3d9;
-  --color-tan-200: #d8d2c4;
-  --color-tan-300: #c2bba8;
-  --color-tan-400: #8f877a;
-  --color-tan-500: #7d7566;
+  /* Ink #0B0D16 — text, and the primary CTA surface ------------------------ */
+  --color-ink-300: #9aa5bb;
+  /* Darkened from the brand Slate #6C7A95, which is 4.33:1 on white and so fails
+     AA as body text. Tuned against the *tint* (#f1f5ff), not white — muted labels
+     appear on tinted cards as well, and passing only on the lightest ground is how
+     a palette quietly fails on half the screens that use it. The original stays
+     available as slate-500, where 3:1 is the bar because it draws borders and
+     graphics rather than words. */
+  --color-ink-400: #637089;
+  --color-ink-500: #55617a;
+  --color-ink-600: #3c465c;
+  --color-ink-700: #232b3d;
+  --color-ink-800: #141928;
+  --color-ink-900: #0b0d16;
 
-  /* Ink, from Black #0C1821 ----------------------------------------------- */
-  --color-ink-400: #5a6b74;
-  --color-ink-500: #42545e;
-  --color-ink-600: #2a3c46;
-  --color-ink-700: #182a33;
-  --color-ink-800: #0c1821;
-  --color-ink-900: #060e14;
+  /* Slate #6C7A95 — secondary text, borders, quiet metadata ---------------- */
+  --color-slate-100: #eef1f6;
+  --color-slate-200: #dde2ec;
+  --color-slate-300: #c3cbdb;
+  --color-slate-400: #9aa5bb;
+  --color-slate-500: #6c7a95;
+  --color-slate-600: #55617a;
 
-  /* Readiness statuses. Never the sole signal — every surface pairs these
-     with a shape glyph and a text label. Tuned to sit with the teal palette
-     while staying unmistakably green / amber / red / grey. */
-  --color-track-50: #eaf4ef;
-  --color-track-100: #d2e8dc;
-  --color-track-200: #a3cbb7;
-  --color-track-500: #1e6b50;
-  --color-track-600: #14513c;
+  /* Paper — the cool near-white canvas -------------------------------------- */
+  --color-paper-50: #ffffff;
+  --color-paper-100: #f7f9ff;
+  --color-paper-200: #f1f5ff;
+  --color-paper-300: #e8efff;
+  --color-paper-400: #dde7ff;
 
-  --color-attention-50: #fdf3e2;
-  --color-attention-100: #f8e6c4;
-  --color-attention-200: #e9c98a;
-  --color-attention-500: #8a5a00;
-  --color-attention-600: #6d4700;
+  /*
+     Readiness statuses.
 
-  --color-concern-50: #fceeec;
-  --color-concern-100: #f7dcd8;
-  --color-concern-200: #e6b3aa;
-  --color-concern-500: #a3342a;
-  --color-concern-600: #82271f;
+     Deliberately NOT tonal blue. Everywhere else the system speaks in one hue, but
+     these four bands are the one place colour carries consequence — a student read
+     as needing support versus on track — and four shades of the same blue is not a
+     distinction anyone can make at a glance. They are pulled toward the palette
+     (cooler, softer, lower chroma than the usual traffic lights) without giving up
+     being recognisably green / amber / red / grey. Colour is never the only signal:
+     every surface pairs these with a glyph and a text label.
+  */
+  --color-track-50: #edf6f1;
+  --color-track-100: #d7ebe1;
+  --color-track-200: #a9d4c0;
+  /* 400 is the FILL tone: arcs, bars, dots. Softer and less saturated than the
+     text tone, because a chart is a large area of colour and the same green that
+     reads as calm in a 14px label reads as a traffic light at 40px. */
+  --color-track-400: #5aa081;
+  --color-track-500: #1c7a55;
+  --color-track-600: #145c40;
 
-  --color-unknown-50: #eef1f3;
-  --color-unknown-100: #e0e5e8;
-  --color-unknown-200: #c3ccd1;
-  --color-unknown-500: #4a5c66;
-  --color-unknown-600: #394951;
+  --color-attention-50: #fdf5e9;
+  --color-attention-100: #f7e9cf;
+  --color-attention-200: #ecd0a0;
+  --color-attention-400: #b48c4c;
+  --color-attention-500: #8a5a08;
+  --color-attention-600: #6b4506;
 
-  /* Type ----------------------------------------------------------------- */
-  --font-serif: var(--font-display), "Noto Serif", Georgia, ui-serif, serif;
-  --font-sans: var(--font-body), "Noto Sans", ui-sans-serif, system-ui,
-    -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --color-concern-50: #fcf0f1;
+  --color-concern-100: #f7e0e3;
+  --color-concern-200: #eebac1;
+  --color-concern-400: #cc7d88;
+  --color-concern-500: #b03544;
+  --color-concern-600: #8c2634;
 
-  --text-display: 3.25rem;
-  --text-display--line-height: 1.06;
-  --text-display--letter-spacing: -0.02em;
+  --color-unknown-50: #f1f4f9;
+  --color-unknown-100: #e4e9f1;
+  --color-unknown-200: #cbd3e0;
+  --color-unknown-400: #b7c1d3;
+  --color-unknown-500: #5a6781;
+  --color-unknown-600: #454f65;
+
+  /* Type ------------------------------------------------------------------- */
+  --font-sans: var(--font-satoshi), "General Sans", "SF Pro Display",
+    "SF Pro Text", Inter, system-ui, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+  /*
+     One typeface. The old system paired a serif for headings with a sans for body;
+     Satoshi carries both roles here, and hierarchy comes from scale and whitespace
+     rather than from a second voice. `--font-display` stays mapped to it so any
+     `font-serif` still in the tree renders correctly rather than falling back to
+     Georgia.
+  */
+  --font-serif: var(--font-satoshi), "General Sans", "SF Pro Display", Inter,
+    system-ui, sans-serif;
+
+  /*
+     Scale. Weights stay at 400–500 almost everywhere: hierarchy is built from size,
+     spacing and colour, so headings read as calm rather than shouted.
+  */
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.0;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-h1: 2.625rem;
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-h2: 2rem;
+  --text-h2--line-height: 1.14;
+  --text-h2--letter-spacing: -0.025em;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.018em;
+
+  --text-body: 1.0rem;
+  --text-body--line-height: 1.6;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+
+  /* Radius — cards live in the 20–32px range ------------------------------- */
+  --radius-sm: 0.75rem;
+  --radius-md: 1.125rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 1.875rem;
+  --radius-2xl: 2rem;
+
+  /* Shadows — broad, low opacity, tinted with the ink rather than pure black */
+  --shadow-soft: 0 10px 40px rgba(11, 13, 22, 0.06);
+  --shadow-card: 0 2px 14px rgba(11, 13, 22, 0.04);
+  --shadow-lift: 0 16px 50px rgba(11, 13, 22, 0.1);
+  --shadow-float: 0 8px 32px rgba(11, 13, 22, 0.12);
 }
 
 :root {
   --page: var(--color-paper-100);
   --surface: #ffffff;
   --surface-muted: var(--color-paper-200);
-  --border: var(--color-tan-100);
-  --border-strong: var(--color-tan-200);
-  --control-border: var(--color-tan-400);
-  --text: var(--color-ink-800);
+  /* Borders are hairlines: a blue-grey at low alpha reads as definition rather
+     than as a drawn line, which is what keeps the surfaces feeling soft. */
+  --border: rgba(108, 122, 149, 0.16);
+  --border-strong: rgba(108, 122, 149, 0.28);
+  --control-border: rgba(108, 122, 149, 0.42);
+  --text: var(--color-ink-900);
   --text-muted: var(--color-ink-500);
   --text-subtle: var(--color-ink-400);
-  --focus: var(--color-cta-600);
+  --focus: var(--color-brand-600);
 }
 
 @layer base {
@@ -139,23 +214,49 @@
   }
 
   body {
+    /*
+       Not a flat dashboard grey. Two very wide, very faint radial washes sit on the
+       cool white canvas — one blue at the top left, one lighter at the top right —
+       so the page has depth without anything that reads as a "gradient background".
+       They are fixed and non-repeating, so scrolling does not drag them.
+    */
     background-color: var(--page);
+    background-image:
+      radial-gradient(
+        900px 600px at 12% -8%,
+        rgba(47, 91, 255, 0.07),
+        transparent 60%
+      ),
+      radial-gradient(
+        700px 500px at 92% 2%,
+        rgba(167, 193, 255, 0.18),
+        transparent 62%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--text);
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.6;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
+  /*
+     Headings are large and light, never heavy. Weight 500 is the ceiling; anything
+     bolder starts to look like an enterprise dashboard, and the hierarchy is carried
+     by size and space instead.
+  */
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
+    font-weight: 500;
     color: var(--color-ink-900);
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
     text-wrap: balance;
   }
 
@@ -166,14 +267,14 @@
      card rows, the brand lockup) already carry `no-underline`.
   */
   a {
-    color: var(--color-cta-600);
+    color: var(--color-brand-700);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
   }
 
   a:hover {
-    color: var(--color-cta-700);
+    color: var(--color-brand-800);
   }
 
   /* Visible, high-contrast focus for every interactive element. */
@@ -184,8 +285,8 @@
   }
 
   ::selection {
-    background-color: var(--color-accent-100);
-    color: var(--color-brand-700);
+    background-color: var(--color-brand-100);
+    color: var(--color-brand-800);
   }
 
   input,
@@ -201,6 +302,19 @@
 }
 
 @layer utilities {
+  /* Horizontal scrollers that must not show a bar — pill navigation, date
+     strips. Content stays keyboard, wheel and touch scrollable; only the chrome
+     is hidden, and each of these also cuts items off at the edge so the fact
+     that there is more never becomes invisible. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /*
      A single, quiet entrance. Used on the dashboard panels so the page settles
      rather than snapping into place. Collapsed to nothing by the reduced-motion
@@ -226,14 +340,6 @@
     }
   }
 
-  /* Soft, brand-tinted elevation. */
-  .shadow-soft {
-    box-shadow: 0 2px 20px rgba(4, 43, 50, 0.05);
-  }
-
-  .shadow-lift {
-    box-shadow: 0 4px 24px rgba(4, 43, 50, 0.09);
-  }
 
   /* Screen-reader-only text, revealed on focus for skip links. */
   .sr-only-focusable:not(:focus):not(:focus-within) {
@@ -282,7 +388,7 @@
     }
 
     & blockquote {
-      border-inline-start: 3px solid var(--color-accent-300);
+      border-inline-start: 3px solid var(--color-brand-300);
       padding-inline-start: 1rem;
       color: var(--text-muted);
       font-style: italic;

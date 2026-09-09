@@ -19,9 +19,7 @@ import {
   VISIBILITY_LABELS,
   type ContentType,
 } from "@/lib/domain/vocabulary";
-import {
-  createMaterialAction,
-} from "@/app/professor/actions";
+import { createMaterialAction } from "@/app/professor/actions";
 import { emptyActionState } from "@/lib/forms/action-state";
 
 export function MaterialForm({
@@ -46,7 +44,8 @@ export function MaterialForm({
   );
 
   const urlFirst = URL_CONTENT_TYPES.includes(contentType);
-  const professorOnlyDefault = PROFESSOR_ONLY_CONTENT_TYPES.includes(contentType);
+  const professorOnlyDefault =
+    PROFESSOR_ONLY_CONTENT_TYPES.includes(contentType);
 
   return (
     <form action={action} className="space-y-5">
@@ -137,7 +136,9 @@ export function MaterialForm({
             <Select
               {...props}
               name="visibility"
-              defaultValue={professorOnlyDefault ? "professor_only" : "students"}
+              defaultValue={
+                professorOnlyDefault ? "professor_only" : "students"
+              }
               key={professorOnlyDefault ? "prof" : "students"}
             >
               {VISIBILITIES.map((visibility) => (
@@ -180,8 +181,8 @@ export function MaterialForm({
             Related learning objectives
           </legend>
           <p className="mt-1 text-[0.82rem] text-ink-500">
-            Tagging material to an objective is what lets the support recommender
-            point a student at this exact resource.
+            Tagging material to an objective is what lets the support
+            recommender point a student at this exact resource.
           </p>
           <div className="mt-2 space-y-2">
             {objectives.map((objective) => (

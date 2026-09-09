@@ -10,15 +10,15 @@ export default function LandingPage() {
         <p className="text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-brand-600">
           {product.institution.name}
         </p>
-        <h1 className="mt-3 font-serif text-4xl leading-[1.08] tracking-tight sm:text-5xl">
+        <h1 className="mt-3 text-4xl leading-[1.08] tracking-tight sm:text-5xl">
           {product.tagline}
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-ink-600">
-          {product.name} turns a course&rsquo;s own materials into an interactive
-          learning environment. Professors see where a class is genuinely
-          struggling while there is still time to teach into it. Students see
-          exactly which topics need another pass before the exam — and what to do
-          about each one.
+          {product.name} turns a course&rsquo;s own materials into an
+          interactive learning environment. Professors see where a class is
+          genuinely struggling while there is still time to teach into it.
+          Students see exactly which topics need another pass before the exam —
+          and what to do about each one.
         </p>
       </div>
 
@@ -46,10 +46,7 @@ export default function LandingPage() {
         ].map((item, index) => (
           <Card key={item.step}>
             <CardBody>
-              <p
-                aria-hidden="true"
-                className="font-serif text-2xl text-accent-600"
-              >
+              <p aria-hidden="true" className="text-2xl text-brand-700">
                 {index + 1}
               </p>
               <h2 className="mt-1 text-base font-semibold">{item.step}</h2>
@@ -64,11 +61,15 @@ export default function LandingPage() {
       <div className="mt-12 grid gap-6 md:grid-cols-2">
         <Card>
           <CardBody>
-            <h2 className="font-serif text-xl">For professors</h2>
+            <h2 className="text-xl">For professors</h2>
             <ul className="mt-3 space-y-2 text-sm text-ink-600">
-              <li>Which students would benefit from a conversation this week</li>
+              <li>
+                Which students would benefit from a conversation this week
+              </li>
               <li>Which concepts the class marked confusing, and where</li>
-              <li>Which learning objectives the evidence does not yet support</li>
+              <li>
+                Which learning objectives the evidence does not yet support
+              </li>
               <li>Which questions are still waiting for an answer</li>
               <li>What to revisit at the start of the next lecture</li>
             </ul>
@@ -80,10 +81,13 @@ export default function LandingPage() {
 
         <Card>
           <CardBody>
-            <h2 className="font-serif text-xl">For students</h2>
+            <h2 className="text-xl">For students</h2>
             <ul className="mt-3 space-y-2 text-sm text-ink-600">
               <li>Notes anchored to the exact moment in the lecture</li>
-              <li>A way to say &ldquo;this part is not landing&rdquo; without raising your hand</li>
+              <li>
+                A way to say &ldquo;this part is not landing&rdquo; without
+                raising your hand
+              </li>
               <li>An honest read on which topics need another pass</li>
               <li>A support plan with real next steps, not just a warning</li>
               <li>Notes that stay private unless you choose to share them</li>
@@ -96,9 +100,9 @@ export default function LandingPage() {
       </div>
 
       <Notice tone="info" className="mt-12">
-        Readiness statuses are computed from recorded coursework activity. They are
-        designed to prompt a conversation early — they are not grades and carry no
-        academic weight.{" "}
+        Readiness statuses are computed from recorded coursework activity. They
+        are designed to prompt a conversation early — they are not grades and
+        carry no academic weight.{" "}
         <Link href="/about">How readiness is calculated.</Link>
       </Notice>
     </PublicShell>

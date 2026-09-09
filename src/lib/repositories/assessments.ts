@@ -53,7 +53,9 @@ export function getAssessment(assessmentId: string): AssessmentSummary | null {
 }
 
 /** The next dated, non-practice assessment for a course. */
-export function getUpcomingAssessment(courseId: string): AssessmentSummary | null {
+export function getUpcomingAssessment(
+  courseId: string,
+): AssessmentSummary | null {
   return (
     getDb()
       .prepare<[string], AssessmentSummary>(
@@ -66,7 +68,9 @@ export function getUpcomingAssessment(courseId: string): AssessmentSummary | nul
   );
 }
 
-export function getPracticeAssessment(courseId: string): AssessmentSummary | null {
+export function getPracticeAssessment(
+  courseId: string,
+): AssessmentSummary | null {
   return (
     getDb()
       .prepare<[string], AssessmentSummary>(
@@ -90,11 +94,14 @@ export function listAssessmentQuestions(
 ): AssessmentQuestionWithOptions[] {
   const db = getDb();
   const rows = db
-    .prepare<[string], AssessmentQuestionRow & {
-      objective_text: string | null;
-      objective_code: string | null;
-      concept_name: string | null;
-    }>(
+    .prepare<
+      [string],
+      AssessmentQuestionRow & {
+        objective_text: string | null;
+        objective_code: string | null;
+        concept_name: string | null;
+      }
+    >(
       `SELECT q.*, o.text AS objective_text, o.code AS objective_code,
               c.name AS concept_name
        FROM assessment_questions q
@@ -240,9 +247,10 @@ export type SubmitResponseInput = {
  * Records a response. Only multiple-choice and true/false are scored — short
  * answers are stored verbatim for a human to read, and never auto-marked.
  */
-export function submitAssessmentResponse(
-  input: SubmitResponseInput,
-): { isCorrect: boolean | null; autoScored: boolean } {
+export function submitAssessmentResponse(input: SubmitResponseInput): {
+  isCorrect: boolean | null;
+  autoScored: boolean;
+} {
   const db = getDb();
 
   const question = db
@@ -250,7 +258,8 @@ export function submitAssessmentResponse(
       "SELECT * FROM assessment_questions WHERE id = ?",
     )
     .get(input.questionId);
-  if (!question) throw new Error(`Unknown assessment question ${input.questionId}`);
+  if (!question)
+    throw new Error(`Unknown assessment question ${input.questionId}`);
 
   const autoScored = AUTO_SCORED_QUESTION_TYPES.includes(question.type);
   let isCorrect: boolean | null = null;

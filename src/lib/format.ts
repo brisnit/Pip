@@ -70,11 +70,17 @@ export function percent(value: number | null | undefined): string {
   return `${Math.round(value * 100)}%`;
 }
 
-export function pluralize(count: number, singular: string, plural?: string): string {
+export function pluralize(
+  count: number,
+  singular: string,
+  plural?: string,
+): string {
   return `${count} ${count === 1 ? singular : (plural ?? `${singular}s`)}`;
 }
 
-export function formatFileSize(bytes: number | null | undefined): string | null {
+export function formatFileSize(
+  bytes: number | null | undefined,
+): string | null {
   if (!bytes) return null;
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
