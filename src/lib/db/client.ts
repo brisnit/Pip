@@ -1,4 +1,4 @@
-import { mkdirSync, statSync } from "node:fs";
+import { mkdirSync, rmSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, sep } from "node:path";
 import { homedir, tmpdir } from "node:os";
 import { openDatabase, type Db } from "./driver";
@@ -55,11 +55,18 @@ function turso(): { url: string; authToken: string } | null {
  * `.data` directory under the working directory unless `PROTOTYPE_DB_PATH` gives an
  * absolute path, which keeps the bundler's file tracing scoped rather than walking
  * the whole project.
+ *
+ * The replica path carries the process id, because a replica cannot be shared. Two
+ * processes pointed at one replica file corrupt each other's view of it through the
+ * native layer, and the symptom is the server exiting without a JavaScript stack —
+ * which is a miserable thing to debug. A serverless instance is one process, so this
+ * costs nothing there; locally it means a dev server and a script each pull their
+ * own copy, which at ~1MB is not worth optimising.
  */
 function dbPath(): string {
   const configured = process.env.PROTOTYPE_DB_PATH;
   if (configured && isAbsolute(configured)) return configured;
-  if (turso()) return join(tmpdir(), "flc-replica.db");
+  if (turso()) return join(tmpdir(), `flc-replica-${process.pid}.db`);
   return join(process.cwd(), configured ?? ".data/prototype.db");
 }
 
@@ -137,25 +144,76 @@ function syncReplica(db: Db) {
   }
 }
 
+/** Everything libSQL writes for one replica: the mirror, its log, and its metadata. */
+function replicaFiles(path: string): string[] {
+  return [path, `${path}-info`, `${path}-wal`, `${path}-shm`];
+}
+
+function discardReplica(path: string) {
+  for (const file of replicaFiles(path)) {
+    try {
+      rmSync(file);
+    } catch {
+      // absent already; nothing to remove
+    }
+  }
+}
+
 /**
- * The first sync after opening a replica, which must not fail quietly.
+ * Opens an embedded replica, rebuilding it from scratch if the existing one is
+ * unusable.
  *
- * A newly created replica file is empty. If the primary is unreachable there is no
- * "last good copy" to fall back on, so tolerating the failure would mean serving an
- * empty database — and then trying to seed it, sending ~2,200 writes to a primary
- * that is not answering. Failing here instead surfaces the real problem, and the
- * next request retries with a fresh connection.
+ * A replica records which primary it belongs to, and how far it has replayed, in
+ * `<path>-info`. Point the same path at a *different* database — a redeploy with new
+ * credentials, or switching databases in development — and the new primary rejects
+ * that metadata with `InvalidLocalGeneration`. Every request then fails, opaquely
+ * and permanently, until somebody knows to delete a file in the temp directory.
+ *
+ * The replica is a disposable mirror by definition, so the answer is simply to throw
+ * it away and pull a fresh copy.
+ *
+ * The first sync is also the one failure that must not be tolerated: a new replica is
+ * empty, so there is no last-good copy to fall back on, and carrying on would mean
+ * serving an empty database and then trying to seed it — ~2,200 writes to a primary
+ * that is not answering. Later syncs are soft; see `syncReplica`.
  */
-function syncOrFail(db: Db, url: string) {
-  try {
-    db.sync();
+function openReplica(path: string, url: string, authToken: string): Db {
+  const attempt = () => {
+    const db = openDatabase(path, { syncUrl: url, authToken });
+    try {
+      db.sync();
+    } catch (error) {
+      try {
+        db.close();
+      } catch {
+        // already unusable
+      }
+      throw error;
+    }
     globalThis.__flcSyncedAt = Date.now();
-  } catch (error) {
-    throw new Error(
-      `Could not reach the Turso primary at ${url}. The local replica is empty, so ` +
-        `there is nothing to serve. Check TURSO_DATABASE_URL and TURSO_AUTH_TOKEN.`,
-      { cause: error },
+    return db;
+  };
+
+  try {
+    return attempt();
+  } catch (first) {
+    console.warn(
+      `[flc] the replica at ${path} could not sync; discarding it and pulling a ` +
+        `fresh copy. Original error:`,
+      first,
     );
+    discardReplica(path);
+
+    try {
+      return attempt();
+    } catch (second) {
+      throw new Error(
+        `Could not reach the Turso primary at ${url}. The local replica is empty, ` +
+          `so there is nothing to serve. Check TURSO_DATABASE_URL and ` +
+          `TURSO_AUTH_TOKEN.`,
+        { cause: second },
+      );
+    }
   }
 }
 
@@ -171,10 +229,8 @@ function open(): Db {
   // ~280 synchronous statements the repositories are built from, and without the
   // readiness gather — nine queries per student — becoming nine network round trips.
   const db = remote
-    ? openDatabase(path, { syncUrl: remote.url, authToken: remote.authToken })
+    ? openReplica(path, remote.url, remote.authToken)
     : openDatabase(path);
-
-  if (remote) syncOrFail(db, remote.url);
 
   // Pragmas are advisory here. On a plain file they are how WAL and foreign keys get
   // switched on; against a replica libSQL owns the journal, so a rejected pragma is

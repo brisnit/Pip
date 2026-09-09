@@ -233,22 +233,48 @@ shared across instances.
 
 ### 1. Create the database
 
-Seed it locally first, then upload the file. Seeding writes ~2,200 rows, and doing
-that over the network on a first request would exceed any serverless timeout.
+Seed locally, export, upload. Seeding writes ~2,200 rows, and doing that over the
+network on a first request would exceed any serverless timeout.
 
 ```bash
-npm run db:reset                      # builds a fully seeded .data/prototype.db
-
-brew install tursodatabase/tap/turso  # or see https://docs.turso.tech
-turso auth login
-turso db create fuller-learning-companion --from-file .data/prototype.db
-
-turso db show fuller-learning-companion --url    # -> TURSO_DATABASE_URL
-turso db tokens create fuller-learning-companion # -> TURSO_AUTH_TOKEN
+npm run db:reset     # seeds .data/prototype.db
+npm run db:export    # writes .data/turso-import.db in a form Turso will accept
 ```
 
-Pick a Turso region near the Vercel region in `vercel.json` (`iad1`, Washington DC).
-Every write crosses that gap.
+**`db:export` is not optional.** The prototype runs SQLite in WAL mode, and
+`turso db create --from-file` imports *nothing* from a WAL-mode file — it prints
+"Uploaded data in 0 seconds", creates the database, and leaves it empty, with no
+error. You find out when the first page 500s with `no such table: professors`. The
+export step flips the file out of WAL, and reads through the WAL so recent writes are
+not lost.
+
+Install the CLI. Without Homebrew:
+
+```bash
+curl -sSfL https://get.tur.so/install.sh | bash   # installs to ~/.turso
+turso auth login
+```
+
+Then create the database and take the credentials:
+
+```bash
+turso db create fuller-learning-companion --from-file .data/turso-import.db
+
+turso db show fuller-learning-companion --url          # -> TURSO_DATABASE_URL
+turso db tokens create fuller-learning-companion       # -> TURSO_AUTH_TOKEN
+```
+
+Check it actually imported before going further — this is the step that catches the
+WAL trap:
+
+```bash
+echo "SELECT COUNT(*) FROM students;" | turso db shell fuller-learning-companion
+# 134
+```
+
+Turso creates the database in a region of its choosing (`turso db list` shows it).
+**Match `regions` in `vercel.json` to it** — every write crosses that gap. The
+current setting is `pdx1` (Portland), which pairs with `aws-us-west-2`.
 
 ### 2. Deploy
 
@@ -277,14 +303,28 @@ configuration — the app reads Vercel's own hostname at runtime.
   writes immediately and other instances' writes within `TURSO_SYNC_INTERVAL_MS`
   (default 2s). For a demo this is invisible. It is worth knowing before anyone
   builds a feature that assumes read-your-neighbour's-writes.
-- **Re-seeding is a deliberate act**, not something a restart does. To reset the
-  hosted demo, delete and recreate the database from a fresh local seed.
+- **Re-seeding is a deliberate act**, not something a restart does. Turso imports
+  only at creation, so resetting the hosted demo means `turso db destroy` then
+  `create --from-file` again — and destroying invalidates the tokens, so issue a new
+  one and update it in Vercel.
+- **Each process gets its own replica.** Two processes pointed at one replica file
+  corrupt each other through the native layer, and the symptom is a server that exits
+  with no JavaScript stack. The replica filename carries the process id to prevent
+  it. A serverless instance is one process, so this costs nothing there.
+- **A replica that cannot sync is rebuilt automatically.** Point a deployment at a
+  different database and the old replica's metadata is rejected; rather than failing
+  every request with an opaque `InvalidLocalGeneration`, the app discards the mirror
+  and pulls a fresh copy.
 
 ### Running it anywhere with a real disk
 
 Leave `TURSO_DATABASE_URL` unset and the app opens a plain local file, exactly as it
 does in development. That is all a host with a persistent disk needs — the driver,
 the schema and every query are the same either way.
+
+Note that only Next.js reads `.env.local`. Scripts run through tsx — `npm run verify`,
+`db:reset`, `db:export`, `dev:session` — do not, so they use the local file unless you
+export `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` into the environment yourself.
 
 ### The access gate
 

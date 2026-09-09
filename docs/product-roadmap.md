@@ -116,6 +116,21 @@ Still true afterwards: seeding is a deliberate, out-of-band act rather than some
 a cold start does. ~2,200 rows over the network would exceed any function timeout, so
 the database is created from a locally seeded file.
 
+Verified end to end against a live Turso database, not just reasoned about: the full
+164-check smoke suite passes against it, the dashboard computes identical figures from
+the replica, and writes made inside a transaction land on the primary. Three things
+that only surfaced by actually doing it, all now handled:
+
+- `turso db create --from-file` silently imports **nothing** from a WAL-mode SQLite
+  file. It reports success and leaves the database empty. `npm run db:export` exists
+  to produce a file that imports, and the README says to verify the row count.
+- Two processes sharing one replica file corrupt each other through the native layer,
+  and the server exits with no JavaScript stack. Replica paths now carry the process
+  id.
+- A replica whose primary has changed is rejected with `InvalidLocalGeneration`, which
+  would otherwise fail every request permanently. The replica is disposable, so it is
+  now discarded and re-pulled automatically.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.

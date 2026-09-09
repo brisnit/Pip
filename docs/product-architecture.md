@@ -131,8 +131,18 @@ the `better-sqlite3` it replaced:
    deep, and `npm run verify` guards the dangerous case: an inner transaction that
    fails.
 
-Deployment specifics — creating the database, seeding it once out of band, the
-environment variables — are in `README.md`.
+Two operational constraints follow from the replica being a real file on disk:
+
+- **One replica per process.** Two processes pointed at the same replica file corrupt
+  each other's view of it through the native layer, and the failure mode is the
+  server exiting with no JavaScript stack. The path carries the process id.
+- **A replica belongs to one primary.** It records which, and how far it has replayed,
+  in `<path>-info`. Repoint at a different database and the new primary rejects it.
+  Since a replica is a disposable mirror, the app discards and re-pulls it rather than
+  failing every request with an opaque error.
+
+Deployment specifics — creating the database, exporting it in a form Turso will
+actually import, the environment variables — are in `README.md`.
 
 ## The interactive lecture
 
