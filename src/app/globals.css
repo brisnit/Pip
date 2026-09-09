@@ -63,6 +63,23 @@
   --color-brand-800: #1834a5;
   --color-brand-900: #142a80;
 
+  /*
+     The chart ramp, for magnitude.
+
+     Deliberately starts at brand-400, not brand-300: the brand's Light Blue is
+     1.79:1 on white, which is below the 2:1 floor a ramp's lightest step needs to be
+     seen at all on a white card. Validated as an ordinal ramp — monotone lightness,
+     every adjacent step ≥0.06 apart in L, one hue (3° spread).
+
+     brand-100 is the TRACK behind a bar, not a step of the ramp: an unfilled track is
+     a lighter step of the same hue so state reads across the whole bar.
+  */
+  --chart-1: var(--color-brand-400);
+  --chart-2: var(--color-brand-500);
+  --chart-3: var(--color-brand-600);
+  --chart-4: var(--color-brand-700);
+  --chart-track: var(--color-brand-100);
+
   /* Ink #0B0D16 — text, and the primary CTA surface ------------------------ */
   --color-ink-300: #9aa5bb;
   /* Darkened from the brand Slate #6C7A95, which is 4.33:1 on white and so fails
@@ -107,9 +124,27 @@
   --color-track-50: #edf6f1;
   --color-track-100: #d7ebe1;
   --color-track-200: #a9d4c0;
-  /* 400 is the FILL tone: arcs, bars, dots. Softer and less saturated than the
-     text tone, because a chart is a large area of colour and the same green that
-     reads as calm in a 14px label reads as a traffic light at 40px. */
+  /*
+     400 is the FILL tone: arcs, bars, dots. Softer and less saturated than the text
+     tone, because a chart is a large area of colour and the same green that reads as
+     calm in a 14px label reads as a traffic light at 40px.
+
+     These four are not hand-picked. The first pass softened them by eye and the
+     result failed the normal-vision separation floor — amber and rose sat at ΔE 10.7,
+     which is hard to tell apart even with full colour vision, let alone as adjacent
+     segments of a stacked bar. They were re-stepped by search for the SMALLEST move
+     that clears the gate: worst adjacent pair is now ΔE 15.1 normal / 8.1 simulated
+     protanopia, and only three of the four moved at all.
+
+     The three meaning-bearing bands each clear 3:1 on white as well — green 3.10,
+     amber 3.06, rose 4.15 — so they work as marks without leaning on their labels.
+
+     One deliberate exception: the slate sits at 2.40:1 and below the chroma floor.
+     That is correct rather than tolerated. It means "not enough data", and a band
+     that means *absence* should read as grey and recede; it is relieved by the glyph,
+     label and count that always accompany it. The green is a hair under the chroma
+     floor for the same calmness reason and clears every separation gate.
+  */
   --color-track-400: #5aa081;
   --color-track-500: #1c7a55;
   --color-track-600: #145c40;
@@ -117,21 +152,21 @@
   --color-attention-50: #fdf5e9;
   --color-attention-100: #f7e9cf;
   --color-attention-200: #ecd0a0;
-  --color-attention-400: #b48c4c;
+  --color-attention-400: #c98519;
   --color-attention-500: #8a5a08;
   --color-attention-600: #6b4506;
 
   --color-concern-50: #fcf0f1;
   --color-concern-100: #f7e0e3;
   --color-concern-200: #eebac1;
-  --color-concern-400: #cc7d88;
+  --color-concern-400: #cc5565;
   --color-concern-500: #b03544;
   --color-concern-600: #8c2634;
 
   --color-unknown-50: #f1f4f9;
   --color-unknown-100: #e4e9f1;
   --color-unknown-200: #cbd3e0;
-  --color-unknown-400: #b7c1d3;
+  --color-unknown-400: #9ca8bc;
   --color-unknown-500: #5a6781;
   --color-unknown-600: #454f65;
 

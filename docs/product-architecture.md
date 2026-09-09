@@ -357,6 +357,43 @@ information. It is also smaller and pushed further off-canvas on narrow screens,
 because at full size it sat behind the headline — the one thing a decorative backdrop
 must never do.
 
+### Charts
+
+Three forms, and a rule about which one applies.
+
+| Form | Component | Job |
+| --- | --- | --- |
+| Donut + legend | `viz/health-wheel.tsx` | part-to-whole across ≤4 status bands |
+| Horizontal bars | `viz/bar-chart.tsx` | compare magnitude across nominal items |
+| Ring / bar / headline | `ui/progress.tsx` | one ratio against a limit |
+
+**Every bar in a chart wears one hue.** The bar lists used to colour each row by its
+own value — red when high, amber when low — which double-encodes: length already says
+how big the number is, so hue spent on the same fact buys nothing and costs the only
+free channel a chart has. Objectives and questions are *nominal* (LO2 is not "more"
+than LO1), so magnitude is length alone.
+
+**Fills and text are different tokens.** The `400` step is the fill; `500`/`600` are
+for text. A chart is a large area of colour and the same green that reads as calm in a
+14px label reads as a traffic light at 40px.
+
+**There is no trend chart, deliberately.** Readiness snapshots are written only when a
+student's status actually changes, so the table holds roughly one row per student and
+no history to plot. The comprehension dashboard says so in words rather than drawing a
+line through a single point.
+
+**Status fills were derived, not chosen.** The first pass softened them by eye to sit
+with the blue and produced amber and rose at ΔE 10.7 — below the 15 floor at which
+neighbouring segments stay distinguishable under *normal* vision, never mind CVD. They
+were re-stepped by search for the smallest move that clears every gate. The three
+meaning-bearing bands also clear 3:1 on white; the "not enough data" grey sits at
+2.40:1 on purpose, because a band meaning *absence* should recede, and it is relieved
+by the glyph and label that always travel with it. `npm run check:contrast` records
+that exemption explicitly as a `relieved:` row rather than omitting it.
+
+**Every chart has a table twin.** `HBarChart` ships a `<details>` table for anything
+with more than one row, so no value is reachable only by hovering.
+
 ### The visualisation system
 
 `src/components/viz/health-wheel.tsx` is the one chart component, used for course

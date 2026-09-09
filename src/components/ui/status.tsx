@@ -207,8 +207,14 @@ export function StatusDistribution({
 
   return (
     <div>
+      {/*
+        Segments are separated by a 2px gap in the surface colour, not by a border
+        drawn around each one. White doing the separating is what keeps a stacked bar
+        from gaining ink that is not data — and neighbouring bands read as distinct
+        because of the gap, not because of a stroke.
+      */}
       <div
-        className="flex h-3 w-full overflow-hidden rounded-full bg-paper-300"
+        className="flex h-3 w-full gap-[2px] overflow-hidden rounded-full bg-paper-300"
         role="img"
         aria-label={bands
           .map(
@@ -221,7 +227,7 @@ export function StatusDistribution({
           counts[status] > 0 ? (
             <div
               key={status}
-              className={bar}
+              className={`${bar} first:rounded-l-full last:rounded-r-full`}
               style={{ width: `${(counts[status] / total) * 100}%` }}
             />
           ) : null,

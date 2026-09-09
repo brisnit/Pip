@@ -14,6 +14,7 @@ import {
   SectionHeading,
   Stat,
 } from "@/components/ui/primitives";
+import { HBarChart } from "@/components/viz/bar-chart";
 import { StatusDistribution, StatusPill } from "@/components/ui/status";
 import {
   QUESTION_KIND_LABELS,
@@ -100,7 +101,7 @@ export default async function InsightsPage({
         description="Class-level patterns. Nothing here identifies which student marked what — individual detail lives on the roster."
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid items-start gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
             title="Where the class stands"
@@ -191,6 +192,16 @@ export default async function InsightsPage({
           <Card>
             <CardHeader title="At a glance" level={3} />
             <CardBody>
+              {/*
+                These read as ink, not as status colours.
+
+                A status colour is reserved for state, and it never travels alone —
+                it ships with a glyph and a label, the way the readiness pills do.
+                Painting "2.9 / 5" red gave a bare number the authority of a verdict
+                without ever saying what the threshold was or who set it, and put four
+                different hues in a four-number card for no gain. The figures are the
+                point; the card's title already frames them.
+              */}
               <dl className="grid grid-cols-2 gap-4">
                 <Stat
                   label="Average confidence"
@@ -199,26 +210,12 @@ export default async function InsightsPage({
                       ? `${aggregate.averageConfidence.toFixed(1)} / 5`
                       : "—"
                   }
-                  tone={
-                    aggregate.averageConfidence === null
-                      ? "unknown"
-                      : aggregate.averageConfidence >= 4
-                        ? "track"
-                        : aggregate.averageConfidence >= 3
-                          ? "attention"
-                          : "concern"
-                  }
                 />
-                <Stat
-                  label="Open questions"
-                  value={openQuestions.length}
-                  tone={openQuestions.length > 0 ? "attention" : "neutral"}
-                />
+                <Stat label="Open questions" value={openQuestions.length} />
                 <Stat label="Confusing moments" value={confusion.length} />
                 <Stat
                   label="Without enough data"
                   value={aggregate.studentsWithoutEnoughData}
-                  tone="unknown"
                 />
               </dl>
             </CardBody>
@@ -236,31 +233,23 @@ export default async function InsightsPage({
                   No objective is showing widespread weakness.
                 </p>
               ) : (
-                <ol className="space-y-3">
-                  {reteachList.slice(0, 5).map((row) => (
-                    <li key={row.objective.id}>
-                      <Meter
-                        label={`${row.objective.code} — ${row.objective.text}`}
-                        value={row.studentsNeedingReview}
-                        max={Math.max(row.studentsWithEvidence, 1)}
-                        valueText={`${row.studentsNeedingReview} of ${row.studentsWithEvidence} need review`}
-                        tone={
-                          row.studentsNeedingReview / row.studentsWithEvidence >
-                          0.4
-                            ? "concern"
-                            : "attention"
-                        }
-                      />
-                    </li>
-                  ))}
-                </ol>
+                <HBarChart
+                  measure="Need review"
+                  data={reteachList.slice(0, 5).map((row) => ({
+                    key: row.objective.id,
+                    label: `${row.objective.code} — ${row.objective.text}`,
+                    value: row.studentsNeedingReview,
+                    max: Math.max(row.studentsWithEvidence, 1),
+                    valueText: `${row.studentsNeedingReview} of ${row.studentsWithEvidence}`,
+                  }))}
+                />
               )}
             </CardBody>
           </Card>
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader
             title="Hardest comprehension checks"
@@ -277,21 +266,18 @@ export default async function InsightsPage({
                   (tally.correct ?? 0) / Math.max(tally.responses, 1);
                 return (
                   <div key={tally.interactionId}>
-                    <Meter
-                      label={tally.prompt}
-                      value={accuracy}
-                      valueText={`${tally.correct} of ${tally.responses} correct (${percent(accuracy)})`}
-                      tone={
-                        accuracy >= 0.75
-                          ? "track"
-                          : accuracy >= 0.5
-                            ? "attention"
-                            : "concern"
-                      }
+                    <HBarChart
+                      measure="Answered correctly"
+                      data={[
+                        {
+                          key: tally.interactionId,
+                          label: tally.prompt,
+                          value: accuracy,
+                          valueText: `${tally.correct} of ${tally.responses} correct (${percent(accuracy)})`,
+                          caption: tally.lectureTitle,
+                        },
+                      ]}
                     />
-                    <p className="mt-1 text-[0.78rem] text-ink-400">
-                      {tally.lectureTitle}
-                    </p>
                     <ul className="mt-1.5 space-y-1">
                       {tally.options.map((option) => (
                         <li
@@ -339,26 +325,19 @@ export default async function InsightsPage({
                   Nothing has been marked confusing.
                 </p>
               ) : (
-                <ol className="space-y-3">
-                  {confusion.slice(0, 8).map((row) => (
-                    <li key={row.segment_id}>
-                      <Meter
-                        label={row.heading}
-                        value={row.confusing}
-                        max={Math.max(row.confusing + row.clear, 1)}
-                        valueText={`${row.confusing} confusing · ${row.clear} clear · ${row.distinct_students} student${
-                          row.distinct_students === 1 ? "" : "s"
-                        }`}
-                        tone={
-                          row.confusing > row.clear ? "concern" : "attention"
-                        }
-                      />
-                      <p className="mt-1 text-[0.78rem] text-ink-400">
-                        {row.lecture_title}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
+                <HBarChart
+                  measure="Marked confusing"
+                  data={confusion.slice(0, 8).map((row) => ({
+                    key: row.segment_id,
+                    label: row.heading,
+                    value: row.confusing,
+                    max: Math.max(row.confusing + row.clear, 1),
+                    valueText: `${row.confusing} confusing · ${row.clear} clear`,
+                    caption: `${row.lecture_title} · ${row.distinct_students} student${
+                      row.distinct_students === 1 ? "" : "s"
+                    }`,
+                  }))}
+                />
               )}
             </CardBody>
           </Card>

@@ -125,27 +125,41 @@ const PAIRS = [
   ["graphic: track fill vs white", "track-400", "#ffffff"],
   ["graphic: attention fill vs white", "attention-400", "#ffffff"],
   ["graphic: concern fill vs white", "concern-400", "#ffffff"],
+  // The "no data" band is deliberately grey and light — it means absence and should
+  // recede. It is judged at 2:1 rather than 3:1, and that relaxation is only legal
+  // because the glyph, label and count always travel with it.
+  ["relieved: no-data fill vs white", "unknown-400", "#ffffff"],
   ["graphic: brand fill vs white", "brand-500", "#ffffff"],
   ["graphic: progress bar vs track", "brand-600", "paper-300"],
 ];
 
+/*
+   Each row is judged against the bar its ROLE requires, not one blanket number:
+     4.5   text
+     3.0   `graphic:` — borders, focus rings, chart fills (WCAG 1.4.11 non-text)
+     2.0   `relieved:` — a fill that always travels with a glyph and a label, so the
+           label is the channel carrying the meaning and the mark only has to be seen
+*/
 console.log(
-  "Pairing                             fg        bg        ratio  AA(4.5) 3:1",
+  "Pairing                             fg        bg        ratio  required verdict",
 );
 console.log("─".repeat(84));
 let fails = 0;
 for (const [label, fg, bg] of PAIRS) {
   const r = ratio(c(fg), c(bg));
-  const aa = r >= 4.5;
-  const aaLarge = r >= 3;
   const nonText = label.startsWith("graphic:");
-  const ok = nonText ? aaLarge : aa;
+  // `relieved:` marks a fill whose meaning is carried by an accompanying glyph and
+  // label, so the mark itself is judged at 2:1. Spelled out rather than omitted from
+  // the list, so the exemption stays visible and has to be argued for.
+  const relieved = label.startsWith("relieved:");
+  const required = relieved ? 2 : nonText ? 3 : 4.5;
+  const ok = r >= required;
   if (!ok) fails += 1;
   console.log(
     `${label.padEnd(35)} ${c(fg).padEnd(9)} ${c(bg).padEnd(9)} ${r
       .toFixed(2)
-      .padStart(5)}  ${aa ? "  ok  " : " FAIL "}  ${aaLarge ? "ok" : "FAIL"}${
-      ok ? "" : "   <-- needs fixing"
+      .padStart(5)}  needs ${required.toFixed(1).padStart(3)}  ${
+      ok ? "ok" : "FAIL   <-- needs fixing"
     }`,
   );
 }
