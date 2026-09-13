@@ -1,5 +1,6 @@
 "use server";
 
+import { listRoster } from "@/lib/repositories/students";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -64,6 +65,7 @@ import {
 import {
   clearStatusOverride,
   readinessFor,
+  recordReadiness,
   setStatusOverride,
 } from "@/lib/repositories/readiness";
 import {
@@ -314,6 +316,10 @@ export async function publishSyllabusAction(
   }
 
   const counts = publishSyllabus(syllabus.id, courseId);
+  // Published content feeds every enrolled student's readiness: record history
+  // for the course after the response, in one batched write.
+  recordReadiness(courseId, listRoster(courseId).map((student) => student.id));
+
   revalidatePath(`/professor/courses/${courseId}`, "layout");
 
   const parts = [
@@ -581,6 +587,13 @@ export async function createLectureAction(
     summary: `${data.status === "draft" ? "Drafted" : "Published"} "${data.title}"`,
   });
 
+  // Published content feeds every enrolled student's readiness: record history
+  // for the course after the response, in one batched write.
+  recordReadiness(
+    data.courseId,
+    listRoster(data.courseId).map((student) => student.id),
+  );
+
   revalidatePath(`/professor/courses/${data.courseId}`, "layout");
   redirect(`/professor/courses/${data.courseId}/content?lecture=${lectureId}`);
 }
@@ -609,6 +622,10 @@ export async function setLectureStatusAction(formData: FormData) {
           : `Set "${lecture.title}" to ${parsed.data}`,
   });
 
+  // Published content feeds every enrolled student's readiness: record history
+  // for the course after the response, in one batched write.
+  recordReadiness(courseId, listRoster(courseId).map((student) => student.id));
+
   revalidatePath(`/professor/courses/${courseId}`, "layout");
   revalidatePath(`/student/${courseId}`, "layout");
 }
@@ -636,6 +653,10 @@ export async function setInteractionPublishedAction(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const lectureId = String(formData.get("lectureId") ?? "");
   setInteractionPublished(interactionId, formData.get("published") === "1");
+  // Published content feeds every enrolled student's readiness: record history
+  // for the course after the response, in one batched write.
+  recordReadiness(courseId, listRoster(courseId).map((student) => student.id));
+
   revalidatePath(`/professor/courses/${courseId}/lectures/${lectureId}/live`);
   revalidatePath(`/student/${courseId}/lecture/${lectureId}`);
 }
@@ -751,6 +772,13 @@ export async function createAssessmentAction(
     lectureIds: formData.getAll("lectureIds").map(String).filter(Boolean),
     questions,
   });
+
+  // Published content feeds every enrolled student's readiness: record history
+  // for the course after the response, in one batched write.
+  recordReadiness(
+    data.courseId,
+    listRoster(data.courseId).map((student) => student.id),
+  );
 
   revalidatePath(`/professor/courses/${data.courseId}`, "layout");
   revalidatePath(`/student/${data.courseId}`, "layout");
@@ -880,6 +908,9 @@ export async function setStatusOverrideAction(
     reason,
   });
 
+  // An override changes this student's status: record history after the response.
+  recordReadiness(courseId, [studentId]);
+
   revalidatePath(`/professor/courses/${courseId}`, "layout");
   revalidatePath(`/student/${courseId}`, "layout");
   return ok("Status set manually. Your explanation is shown alongside it.");
@@ -890,6 +921,9 @@ export async function clearStatusOverrideAction(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const studentId = String(formData.get("studentId") ?? "");
   clearStatusOverride(courseId, studentId);
+  // An override changes this student's status: record history after the response.
+  recordReadiness(courseId, [studentId]);
+
   revalidatePath(`/professor/courses/${courseId}`, "layout");
   revalidatePath(`/student/${courseId}`, "layout");
 }

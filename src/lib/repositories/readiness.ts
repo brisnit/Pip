@@ -265,7 +265,9 @@ export function readinessFor(
   opts: { snapshot?: boolean } = {},
 ): ReadinessResult {
   const result = computeReadiness(gatherInput(courseId, studentId));
-  if (opts.snapshot !== false) queueSnapshot(courseId, studentId, result);
+  // Showing readiness never writes. History is recorded where readiness can actually
+  // change — see recordReadiness. `snapshot: true` remains for callers that need it.
+  if (opts.snapshot === true) queueSnapshot(courseId, studentId, result);
   return result;
 }
 
@@ -369,6 +371,33 @@ function flushSnapshots() {
       ]),
     );
   }
+}
+
+/**
+ * Records readiness history for students whose inputs have just changed.
+ *
+ * Readiness is a pure function of recorded activity and published course content — it
+ * never reads the clock — so it can only move when an action changes one of its
+ * inputs. History is therefore recorded by those actions, not by whichever page
+ * happens to be looked at next: page views used to queue a snapshot for every student
+ * they computed, which made a professor's dashboard view the heaviest writer in the
+ * system and meant read traffic, not student activity, drove write load.
+ *
+ * The recomputation and the single batched INSERT happen after the response. Calling
+ * this for a student whose readiness did not move writes nothing, and calling it
+ * twice in one request writes at most one row per student.
+ */
+export function recordReadiness(courseId: string, studentIds: string[]) {
+  if (studentIds.length === 0) return;
+  defer("readiness history", () => {
+    for (const studentId of new Set(studentIds)) {
+      queueSnapshot(
+        courseId,
+        studentId,
+        computeReadiness(gatherInput(courseId, studentId)),
+      );
+    }
+  });
 }
 
 export type RosterReadiness = {

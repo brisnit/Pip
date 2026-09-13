@@ -763,6 +763,51 @@ section("Driver: nested transactions");
   }
 }
 
+section("Readiness history: page views never write");
+
+/**
+ * Showing readiness used to queue a history row for every student a page computed, so
+ * read traffic — above all a professor's dashboard — drove write load. Readiness only
+ * moves when an action changes its inputs, so history is recorded by those actions.
+ */
+{
+  const { readinessFor, recordReadiness } = await import(
+    "../src/lib/repositories/readiness"
+  );
+  const { getActiveProfessor, listCourses } = await import(
+    "../src/lib/repositories/courses"
+  );
+  const { listRoster } = await import("../src/lib/repositories/students");
+
+  const db = getDb();
+  const course = listCourses(getActiveProfessor().id)[0];
+  const studentId = listRoster(course.id)[0].id;
+  const rows = () =>
+    db
+      .prepare<[string, string], { n: number }>(
+        "SELECT COUNT(*) AS n FROM readiness_snapshots WHERE course_id = ? AND student_id = ?",
+      )
+      .get(course.id, studentId)!.n;
+
+  db.prepare(
+    "DELETE FROM readiness_snapshots WHERE course_id = ? AND student_id = ?",
+  ).run(course.id, studentId);
+
+  readinessFor(course.id, studentId);
+  readinessFor(course.id, studentId);
+  check("computing readiness for a page writes no history", rows() === 0, `rows=${rows()}`);
+
+  recordReadiness(course.id, [studentId]);
+  check("recording after a change writes one history row", rows() === 1, `rows=${rows()}`);
+
+  recordReadiness(course.id, [studentId, studentId]);
+  check(
+    "recording again when nothing moved writes nothing",
+    rows() === 1,
+    `rows=${rows()}`,
+  );
+}
+
 section("Driver: expired remote streams");
 
 /**

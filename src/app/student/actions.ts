@@ -42,7 +42,7 @@ import {
   listSegments,
   recordInteractionResponse,
 } from "@/lib/repositories/lectures";
-import { readinessFor } from "@/lib/repositories/readiness";
+import { readinessFor, recordReadiness } from "@/lib/repositories/readiness";
 import {
   createSupportRequest,
   respondToRecommendation,
@@ -135,6 +135,9 @@ export async function createNoteAction(
       : "Took a note (private)",
   });
 
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
+
   revalidatePath(`/student/${courseId}`, "layout");
   return ok(
     shared
@@ -150,6 +153,9 @@ export async function setNoteSharedAction(formData: FormData) {
 
   const noteId = String(formData.get("noteId") ?? "");
   setNoteShared(noteId, student.studentId, formData.get("shared") === "1");
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
+
   revalidatePath(`/student/${courseId}`, "layout");
 }
 
@@ -159,6 +165,9 @@ export async function deleteNoteAction(formData: FormData) {
   if (!student) return;
 
   deleteNote(String(formData.get("noteId") ?? ""), student.studentId);
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
+
   revalidatePath(`/student/${courseId}`, "layout");
 }
 
@@ -198,6 +207,9 @@ export async function setMarkerAction(formData: FormData) {
       summary: `Marked "${formData.get("segmentHeading") ?? "a lecture moment"}" as confusing`,
     });
   }
+
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
 
   revalidatePath(`/student/${courseId}`, "layout");
 }
@@ -278,6 +290,9 @@ export async function askQuestionAction(
     summary: `Asked a question on "${formData.get("segmentHeading") ?? "the lecture"}"`,
   });
 
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
+
   revalidatePath(`/student/${courseId}`, "layout");
   revalidatePath(`/professor/courses/${courseId}`, "layout");
   return ok(
@@ -329,6 +344,9 @@ export async function respondToInteractionAction(formData: FormData) {
     summary: "Answered an interactive moment",
   });
 
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
+
   revalidatePath(`/student/${courseId}`, "layout");
   revalidatePath(`/professor/courses/${courseId}`, "layout");
 }
@@ -350,6 +368,9 @@ export async function recordConfidenceAction(formData: FormData) {
     level,
     context: (formData.get("context") as string) || null,
   });
+
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
 
   revalidatePath(`/student/${courseId}`, "layout");
 }
@@ -385,6 +406,9 @@ export async function submitAssessmentResponseAction(formData: FormData) {
     type: "practice_attempt",
     summary: "Answered a practice or assessment question",
   });
+
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
 
   revalidatePath(`/student/${courseId}`, "layout");
   revalidatePath(`/professor/courses/${courseId}`, "layout");
@@ -424,6 +448,9 @@ export async function respondToRecommendationAction(
     type: `support_${parsed.data}`,
     summary: `Marked a support recommendation as ${parsed.data.replace(/_/g, " ")}`,
   });
+
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
 
   revalidatePath(`/student/${courseId}`, "layout");
   revalidatePath(`/professor/courses/${courseId}`, "layout");
@@ -502,6 +529,9 @@ export async function createSupportRequestAction(
     type: "requested_support",
     summary: `${student.studentName} requested support`,
   });
+
+  // Inputs to readiness changed: record history after the response.
+  recordReadiness(courseId, [student.studentId]);
 
   revalidatePath(`/student/${courseId}`, "layout");
   revalidatePath(`/professor/courses/${courseId}`, "layout");

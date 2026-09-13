@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getDb, nowIso } from "@/lib/db/client";
+import { defer, getDb, nowIso } from "@/lib/db/client";
 import { newId } from "@/lib/db/ids";
 import type {
   Marker,
@@ -19,6 +19,15 @@ import type {
 
 // Activity -------------------------------------------------------------------
 
+/**
+ * Appends to the activity log, after the response.
+ *
+ * The log is a record of what happened, not part of what the person who did it is
+ * waiting to see, and on a Turso replica every INSERT is a round trip to the primary.
+ * The timestamp is taken now, so the event is dated when it happened rather than when
+ * it was written. Deferred tasks run in order, so readiness history recorded later in
+ * the same request (see recordReadiness) still sees this event.
+ */
 export function recordActivity(input: {
   courseId: string;
   studentId?: string | null;
@@ -27,22 +36,25 @@ export function recordActivity(input: {
   type: string;
   summary: string;
 }) {
-  getDb()
-    .prepare(
-      `INSERT INTO activity_events
-         (id, course_id, student_id, lecture_id, actor_role, type, summary, created_at)
-       VALUES (?,?,?,?,?,?,?,?)`,
-    )
-    .run(
-      newId("act"),
-      input.courseId,
-      input.studentId ?? null,
-      input.lectureId ?? null,
-      input.actorRole ?? "student",
-      input.type,
-      input.summary,
-      nowIso(),
-    );
+  const createdAt = nowIso();
+  defer("activity event", () => {
+    getDb()
+      .prepare(
+        `INSERT INTO activity_events
+           (id, course_id, student_id, lecture_id, actor_role, type, summary, created_at)
+         VALUES (?,?,?,?,?,?,?,?)`,
+      )
+      .run(
+        newId("act"),
+        input.courseId,
+        input.studentId ?? null,
+        input.lectureId ?? null,
+        input.actorRole ?? "student",
+        input.type,
+        input.summary,
+        createdAt,
+      );
+  });
 }
 
 export type ActivityWithStudent = ActivityRow & { student_name: string | null };
@@ -311,11 +323,21 @@ export function setMarker(input: {
   }
 
   if (input.marker === "clear" || input.marker === "confusing") {
+    // Look first — a local read — and delete only when there is something to delete.
+    // The unconditional DELETE was a round trip to the primary on almost every mark.
     const opposite = input.marker === "clear" ? "confusing" : "clear";
-    db.prepare(
-      `DELETE FROM comprehension_markers
-       WHERE student_id = ? AND segment_id IS ? AND marker = ?`,
-    ).run(input.studentId, input.segmentId ?? null, opposite);
+    const conflicting = db
+      .prepare<[string, string | null, string], { id: string }>(
+        `SELECT id FROM comprehension_markers
+         WHERE student_id = ? AND segment_id IS ? AND marker = ?`,
+      )
+      .all(input.studentId, input.segmentId ?? null, opposite);
+    if (conflicting.length > 0) {
+      db.prepare(
+        `DELETE FROM comprehension_markers
+         WHERE student_id = ? AND segment_id IS ? AND marker = ?`,
+      ).run(input.studentId, input.segmentId ?? null, opposite);
+    }
   }
 
   db.prepare(
