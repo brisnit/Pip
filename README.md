@@ -349,6 +349,21 @@ redeploy; destroy the old one only once the new one is serving. Anything written
 the old database between the pull and the switch is not carried across, so do it when
 nobody is mid-session.
 
+### Rolling back to the previous database
+
+Production was compacted onto `pip-production` on 2026-09-13. The database it replaced,
+`fuller-learning-companion`, is kept intact as the rollback. To return to it:
+
+```bash
+turso db show fuller-learning-companion --url     # -> TURSO_DATABASE_URL
+turso db tokens create fuller-learning-companion  # -> TURSO_AUTH_TOKEN
+```
+
+Set both in Vercel (Production), redeploy, and confirm a student page loads. Anything
+written to `pip-production` after the cutover is not in the old database; pull it with
+`npm run db:pull` first if it matters. Delete the old database only once the new one
+has run long enough to trust.
+
 ### Running it anywhere with a real disk
 
 Leave `TURSO_DATABASE_URL` unset and the app opens a plain local file, exactly as it

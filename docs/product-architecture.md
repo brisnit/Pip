@@ -166,6 +166,16 @@ hold.
   snapshots landed 5.0 s after the request instead of 13.5 s, and the follow-up
   request waited 0.62 s instead of 1.3 s.
 
+- **Page views never write.** A student request used to run `UPDATE student_sessions
+  SET last_seen_at` twice per page (the layout and the page each resolved the session)
+  — the difference between student pages at 1–2 s warm and professor pages at
+  ~0.4 s. The session is now resolved once per request, and `last_seen_at` is written
+  at most every five minutes, after the response. Readiness history is likewise no
+  longer written by whichever page computes readiness: see *Readiness history* below.
+- **The activity log is written after the response**, dated when the event happened.
+- **A comprehension marker deletes its opposite only when one exists**, instead of
+  sending a `DELETE` to the primary on almost every mark.
+
 `defer()` in `lib/db/client.ts` is the mechanism: inside a request it hands work to
 Next's `after()`, which Vercel keeps alive with `waitUntil`; outside one — the scripts —
 `after()` throws rather than dropping the task, and the work runs inline exactly as it
@@ -177,6 +187,44 @@ instance's replica bootstrap grows with the primary's **write history**, not its
 6.7–8.1 s on the live database against 0.4–0.7 s for the same data created fresh — so
 the database needs compacting as it accumulates writes. The procedure is in
 `README.md` under *Keeping cold starts fast*.
+
+**Measured limit of this design.** Every write through the embedded replica is
+synchronous: two writes took 846–933 ms from outside the region and held the Node event
+loop for the entire time, so a write in one request stalls every other request sharing
+the instance. Deferring work past the response moves that stall, it does not remove it.
+`@libsql/client` over HTTP measured 59–114 ms for one to four writes while holding the
+event loop for under 7 ms. Moving writes to it is the recommended next step; the
+trade-offs are in `product-roadmap.md` under *Next step for write contention*.
+
+### Readiness history
+
+Readiness is a pure function of recorded activity and published course content — it
+never reads the clock — so it can only change when an action changes one of its inputs.
+History is recorded by those actions, never by a page view: `readinessFor` only
+computes, and `recordReadiness(courseId, studentIds)` recomputes after the response and
+writes changed rows in one batched `INSERT`. Student actions that change an input record
+it for that student; overrides record it for the student they apply to; publishing
+content records it course-wide. A student whose readiness did not move gets no row.
+
+This matters more with real students than with a demo. Write load now scales with what
+students *do*, not with how often anyone looks, and a professor's dashboard — which
+computes readiness for every enrolled student — is a pure read.
+
+### Expired remote streams
+
+A replica forwards writes to the primary over a long-lived remote stream. In production
+that stream was expired by the primary while the instance kept its connection, and
+every write on the instance then failed with `Hrana(… "stream not found" …)` — which,
+while page views still wrote, meant a 500 on the page. The trigger was not reproduced:
+direct probes kept writing through idle gaps of up to nine minutes, which points at the
+serverless instance lifecycle rather than plain idleness.
+
+`openReconnecting` in `lib/db/driver.ts` handles it whatever the cause. A read or write
+outside a transaction that meets an expired stream reconnects and runs once more — the
+primary rejected the stream, so the statement never ran there. A transaction that fails
+before its body runs is retried; one that fails part-way is not, and the connection is
+replaced on the next call. `npm run verify` injects the production error and checks each
+case.
 
 Deployment specifics — creating the database, exporting it in a form Turso will
 actually import, the environment variables — are in `README.md`.

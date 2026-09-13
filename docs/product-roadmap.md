@@ -194,6 +194,79 @@ consequence is stated in `docs/privacy-and-student-data-considerations.md`: with
 authentication, the professor portal is usable by any visitor, which is acceptable only
 while every record is fictional.
 
+## Production database compaction
+
+Done on 2026-09-13 as a controlled migration. The live database was pulled read-only,
+exported, and recreated as `pip-production`; the new database was pulled back and
+compared table by table — schema, row counts, and a content digest of every row — and
+matched exactly (86 schema objects, 47 tables, 2,341 rows) before any credential moved.
+Vercel's `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` were swapped and production
+redeployed; a session that existed only in the new database was recognised, and the old
+database, pulled again after cutover, was unchanged — nothing was written to it in the
+window. `fuller-learning-companion` is kept intact for rollback (see README).
+
+Measured on production, same commit, same fresh-deploy method, before → after:
+
+| | before | after |
+| --- | --- | --- |
+| cold professor dashboard | 5,764 ms | 1,679 ms |
+| cold course insights | 6,848 ms | 2,760 ms |
+| cold student home | 5,778 ms | 236 ms |
+| warm route medians | 228–518 ms | 194–532 ms |
+| student save, median | 3,165 ms | 1,164 ms |
+| navigation right after a save, median / worst | 1,640 / 5,022 ms | 149 / 290 ms |
+
+Five samples per figure over the public internet; differences of ~100 ms are noise.
+
+### Page views stopped writing — measured
+
+`6847c90` moved readiness history from page views to the actions that change its inputs
+and put the activity log after the response. A/B on production, 8 runs each, both on
+`pip-production`, switched with `vercel promote`:
+
+| | before (`d6c0590`) | after (`6847c90`) |
+| --- | --- | --- |
+| student save, median | 1,801 ms | 1,577 ms |
+| navigation right after a save, median | 220 ms | 159 ms |
+| navigation stalls over 1.5 s | 2 (3.6 s, 3.5 s) | 1 (1.7 s) |
+| remote-stream reconnects logged | 1 | 3 |
+
+No regression, and fewer severe stalls, but within the noise of eight runs. It is not
+what bounds write latency. Two measurements say what does:
+
+- **Synchronous writes block the whole instance.** Two writes through the embedded
+  replica took 846–933 ms (measured from outside the region), and the Node event loop
+  was held for the entire time — every other request on that instance waited.
+- **Remote streams expire often.** Production logged 1–3 reconnects in each eight-minute
+  benchmark; each is a multi-second stall on whichever request meets it.
+
+### Next step for write contention: a non-blocking write path (not yet made)
+
+Measured on a throwaway copy of production, same machine, same database:
+
+| write path | time | event loop held |
+| --- | --- | --- |
+| embedded replica (current), 2 writes | 846–933 ms | the whole time |
+| `libsql/promise` replica | cannot be opened — its replica constructor fails in current `libsql` | — |
+| `@libsql/client` over HTTP, 1 write | 59–68 ms | ≤ 6 ms |
+| `@libsql/client`, batch of 4 writes | 61–114 ms | ≤ 7 ms |
+| two such batches concurrently | 207 ms | ≤ 6 ms |
+
+Recommendation: keep the embedded replica for reads, and send writes to the primary
+through `@libsql/client`. It is roughly ten times faster per write from here, it does
+not block the event loop — so a write in one request no longer stalls every other
+request on the instance — it batches a request's writes into one round trip, and it
+holds no long-lived stream to expire.
+
+The trade-offs, which are why this is a decision rather than a patch:
+
+- A write made over HTTP reaches the local replica on its next sync. A page that must
+  show a write it has just made syncs first — one incremental round trip, cheap next to
+  today's cost. Writes nothing on screen waits for (history, the activity log, the
+  session touch) become fire-and-forget after the response.
+- Repository write functions become `async`, which touches every server action, and
+  the seed and scripts need a synchronous path kept alongside for local files.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.
