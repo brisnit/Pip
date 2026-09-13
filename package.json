@@ -11,6 +11,7 @@
     "verify": "NODE_OPTIONS=--conditions=react-server tsx scripts/verify-prototype.mts",
     "db:reset": "NODE_OPTIONS=--conditions=react-server tsx scripts/reset-db.mts",
     "db:export": "NODE_OPTIONS=--conditions=react-server tsx scripts/export-db.mts",
+    "db:pull": "NODE_OPTIONS=--conditions=react-server tsx scripts/pull-db.mts",
     "dev:session": "NODE_OPTIONS=--conditions=react-server tsx scripts/dev-session.mts",
     "smoke": "bash scripts/smoke.sh",
     "prestart": "node scripts/check-build.mjs",

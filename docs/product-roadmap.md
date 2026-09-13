@@ -164,6 +164,25 @@ Three things worth remembering:
    components and rendered by a client one; a React component is a function, which
    cannot cross that boundary.
 
+## Performance pass
+
+Measured before changing anything. Against a local file the app was already fast
+(dashboard 40–90 ms), and dev-mode first compiles were 0.4–0.6 s, so neither was the
+problem. The cost was in the hosted path:
+
+- **Cold starts bootstrapping a replica of a database with history** — the dominant
+  cost. 6.7–8.1 s to first sync on the live database, 0.4–0.7 s on identical data
+  created fresh. Addressed operationally, by compaction (`npm run db:pull` → `db:export`
+  → create → switch), not in code.
+- **A write lock on every cold start** to check seeding. Now a plain read first.
+- **Snapshot writes and replica syncs in front of the response.** Now after it, with
+  snapshots batched into one statement.
+
+Open: the production database has not been compacted yet — it needs a new database
+and the Vercel environment variables updated, which is the owner's call. The live
+site itself was not timed, for want of its URL; everything above was measured against
+the same database from outside its region.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Disposable scratch space (see CLAUDE.md) — measurement scripts, not product code.
+    ".tmp/**",
   ]),
 ]);
 

@@ -141,6 +141,43 @@ Two operational constraints follow from the replica being a real file on disk:
   Since a replica is a disposable mirror, the app discards and re-pulls it rather than
   failing every request with an opaque error.
 
+### What a request pays for
+
+Reads are local to the replica: the professor dashboard runs ~1,900 statements and
+takes 39–53 ms against a replica, about what it takes against a plain file. Anything
+that reaches the primary is a network round trip, so the request path is kept clear
+of them. Figures below were measured from outside the region (a local machine to
+aws-us-west-2); a deployment in `pdx1` pays shorter round trips, but the proportions
+hold.
+
+- **The seed check reads before it locks.** `ensureSeeded` guards the cold-start race
+  with a `BEGIN IMMEDIATE` transaction, and on a replica that is a write transaction
+  forwarded to the primary: the same `COUNT` took 635–1,621 ms inside it and 0–1 ms
+  as a plain read. It now reads first and takes the lock only when the table is empty;
+  the in-transaction re-check still closes the race, and the seed-race guard in
+  `npm run verify` still passes.
+- **Periodic replica sync runs after the response.** A replica always sees its own
+  writes, so a sync only brings in other instances' writes, which can arrive one
+  request later.
+- **Readiness snapshots are queued and written after the response, in one
+  statement.** 12 snapshot INSERTs as separate statements took 6.5 s — wrapping them
+  in a transaction made no difference — while one multi-row INSERT carrying the same
+  12 rows took 0.4 s, and 134 rows 1.3 s. End to end, after student activity: the
+  snapshots landed 5.0 s after the request instead of 13.5 s, and the follow-up
+  request waited 0.62 s instead of 1.3 s.
+
+`defer()` in `lib/db/client.ts` is the mechanism: inside a request it hands work to
+Next's `after()`, which Vercel keeps alive with `waitUntil`; outside one — the scripts —
+`after()` throws rather than dropping the task, and the work runs inline exactly as it
+always did.
+
+What is still true: libsql is synchronous, so deferred work still occupies the
+instance's event loop, and a request that arrives mid-flush waits for it. And a cold
+instance's replica bootstrap grows with the primary's **write history**, not its size —
+6.7–8.1 s on the live database against 0.4–0.7 s for the same data created fresh — so
+the database needs compacting as it accumulates writes. The procedure is in
+`README.md` under *Keeping cold starts fast*.
+
 Deployment specifics — creating the database, exporting it in a form Turso will
 actually import, the environment variables — are in `README.md`.
 

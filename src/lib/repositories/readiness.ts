@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getDb, nowIso } from "@/lib/db/client";
+import { defer, getDb, nowIso } from "@/lib/db/client";
 import { newId } from "@/lib/db/ids";
 import {
   aggregateClass,
@@ -265,45 +265,110 @@ export function readinessFor(
   opts: { snapshot?: boolean } = {},
 ): ReadinessResult {
   const result = computeReadiness(gatherInput(courseId, studentId));
-  if (opts.snapshot !== false) recordSnapshot(courseId, studentId, result);
+  if (opts.snapshot !== false) queueSnapshot(courseId, studentId, result);
   return result;
 }
 
-function recordSnapshot(
+/*
+  Snapshots are history, not part of the answer, so they are written after the
+  response and in one statement.
+
+  Against a local file both of those were free. Against a Turso replica every write
+  statement is a round trip to the primary, and the dashboard computes readiness for
+  every enrolled student. Measured from outside the region: 12 snapshot INSERTs as
+  separate statements took 6.5 seconds — inside a transaction made no difference —
+  while one INSERT carrying the same 12 rows took 0.4 seconds, and 134 rows 1.3.
+
+  So a request queues what it computed, and one deferred flush checks each queued
+  student against their latest snapshot (local reads, free) and writes every changed
+  row in a single multi-row INSERT. Outside a request — the scripts — `defer` runs the
+  flush immediately, so each call writes as it always did.
+
+  Recording only real change is unchanged: the same status-or-score test decides.
+  One visible difference: a trend drawn in the same render that moved a score shows
+  that point on the next render instead.
+*/
+
+type PendingSnapshot = {
+  courseId: string;
+  studentId: string;
+  result: ReadinessResult;
+};
+
+declare global {
+  // Latest computation per course:student, waiting for the flush. A Map, so a
+  // student computed twice in one request is written at most once.
+  var __flcPendingSnapshots: Map<string, PendingSnapshot> | undefined;
+  // When a flush was last scheduled. A timestamp rather than a flag, so a flush
+  // that never runs — an aborted request whose after() is dropped — cannot stop
+  // snapshots being recorded in this process for good.
+  var __flcSnapshotFlushAt: number | undefined;
+}
+
+const FLUSH_STALE_MS = 10_000;
+/** 8 bound values per row; 200 rows stays far under SQLite's variable limit. */
+const SNAPSHOT_BATCH = 200;
+
+function queueSnapshot(
   courseId: string,
   studentId: string,
   result: ReadinessResult,
 ) {
+  const queue = (globalThis.__flcPendingSnapshots ??= new Map());
+  queue.set(`${courseId}:${studentId}`, { courseId, studentId, result });
+
+  const scheduled = globalThis.__flcSnapshotFlushAt;
+  if (scheduled !== undefined && Date.now() - scheduled < FLUSH_STALE_MS) return;
+
+  globalThis.__flcSnapshotFlushAt = Date.now();
+  defer("readiness snapshots", flushSnapshots);
+}
+
+function flushSnapshots() {
+  globalThis.__flcSnapshotFlushAt = undefined;
+  const queue = globalThis.__flcPendingSnapshots;
+  if (!queue || queue.size === 0) return;
+
+  const items = [...queue.values()];
+  queue.clear();
+
   const db = getDb();
-  const previous = db
-    .prepare<[string, string], SnapshotRow>(
-      `SELECT * FROM readiness_snapshots
-       WHERE course_id = ? AND student_id = ?
-       ORDER BY computed_at DESC LIMIT 1`,
-    )
-    .get(courseId, studentId);
-
-  const scoreChanged =
-    !previous ||
-    previous.status !== result.status ||
-    Math.abs((previous.score ?? -1) - (result.score ?? -1)) > 0.005;
-
-  if (!scoreChanged) return;
-
-  db.prepare(
-    `INSERT INTO readiness_snapshots
-       (id, student_id, course_id, status, score, confidence_level, evidence_count, computed_at)
-     VALUES (?,?,?,?,?,?,?,?)`,
-  ).run(
-    newId("snap"),
-    studentId,
-    courseId,
-    result.status,
-    result.score,
-    result.confidence,
-    result.evidenceCount,
-    nowIso(),
+  const latest = db.prepare<[string, string], SnapshotRow>(
+    `SELECT * FROM readiness_snapshots
+     WHERE course_id = ? AND student_id = ?
+     ORDER BY computed_at DESC LIMIT 1`,
   );
+
+  const changed = items.filter(({ courseId, studentId, result }) => {
+    const previous = latest.get(courseId, studentId);
+    return (
+      !previous ||
+      previous.status !== result.status ||
+      Math.abs((previous.score ?? -1) - (result.score ?? -1)) > 0.005
+    );
+  });
+  if (changed.length === 0) return;
+
+  const computedAt = nowIso();
+  for (let i = 0; i < changed.length; i += SNAPSHOT_BATCH) {
+    const chunk = changed.slice(i, i + SNAPSHOT_BATCH);
+    db.prepare(
+      `INSERT INTO readiness_snapshots
+         (id, student_id, course_id, status, score, confidence_level, evidence_count, computed_at)
+       VALUES ${chunk.map(() => "(?,?,?,?,?,?,?,?)").join(", ")}`,
+    ).run(
+      ...chunk.flatMap(({ courseId, studentId, result }) => [
+        newId("snap"),
+        studentId,
+        courseId,
+        result.status,
+        result.score,
+        result.confidence,
+        result.evidenceCount,
+        computedAt,
+      ]),
+    );
+  }
 }
 
 export type RosterReadiness = {

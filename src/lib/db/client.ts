@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, sep } from "node:path";
 import { homedir, tmpdir } from "node:os";
@@ -137,10 +138,44 @@ function syncReplica(db: Db) {
   const now = Date.now();
   if (now - (globalThis.__flcSyncedAt ?? 0) < SYNC_INTERVAL_MS) return;
   globalThis.__flcSyncedAt = now;
+
+  // After the response, not before it. The replica already holds a good copy and
+  // always sees its own writes, so the only thing a sync adds is other instances'
+  // writes — which can arrive one request later without anyone noticing, where a
+  // ~225ms round trip in front of the page is noticed on every navigation.
+  defer("replica sync", () => {
+    try {
+      db.sync();
+    } catch (error) {
+      console.warn("[flc] replica sync failed, serving local data:", error);
+    }
+  });
+}
+
+/**
+ * Runs `task` after the current response has been sent, or immediately when there is
+ * no response to wait for.
+ *
+ * Inside a request this hands the work to Next's `after()`, which on Vercel keeps the
+ * function alive with `waitUntil` until it finishes. Outside one — `npm run verify`,
+ * `db:reset`, `dev:session`, the seed-race workers — `after()` throws rather than
+ * quietly dropping the task, and the work runs inline exactly as it always did, so
+ * the scripts see the same writes in the same order and still fail loudly.
+ *
+ * A deferred task cannot fail the page it was deferred from, so its errors are
+ * logged; an inline one propagates as before.
+ */
+export function defer(label: string, task: () => void) {
   try {
-    db.sync();
-  } catch (error) {
-    console.warn("[flc] replica sync failed, serving local data:", error);
+    after(() => {
+      try {
+        task();
+      } catch (error) {
+        console.error(`[flc] deferred ${label} failed:`, error);
+      }
+    });
+  } catch {
+    task();
   }
 }
 
@@ -353,6 +388,29 @@ export function getDb(): Db {
  * `busy_timeout`), then re-read a non-zero count and no-op.
  */
 function ensureSeeded(db: Db) {
+  /*
+    Fast path first: a plain read.
+
+    The IMMEDIATE transaction below is the race guard, and it is only needed when the
+    database might actually be empty. On a local file taking that lock is free. On an
+    embedded replica it is not — IMMEDIATE is a write transaction, so libSQL forwards
+    it to the primary, and a COUNT that answers in 0ms as a plain local read cost
+    1–1.8 seconds wrapped in BEGIN IMMEDIATE, measured. That was paid on every cold
+    start of every instance, against a database that was seeded long ago.
+
+    Checking first and locking only on zero is safe: two openers that both see an
+    empty database both fall through to the IMMEDIATE transaction, the second waits
+    for the lock, re-reads a non-zero count inside it, and does nothing — exactly the
+    behaviour the seed-race guard in `npm run verify` asserts.
+  */
+  const { n: existing } = db
+    .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")
+    .get()!;
+  if (existing > 0) {
+    globalThis.__flcSeeded = true;
+    return;
+  }
+
   const seed = db.transaction(() => {
     const { n } = db
       .prepare<[], { n: number }>("SELECT COUNT(*) AS n FROM professors")

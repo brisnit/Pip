@@ -295,8 +295,10 @@ configuration — the app reads Vercel's own hostname at runtime.
 
 ### What this setup means
 
-- **No cold-start penalty of the kind Render had.** Nothing sleeps for 15 minutes.
-  A cold instance downloads the replica once, which is a second or so at this size.
+- **Nothing sleeps for 15 minutes the way Render did.** A cold instance does have to
+  bootstrap its replica, though, and that cost grows with the database's write
+  history rather than its size — under a second on a freshly created database,
+  6.7–8.1 seconds on the live one before compaction. See *Keeping cold starts fast*.
 - **Data persists.** Anything a stakeholder creates survives deploys, which was not
   true on Render's free plan — there the database was wiped on every wake.
 - **Instances converge, they are not instantly consistent.** A replica sees its own
@@ -315,6 +317,38 @@ configuration — the app reads Vercel's own hostname at runtime.
   different database and the old replica's metadata is rejected; rather than failing
   every request with an opaque `InvalidLocalGeneration`, the app discards the mirror
   and pulls a fresh copy.
+
+### Keeping cold starts fast
+
+A new embedded replica bootstraps by replaying the primary's write history, so every
+write ever made to the database makes every future cold start slower — and serverless
+instances cold-start often: every deploy, after idle, and whenever traffic needs a new
+instance. Measured from outside the region against identical data (135 students, 135
+snapshots, 8 courses):
+
+| database | first sync, three runs |
+| --- | --- |
+| live, as it was | 6.7 s · 7.0 s · 8.1 s |
+| the same data, created fresh from an export | 0.7 s · 0.4 s · 0.7 s |
+
+`turso db inspect <name>` shows **Embedded syncs**, the total replicas have
+downloaded. When that is far larger than the database itself — it was 113 MB against
+1.2 MB — cold starts are paying for history. Compact:
+
+```bash
+export TURSO_DATABASE_URL=… TURSO_AUTH_TOKEN=…   # the database in use now
+npm run db:pull                                   # read-only: live data → .data/pulled.db
+PROTOTYPE_DB_PATH=.data/pulled.db npm run db:export
+
+turso db create fuller-learning-companion-2 --from-file .data/turso-import.db
+turso db show fuller-learning-companion-2 --url
+turso db tokens create fuller-learning-companion-2
+```
+
+Point `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in Vercel at the new database and
+redeploy; destroy the old one only once the new one is serving. Anything written to
+the old database between the pull and the switch is not carried across, so do it when
+nobody is mid-session.
 
 ### Running it anywhere with a real disk
 
