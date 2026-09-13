@@ -280,15 +280,14 @@ current setting is `pdx1` (Portland), which pairs with `aws-us-west-2`.
 
 1. Import the repository at <https://vercel.com/new>. It is a standard Next.js app;
    the defaults are correct and `vercel.json` supplies the rest.
-2. Add three environment variables, for **all** environments:
+2. Add two environment variables, for **all** environments:
 
    | Variable | Value |
    | --- | --- |
    | `TURSO_DATABASE_URL` | from `turso db show --url` |
    | `TURSO_AUTH_TOKEN` | from `turso db tokens create` |
-   | `DEMO_ACCESS_PASSWORD` | whatever you want to read out in a meeting |
 
-3. Deploy, then open the URL. Share it and the password together.
+3. Deploy, then open the URL.
 
 Every push to `main` redeploys automatically. Join links and QR codes need no
 configuration — the app reads Vercel's own hostname at runtime.
@@ -360,19 +359,19 @@ Note that only Next.js reads `.env.local`. Scripts run through tsx — `npm run 
 `db:reset`, `db:export`, `dev:session` — do not, so they use the local file unless you
 export `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` into the environment yourself.
 
-### The access gate
+### Public access
 
-Setting `DEMO_ACCESS_PASSWORD` puts the whole site behind one shared password:
-any request without a valid cookie is redirected to `/unlock`.
+The deployed site is open to anyone with its URL. There is no access gate and no
+authentication behind it: the professor portal — overrides, notes, the student roster —
+is usable by any visitor as the seeded professor, and a student session is a prototype
+cookie, not an identity. Pages ask search engines not to index them (`robots: noindex`),
+which is a request, not a control.
 
-You choose the password when you add the environment variable, and can change it any
-time from the project's **Settings → Environment Variables** (a redeploy applies it).
-Changing it signs everyone out, because the cookie is derived from it.
+That is acceptable only because every record is fictional. Real student data needs the
+authentication described in `docs/future-authentication-plan.md` first.
 
-It is **not authentication** — one password, no identity, no roles, no audit trail.
-It exists because the professor portal has no login and shows student-shaped records,
-so a discoverable URL is a bad idea. The unlock page says as much to whoever opens it.
-Leave the variable unset locally and the gate disappears entirely.
+Vercel's Deployment Protection covers preview deployments and per-deployment URLs; the
+production URL itself is public.
 
 ### Getting the join links right
 
@@ -403,7 +402,6 @@ None are required. All have working defaults.
 | --- | --- | --- |
 | `PROTOTYPE_DB_PATH` | `.data/prototype.db` | SQLite file. Relative paths resolve under the working directory. |
 | `APP_URL` | unset | Public base URL for join links and QR codes, read at runtime. Falls back to `RENDER_EXTERNAL_URL`, then `NEXT_PUBLIC_APP_URL`, then localhost. Prefer this for anything deployed. |
-| `DEMO_ACCESS_PASSWORD` | unset | When set, gates the whole site behind one shared password. Unset disables the gate. Not authentication — see above. |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Legacy equivalent of `APP_URL`, inlined at build time. |
 | `AI_PROVIDER` | `prototype` | AI provider id. Any unrecognised value logs a warning and falls back to the deterministic provider. |
 

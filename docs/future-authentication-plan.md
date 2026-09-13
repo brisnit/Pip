@@ -163,16 +163,15 @@ Ordered so that nothing is thrown away.
 7. **Delete all prototype data.** Seeded records are flagged `is_demo = 1`
    precisely so this is a one-line delete rather than an archaeology exercise.
 
-## The hosted demo gate
+## No access gate
 
-A deployed copy can sit behind one shared password (`DEMO_ACCESS_PASSWORD`), enforced
-in `src/proxy.ts`. It is unrelated to the plan above and must not be counted as
-progress toward it: one password, no identity, no roles, no revocation, no audit
-trail. Everyone who unlocks the site has full access to the professor portal.
-
-It should be deleted, not extended, when real authentication lands. The relevant code
-is `src/lib/gate/access.ts`, `src/proxy.ts` and `src/app/unlock/` — three files with
-no dependencies on anything else, so removing it is a clean excision.
+Earlier hosted builds sat behind one shared password (`DEMO_ACCESS_PASSWORD`). It has
+been removed so the prototype is openly reachable, which makes the absence of
+authentication concrete rather than theoretical: anyone with the URL can use the
+professor portal as the seeded professor, and can enter the student portal as a seeded
+or newly joined student. Everything in it is fictional demonstration data. Nothing in
+this plan is weakened by the change — real authentication remains a prerequisite for
+any real student record.
 
 ## What deliberately was not built
 

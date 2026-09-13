@@ -183,6 +183,17 @@ and the Vercel environment variables updated, which is the owner's call. The liv
 site itself was not timed, for want of its URL; everything above was measured against
 the same database from outside its region.
 
+## Public access
+
+The shared-password gate (`DEMO_ACCESS_PASSWORD`, `/unlock`, `src/proxy.ts`) was removed
+entirely at the owner's request, along with its tests, smoke-suite support and Vercel
+environment variable, and Vercel Deployment Protection was narrowed to previews and
+per-deployment URLs so the production URL is public. Before it shipped: no debug or
+admin routes exist, no secret reaches a client bundle, no source maps ship. The
+consequence is stated in `docs/privacy-and-student-data-considerations.md`: with no
+authentication, the professor portal is usable by any visitor, which is acceptable only
+while every record is fictional.
+
 ## Immediate follow-ups
 
 Small, and worth doing before the next feature.
