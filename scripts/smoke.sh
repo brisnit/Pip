@@ -293,7 +293,9 @@ check "skip link present" "$(has "$LANDING" 'Skip to main content')"
 check "prototype banner is absent" "$([ "$(has "$LANDING" 'not a secure student-record system')" = 0 ] && echo 1 || echo 0)"
 check "no 'prototype' wording on the landing page" "$([ "$(hasre "$LANDING" '[Pp]rototype')" = 0 ] && echo 1 || echo 0)"
 check "html lang is set" "$(hasre "$LANDING" '<html [^>]*lang="en"')"
-check "the mark is rendered, not a text placeholder" "$(has "$LANDING" 'src="/brand/mark-primary.png"')"
+# Vercel appends ?dpl=<deployment id> to static assets for skew protection; the path is
+# what matters — a plain file, not a text placeholder and not an optimiser URL.
+check "the mark is rendered, not a text placeholder" "$(hasre "$LANDING" 'src="/brand/mark-primary\.png(\?dpl=[A-Za-z0-9_]+)?"')"
 check "mark asset is served" "$([ "$(code "$BASE/brand/mark-primary.png")" = "200" ] && echo 1 || echo 0)"
 # The lockup is on every screen, so it must not depend on the image optimiser:
 # query-string image URLs get blocked by privacy extensions and need sharp on the host.

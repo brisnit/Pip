@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { getActiveProfessor } from "@/lib/repositories/courses";
 import { resolveSession, touchSession } from "@/lib/repositories/students";
 import type { ProfessorRow } from "@/lib/repositories/types";
@@ -56,8 +57,13 @@ export function requireProfessor(): ProfessorContext {
   };
 }
 
-/** The active prototype student session, if the browser holds one. */
-export async function currentStudent(): Promise<StudentContext | null> {
+/**
+ * The active prototype student session, if the browser holds one.
+ *
+ * Memoised per request with React's `cache`: the student layout and the page beneath
+ * it both ask, and each ask used to look the session up and write "last seen" again.
+ */
+export const currentStudent = cache(async function currentStudent(): Promise<StudentContext | null> {
   const store = await cookies();
   const sessionId = store.get(STUDENT_SESSION_COOKIE)?.value;
   if (!sessionId) return null;
@@ -65,7 +71,7 @@ export async function currentStudent(): Promise<StudentContext | null> {
   const session = resolveSession(sessionId);
   if (!session) return null;
 
-  touchSession(session.sessionId);
+  touchSession(session.sessionId, session.lastSeenAt);
 
   return {
     role: "student",
@@ -74,7 +80,7 @@ export async function currentStudent(): Promise<StudentContext | null> {
     courseId: session.courseId,
     studentName: session.studentName,
   };
-}
+});
 
 /**
  * The student session, scoped to a course.

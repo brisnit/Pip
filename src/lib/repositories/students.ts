@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getDb, nowIso } from "@/lib/db/client";
+import { defer, getDb, nowIso } from "@/lib/db/client";
 import { newId } from "@/lib/db/ids";
 import type { EntrySource } from "@/lib/domain/vocabulary";
 import type { EntryRow, StudentRow } from "./types";
@@ -153,10 +153,31 @@ export function joinCourse(input: JoinCourseInput): {
   })();
 }
 
-export function touchSession(sessionId: string) {
-  getDb()
-    .prepare("UPDATE student_sessions SET last_seen_at = ? WHERE id = ?")
-    .run(nowIso(), sessionId);
+/**
+ * How often a session's "last seen" time is worth writing.
+ *
+ * It used to be written on every student request — twice per page view, since the
+ * layout and the page both resolve the session — and against a Turso replica each of
+ * those is a round trip to the primary. That was the difference between student pages
+ * at 1–2 s warm and professor pages at ~0.4 s, and it is load that grows with every
+ * page view rather than with anything a student does. Minute-level precision is all
+ * "last seen" has ever needed.
+ */
+const TOUCH_INTERVAL_MS = 5 * 60 * 1000;
+
+/**
+ * Records that a session is in use, at most once per TOUCH_INTERVAL_MS, and after the
+ * response rather than in front of it.
+ */
+export function touchSession(sessionId: string, lastSeenAt: string | null) {
+  const last = lastSeenAt ? Date.parse(lastSeenAt) : Number.NaN;
+  if (Number.isFinite(last) && Date.now() - last < TOUCH_INTERVAL_MS) return;
+
+  defer("session touch", () => {
+    getDb()
+      .prepare("UPDATE student_sessions SET last_seen_at = ? WHERE id = ?")
+      .run(nowIso(), sessionId);
+  });
 }
 
 export type SessionContext = {
@@ -164,15 +185,22 @@ export type SessionContext = {
   studentId: string;
   courseId: string;
   studentName: string;
+  lastSeenAt: string | null;
 };
 
 export function resolveSession(sessionId: string): SessionContext | null {
   const row = getDb()
     .prepare<
       [string],
-      { id: string; student_id: string; course_id: string; name: string }
+      {
+        id: string;
+        student_id: string;
+        course_id: string;
+        name: string;
+        last_seen_at: string | null;
+      }
     >(
-      `SELECT ss.id, ss.student_id, ss.course_id, s.name
+      `SELECT ss.id, ss.student_id, ss.course_id, s.name, ss.last_seen_at
        FROM student_sessions ss
        JOIN students s ON s.id = ss.student_id
        WHERE ss.id = ?`,
@@ -184,6 +212,7 @@ export function resolveSession(sessionId: string): SessionContext | null {
     studentId: row.student_id,
     courseId: row.course_id,
     studentName: row.name,
+    lastSeenAt: row.last_seen_at,
   };
 }
 
