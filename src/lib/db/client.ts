@@ -134,22 +134,42 @@ const SYNC_INTERVAL_MS = Number(process.env.TURSO_SYNC_INTERVAL_MS ?? 2000);
  *
  * This is only safe *after* the first sync has succeeded — see `open`.
  */
+/**
+ * How stale a replica may be and still serve a request before syncing.
+ *
+ * Past this, the sync happens in front of the response instead of after it. An
+ * instance that has been busy synced moments ago and can defer; one that has sat idle
+ * could be minutes behind, and serving from it first would bounce a student whose
+ * session was created a moment ago on a different instance.
+ */
+const MAX_STALE_MS = Number(process.env.TURSO_MAX_STALE_MS ?? 15_000);
+
 function syncReplica(db: Db) {
   const now = Date.now();
-  if (now - (globalThis.__flcSyncedAt ?? 0) < SYNC_INTERVAL_MS) return;
+  const age = now - (globalThis.__flcSyncedAt ?? 0);
+  if (age < SYNC_INTERVAL_MS) return;
   globalThis.__flcSyncedAt = now;
 
-  // After the response, not before it. The replica already holds a good copy and
-  // always sees its own writes, so the only thing a sync adds is other instances'
-  // writes — which can arrive one request later without anyone noticing, where a
-  // ~225ms round trip in front of the page is noticed on every navigation.
-  defer("replica sync", () => {
+  const pull = () => {
     try {
       db.sync();
     } catch (error) {
       console.warn("[flc] replica sync failed, serving local data:", error);
     }
-  });
+  };
+
+  // Idle long enough to have missed other instances' writes that this request may
+  // depend on — a join, a new session — so pay the round trip first.
+  if (age > MAX_STALE_MS) {
+    pull();
+    return;
+  }
+
+  // Recently synced: after the response, not before it. The replica always sees its
+  // own writes, so all a sync adds here is other instances' writes from the last few
+  // seconds, which can arrive one request later without anyone noticing, where a
+  // ~225ms round trip in front of every navigation is noticed.
+  defer("replica sync", pull);
 }
 
 /**

@@ -10,7 +10,8 @@
 #   npm run build && PORT=3111 npm run start &
 #   npm run smoke
 #
-# Set BASE to point at a different origin. Requires curl.
+# Set BASE to point at a different origin, and GATE_COOKIE if it sits behind the
+# demo access gate. Requires curl.
 #
 set -u
 BASE="${BASE:-http://localhost:3111}"
@@ -24,8 +25,13 @@ check() {
 }
 has() { grep -qF "$2" <<<"$1" && echo 1 || echo 0; }
 hasre() { grep -qE "$2" <<<"$1" && echo 1 || echo 0; }
-code()  { curl -s -o /dev/null -w "%{http_code}" "$1"; }
-get()   { curl -s "$1"; }
+# A deployment behind the demo access gate answers every request with a redirect to
+# /unlock. GATE_COOKIE (name=value, as the gate sets it) is attached to every request,
+# merged into the session cookie where there is one.
+GATE_HDR=""
+[ -n "${GATE_COOKIE:-}" ] && GATE_HDR="Cookie: $GATE_COOKIE"
+code()  { curl -s ${GATE_HDR:+-H "$GATE_HDR"} -o /dev/null -w "%{http_code}" "$1"; }
+get()   { curl -s ${GATE_HDR:+-H "$GATE_HDR"} "$1"; }
 scode() { curl -s -o /dev/null -w "%{http_code}" -H "Cookie: $COOKIE" "$1"; }
 sget()  { curl -s -H "Cookie: $COOKIE" "$1"; }
 
@@ -39,10 +45,26 @@ cd - >/dev/null || exit 1
 COURSE_ID=$(grep '^courseId:' <<<"$SESSION_OUT" | awk '{print $2}')
 COOKIE=$(grep '^cookie:' <<<"$SESSION_OUT" | awk '{print $2}')
 JONAH=$(grep '^cookie:' <<<"$JONAH_OUT" | awk '{print $2}')
+if [ -n "${GATE_COOKIE:-}" ]; then
+  COOKIE="$COOKIE; $GATE_COOKIE"
+  JONAH="$JONAH; $GATE_COOKIE"
+fi
+
+# The sessions above were written straight to the database. A hosted deployment reads
+# from a replica that picks writes up on its next sync, so wait until the new session
+# is actually recognised rather than failing the first few checks on replication lag.
+case "$BASE" in
+  http://localhost*|http://127.0.0.1*) ;;
+  *)
+    for _ in $(seq 1 30); do
+      [ "$(scode "$BASE/student/$COURSE_ID")" = "200" ] && break
+    done
+    ;;
+esac
 
 step "1–2. The professor enters the portal"
 check "landing page renders the tagline" "$(has "$(get "$BASE/")" 'Personalised learning. Real progress.')"
-check "/professor reaches the dashboard" "$(curl -sL -o /dev/null -w "%{url_effective}" "$BASE/professor" | grep -q "/professor/dashboard" && echo 1 || echo 0)"
+check "/professor reaches the dashboard" "$(curl -sL ${GATE_HDR:+-H "$GATE_HDR"} -o /dev/null -w "%{url_effective}" "$BASE/professor" | grep -q "/professor/dashboard" && echo 1 || echo 0)"
 # The dashboard is a launchpad, not a worklist: two health wheels and one way
 # forward. The per-course worklists it used to carry are asserted against the
 # course page below, which is where they now live.
@@ -285,8 +307,8 @@ check "the mark is rendered, not a text placeholder" "$(has "$LANDING" 'src="/br
 check "mark asset is served" "$([ "$(code "$BASE/brand/mark-primary.png")" = "200" ] && echo 1 || echo 0)"
 # The lockup is on every screen, so it must not depend on the image optimiser:
 # query-string image URLs get blocked by privacy extensions and need sharp on the host.
-check "logo src is a plain path, not an optimiser URL" "$([ "$(curl -s "$BASE/" | grep -c '_next/image')" = "0" ] && echo 1 || echo 0)"
-LOGO_META=$(curl -s -o /dev/null -w "%{content_type} %{size_download}" "$BASE/brand/mark-primary.png")
+check "logo src is a plain path, not an optimiser URL" "$([ "$(curl -s ${GATE_HDR:+-H "$GATE_HDR"} "$BASE/" | grep -c '_next/image')" = "0" ] && echo 1 || echo 0)"
+LOGO_META=$(curl -s ${GATE_HDR:+-H "$GATE_HDR"} -o /dev/null -w "%{content_type} %{size_download}" "$BASE/brand/mark-primary.png")
 check "mark is served as a non-trivial png" "$(awk '{ exit !($1 == "image/png" && $2 > 5000) }' <<<"$LOGO_META" && echo 1 || echo 0)" "$LOGO_META"
 # The product name is real text beside the mark, not baked into the image — so it
 # scales, wraps and is read aloud.
