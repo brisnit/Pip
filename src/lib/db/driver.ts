@@ -156,6 +156,159 @@ function nestable(db: Db): Db {
   });
 }
 
+/**
+ * Whether libSQL is reporting that the remote stream a replica forwards writes over no
+ * longer exists on the primary.
+ *
+ * Seen in production as
+ *   Hrana(Api("status=404 Not Found, body={"error":"stream not found: …"}"))
+ * after which every write on that connection failed until the instance was replaced.
+ * The primary rejected the stream, so the statement never ran there — which is what
+ * makes reconnecting and retrying safe.
+ */
+export function isStaleStreamError(error: unknown): boolean {
+  const message = String((error as { message?: unknown } | null)?.message ?? error);
+  return (
+    /Hrana/i.test(message) &&
+    /stream not found|stream expired|stream (?:is )?closed/i.test(message)
+  );
+}
+
+/**
+ * A handle that replaces its underlying connection when the remote stream behind it
+ * has expired, and retries the operation that discovered it.
+ *
+ * - A read or write that fails outside a transaction reconnects and runs once more.
+ * - A transaction that fails before its body has run a statement is retried whole:
+ *   nothing reached the primary.
+ * - A transaction that fails part-way is not retried — its effects cannot be assumed
+ *   either way — but the connection is marked broken and replaced on the next call.
+ * - Any other error propagates untouched and never triggers a reconnect.
+ *
+ * Statements are re-prepared against the new connection on first use after a
+ * reconnect, so code that prepares once and runs many times keeps working.
+ */
+export function openReconnecting(
+  open: () => Db,
+  onReconnect?: (error: unknown) => void,
+): Db {
+  let current = open();
+  let generation = 0;
+  let broken = false;
+
+  const reconnect = (error: unknown) => {
+    try {
+      current.close();
+    } catch {
+      // already unusable
+    }
+    current = open();
+    generation += 1;
+    broken = false;
+    onReconnect?.(error);
+  };
+
+  const ready = () => {
+    if (broken && !current.inTransaction) {
+      reconnect(new Error("connection marked broken by a failed transaction"));
+    }
+  };
+
+  const attempt = <T>(operation: (connection: Db) => T): T => {
+    ready();
+    const inTransaction = current.inTransaction;
+    try {
+      return operation(current);
+    } catch (error) {
+      if (!isStaleStreamError(error)) throw error;
+      if (inTransaction || current.inTransaction) {
+        broken = true;
+        throw error;
+      }
+      reconnect(error);
+      return operation(current);
+    }
+  };
+
+  const prepare = <P extends unknown[] = unknown[], R = unknown>(
+    sql: string,
+  ): Statement<P, R> => {
+    let cached: { generation: number; statement: Statement<P, R> } | null = null;
+    const statementFor = (connection: Db) => {
+      if (!cached || cached.generation !== generation) {
+        cached = { generation, statement: connection.prepare<P, R>(sql) };
+      }
+      return cached.statement;
+    };
+    return {
+      get: (...params: P) => attempt((c) => statementFor(c).get(...params)),
+      all: (...params: P) => attempt((c) => statementFor(c).all(...params)),
+      run: (...params: P) => attempt((c) => statementFor(c).run(...params)),
+    };
+  };
+
+  const transaction = <A extends unknown[], R>(
+    fn: (...args: A) => R,
+  ): Transaction<A, R> => {
+    const run =
+      (mode: "default" | "deferred" | "immediate" | "exclusive") =>
+      (...args: A): R => {
+        ready();
+        let started = false;
+        const body = (...inner: A) => {
+          started = true;
+          return fn(...inner);
+        };
+        const execute = () => current.transaction(body)[mode](...args);
+        try {
+          return execute();
+        } catch (error) {
+          if (!isStaleStreamError(error)) throw error;
+          if (started || current.inTransaction) {
+            broken = true;
+            throw error;
+          }
+          reconnect(error);
+          return execute();
+        }
+      };
+    return Object.assign(run("default"), {
+      default: run("default"),
+      deferred: run("deferred"),
+      immediate: run("immediate"),
+      exclusive: run("exclusive"),
+    }) as Transaction<A, R>;
+  };
+
+  const handle: Db = new Proxy({} as Db, {
+    get(_target, property) {
+      switch (property) {
+        case "prepare":
+          return prepare;
+        case "transaction":
+          return transaction;
+        case "exec":
+          return (sql: string) => {
+            attempt((c) => c.exec(sql));
+            return handle;
+          };
+        case "pragma":
+          return (source: string, options?: { simple?: boolean }) =>
+            attempt((c) => c.pragma(source, options));
+        case "sync":
+          return () => attempt((c) => c.sync());
+        case "close":
+          return () => current.close();
+        default: {
+          const value = Reflect.get(current, property);
+          return typeof value === "function" ? value.bind(current) : value;
+        }
+      }
+    },
+  });
+  return handle;
+}
+
 export function openDatabase(path: string, options?: DbOptions): Db {
   return nestable(new Database(path, options) as unknown as Db);
 }

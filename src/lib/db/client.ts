@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, sep } from "node:path";
 import { homedir, tmpdir } from "node:os";
-import { openDatabase, type Db } from "./driver";
+import { openDatabase, openReconnecting, type Db } from "./driver";
 import { SCHEMA_SQL, SCHEMA_VERSION } from "./schema";
 import { seedDemonstrationData } from "./seed";
 
@@ -234,7 +234,14 @@ function discardReplica(path: string) {
  */
 function openReplica(path: string, url: string, authToken: string): Db {
   const attempt = () => {
-    const db = openDatabase(path, { syncUrl: url, authToken });
+    const db = openReconnecting(
+      () => openDatabase(path, { syncUrl: url, authToken }),
+      (error) =>
+        console.warn(
+          "[flc] the replica's remote stream expired; reconnected:",
+          String((error as Error)?.message ?? error).slice(0, 200),
+        ),
+    );
     try {
       db.sync();
     } catch (error) {

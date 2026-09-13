@@ -9,7 +9,12 @@
  */
 process.env.PROTOTYPE_DB_PATH ??= ".data/verify.db";
 
-import { openDatabase } from "../src/lib/db/driver";
+import {
+  isStaleStreamError,
+  openDatabase,
+  openReconnecting,
+  type Db,
+} from "../src/lib/db/driver";
 import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { resolve } from "node:path";
@@ -756,6 +761,172 @@ section("Driver: nested transactions");
       // nothing to clean up
     }
   }
+}
+
+section("Driver: expired remote streams");
+
+/**
+ * Production returned 500 on student pages once a replica's remote write stream had
+ * expired on the primary — every write on that connection failed until the instance
+ * was replaced. The real expiry cannot be summoned on demand, so the error is injected
+ * here, with the exact shape production logged, into a real local database.
+ */
+{
+  const path = resolve(".data/stream-check.db");
+  const discardFiles = () => {
+    for (const suffix of ["", "-wal", "-shm"]) {
+      try {
+        rmSync(`${path}${suffix}`);
+      } catch {
+        // nothing to clean up
+      }
+    }
+  };
+  discardFiles();
+
+  const stale = () =>
+    new Error(
+      'Hrana(Api("status=404 Not Found, body={\\"error\\":\\"stream not found: test\\"}"))',
+    );
+  let failNextRun = 0;
+  let failNextTransactionStart = 0;
+  let opens = 0;
+
+  const faulty = (db: Db): Db =>
+    new Proxy(db, {
+      get(target, property, receiver) {
+        if (property === "prepare") {
+          return (sql: string) => {
+            const statement = target.prepare(sql);
+            return {
+              get: (...p: unknown[]) => statement.get(...p),
+              all: (...p: unknown[]) => statement.all(...p),
+              run: (...p: unknown[]) => {
+                if (failNextRun > 0) {
+                  failNextRun -= 1;
+                  throw stale();
+                }
+                return statement.run(...p);
+              },
+            };
+          };
+        }
+        if (property === "transaction") {
+          return (fn: (...args: unknown[]) => unknown) => {
+            const real = target.transaction(fn);
+            const mode =
+              (m: "default" | "deferred" | "immediate" | "exclusive") =>
+              (...args: unknown[]) => {
+                if (failNextTransactionStart > 0) {
+                  failNextTransactionStart -= 1;
+                  throw stale();
+                }
+                return real[m](...args);
+              };
+            return Object.assign(mode("default"), {
+              default: mode("default"),
+              deferred: mode("deferred"),
+              immediate: mode("immediate"),
+              exclusive: mode("exclusive"),
+            });
+          };
+        }
+        const value = Reflect.get(target, property, receiver);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    }) as Db;
+
+  const db = openReconnecting(() => {
+    opens += 1;
+    return faulty(openDatabase(path));
+  });
+  db.exec("CREATE TABLE t (id INTEGER PRIMARY KEY, label TEXT NOT NULL UNIQUE)");
+  const insert = db.prepare<[string], void>("INSERT INTO t (label) VALUES (?)");
+  const labels = () =>
+    db
+      .prepare<[], { label: string }>("SELECT label FROM t ORDER BY id")
+      .all()
+      .map((row) => row.label)
+      .join(",");
+
+  check(
+    "the stale-stream detector matches the production error and nothing else",
+    isStaleStreamError(stale()) &&
+      !isStaleStreamError(new Error("UNIQUE constraint failed: t.label")),
+  );
+
+  failNextRun = 1;
+  insert.run("after-expiry");
+  check(
+    "a write that hits an expired stream reconnects and lands exactly once",
+    labels() === "after-expiry" && opens === 2,
+    `rows=${labels()} opens=${opens}`,
+  );
+
+  insert.run("same-statement-later");
+  check(
+    "a statement prepared before the reconnect still works after it",
+    labels() === "after-expiry,same-statement-later",
+    `rows=${labels()}`,
+  );
+
+  failNextTransactionStart = 1;
+  db.transaction(() => {
+    insert.run("in-transaction");
+  })();
+  check(
+    "a transaction that fails before it starts is retried and commits",
+    labels().endsWith(",in-transaction") && opens === 3,
+    `rows=${labels()} opens=${opens}`,
+  );
+
+  let partialThrew = false;
+  try {
+    db.transaction(() => {
+      insert.run("partial");
+      failNextRun = 1;
+      insert.run("never");
+    })();
+  } catch (error) {
+    partialThrew = isStaleStreamError(error);
+  }
+  // Counted before touching the database again: the very next call is the one that
+  // must replace the broken connection, and reading the rows is that call.
+  const opensAfterFailedTransaction = opens;
+  const rowsAfterFailedTransaction = labels();
+  check(
+    "a transaction that fails part-way is not retried, and none of it commits",
+    partialThrew && !rowsAfterFailedTransaction.includes("partial"),
+    `rows=${rowsAfterFailedTransaction}`,
+  );
+  check(
+    "the first call after a failed transaction runs on a fresh connection",
+    opens === opensAfterFailedTransaction + 1,
+    `opens ${opensAfterFailedTransaction} -> ${opens}`,
+  );
+
+  insert.run("next-call");
+  check(
+    "writes carry on normally on the fresh connection",
+    labels().endsWith(",next-call") && opens === opensAfterFailedTransaction + 1,
+    `rows=${labels()} opens=${opens}`,
+  );
+
+  let uniqueThrew = false;
+  const opensBeforeUnique = opens;
+  try {
+    insert.run("next-call");
+  } catch (error) {
+    uniqueThrew = /UNIQUE/.test(String(error));
+  }
+  check(
+    "ordinary errors are not retried and do not reconnect",
+    uniqueThrew && opens === opensBeforeUnique,
+    `opens=${opens}`,
+  );
+
+  db.close();
+  discardFiles();
 }
 
 section("Public URL resolution");
